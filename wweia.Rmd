@@ -19,8 +19,10 @@ Questions:
 Insulin resistance and diabetes is a growing health issue for Americans. Causes of this includes consumption of foods high in carbohydrates and saturated fats, causing blood glucose levels to spike and insulin is needed to bring the blood glucose levels back down to normal. Over time, consistent high blood glucose spikes lead to the body becoming accustomed to high amounts of sugar, and therefore acquiring insulin resistance. In this project, I will be investigating what attributes cause people to eat foods that lead to blood glucose spikes. 
 * What time and/or day of the week do people generally eat foods high in sugar/saturated fats?
 * Does having a dietary restriction affect sugar/fat consumption?
-* Does sugar consumption vary by age, gender, or pregnancy status?
+* Does sugar consumption vary by age, ethnicity, gender, or pregnancy status?
+* Does source of food or whether the meal was eaten at home have an effect?
         
+
         
 ```{r Read in data sets from website, cache = TRUE}
 
@@ -37,10 +39,14 @@ food_categories <- read_xpt("https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_drxfcd
 
 ```
 
+```{r}
+fs_d2 <- read_xpt("https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_DR2IFF.xpt")
+```
+
 
 #### Data Cleaning
 
-```{r Changing column names}
+```{r Changing column names, warning = FALSE}
 # Get get all of the column labels in a data frame
 fs_d1_labels <- purrr::map_df(fs_d1, ~attributes(.x))
 
@@ -52,7 +58,8 @@ fc_labels <- purrr::map_df(food_categories, ~attributes(.x))
 # gsub() the spaces to underscores and put into vector
 fs_d1_labels <- gsub(" ", "_", fs_d1_labels$label) %>%
   as.vector() %>%
-  tolower()
+  tolower() %>%
+  unique()
 
 demographic_labels <- gsub(" ", "_", demographic_labels$label) %>%
   as.vector() %>%
@@ -75,8 +82,6 @@ names(fs_d1)
 names(demographic)
 names(food_categories)
 ```
-
-
 
 
 ```{r convert to data tables}
@@ -138,6 +143,38 @@ demographic[, pregnancy_status_at_exam := fifelse(pregnancy_status_at_exam == 1,
                                                           fifelse(pregnancy_status_at_exam == 3, "cannot_ascertain", NA_character_)))]
 ```
 
+```{r create age category variable for demographic table}
+demographic[, age_category := fifelse(age_in_years_at_screening %between% c(1,3), "1-3",
+                                      fifelse(age_in_years_at_screening %between% c(4,8), "4-8",
+                                              fifelse(age_in_years_at_screening %between% c(9,13), "9-13",
+                                                      fifelse(age_in_years_at_screening %between% c(14,18), "14-18",
+                                                              fifelse(age_in_years_at_screening %between% c(19,30), "19-30",
+                                                                      fifelse(age_in_years_at_screening %between% c(31,50), "31-50", 
+                                                                              fifelse(age_in_years_at_screening %between% c(51,70), "51-70", "70+")))))))]
+```
+
+Categorize the answers in the food survey.
+```{r Categorize food survey day 1}
+fs_d1[, intake_day_of_the_week := fifelse(intake_day_of_the_week == 1, "Sunday",
+                                          fifelse(intake_day_of_the_week == 2, "Monday",
+                                                  fifelse(intake_day_of_the_week == 3, "Tuesday",
+                                                          fifelse(intake_day_of_the_week == 4, "Wednesday",
+                                                                  fifelse(intake_day_of_the_week == 5, "Thursday", 
+                                                                          fifelse(intake_day_of_the_week == 6, "Friday", "Saturday"))))))]
+```
+
+
+To answer the questions, I will be using this table of the Recommended Dietary Allowances and Adequate Intakes from the Food and Nutrition Board: https://www.ncbi.nlm.nih.gov/books/NBK56068/table/summarytables.t4/?report=objectonly
+
+```{r Recommended Dietary Allowances}
+html <- read_html("https://www.ncbi.nlm.nih.gov/books/NBK56068/table/summarytables.t4/?report=objectonly")
+
+rda <- html %>% 
+  html_table()
+
+rda %>%
+  knitr::kable()
+```
 
 
 ```{r filter food_category table and rename cols}
@@ -148,65 +185,49 @@ setnames(food_categories, old = names(food_categories), new = c("USDA_food_code"
 ```
 
 ```{r filter day 1 survey}
-fs_d1
-
+fs_d1 <- fs_d1[, c(1:30)]
 
 ```
 
-```{r, eval = FALSE}
-survey_cols <- c("seq_num",
-                 "dietary_one_sample_weight",
-                 "dietary_two_sample_weight",
-                 "indv_food_component_number",
-                 "dietary_recall_status",
-                 "interviewer_id",
-                 "breast_fed_infant",
-                 "number_days_intake",
-                 "days_btwn_intake_interview",
-                 "intake_day_of_week",
-                 "respondent_language",
-                 "combination_food_num",
-                 "combination_food_type",
-                 "time_ate",
-                 "name_eating_occasion",
-                 "source_of_food",
-                 "eaten_at_home",
-                 "USDA_food_code",
-                 "grams",
-                 "kcal",
-                 "protein",
-                 "carbohydrate",
-                 "total_sugar",
-                 "dietary_fiber",
-                 "total_fat",
-                 "total_saturated_fat",
-                 "total_monounsaturated_FA",
-                 "total_polyunsaturated_FA"
-                 )
-
-setnames(food_survey_day1, old = names(food_survey_day1), new = survey_cols)
-```
 
 
 ```{r}
 joined_df <- merge(
   x = merge(
-    x = food_survey_day1, 
+    x = fs_d1, 
     y = food_categories, 
-    by.x = "USDA_food_code", 
+    by.x = "usda_food_code", 
     by.y = "USDA_food_code"),
   y = demographic,
-  by.x = "seq_num",
-  by.y = "seq_num"
+  by.x = "respondent_sequence_number",
+  by.y = "respondent_sequence_number"
 )
 ```
 
-Categorize variables
+What is the age distribution of the people in the data set?
+Ethnicity?
 
 ```{r}
-str(joined_df)
+
+summary(demographic[, age_in_years_at_screening])
+
+ggplot(demographic) +
+  geom_bar(aes(x = age_in_years_at_screening))
+
 ```
 
+```{r plotting ethnicities}
+ggplot(demographic) +
+  geom_bar(aes(x = `race/hispanic_origin_w/_nh_asian`, fill = `race/hispanic_origin_w/_nh_asian`))
+```
+White people are represented the most in this data set.
+
+```{r}
+fs_d1[, sum(`total_sugars_(gm)`), by = respondent_sequence_number] %>%
+  ggplot() +
+  geom_histogram(aes(x = V1), bins = 200) +
+  geom_vline(xintercept = 130)
+```
 
 
 
@@ -249,52 +270,6 @@ joined_df[, .(.N), by = time_ate] %>%
 
 
 
-
-
-
-
-
-
-
-
-```{r getting list of unique food categories in the data set, eval=FALSE, echo=FALSE}
-foods_list <- food_categories[, unique(category_description)]
-
-foods_list <- tolower(foods_list)
-
-#Baby foods
-foods_list[grepl("(baby|infant|human milk)", foods_list)]
-
-#protein
-foods_list[grepl("(beef|pork|chicken|sausage|meat|bacon|frankfurters|lamb|egg)", foods_list)]
-
-#milk and dairy
-foods_list[grepl("(milk|yogurt|dairy|cream)", foods_list)]
-
-#fruits
-foods_list[grepl("(apple|*berry|*berries|banana|grape|peach)", foods_list)]
-```
-
-```{r testing new data file}
-day_1_total_nutrients <- read_xpt("C:\\Users\\flemm\\Downloads\\P_DR1TOT.xpt") #has info on what kind of diet a person was on
-```
-
-```{r}
-
-d1_tn_labels <- purrr::map_df(day_1_total_nutrients, ~attributes(.x))
-
-d1_tn_labels
-
-d1_tn_labels <- gsub(" ", "_", d1_tn_labels$label) %>%
-  as.vector()
-
-d1_tn_labels
-names(day_1_total_nutrients) <- d1_tn_labels
-
-names(day_1_total_nutrients)
-
-str(day_1_total_nutrients)
-```
 
 
 ```{r}
