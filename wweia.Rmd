@@ -1,0 +1,317 @@
+```{r load libraries to read in data types}
+library(haven)
+library("readxl")
+library(data.table)
+library(tidyverse)
+library(dtplyr)
+library(httr)
+library(xml2)
+library(rvest)
+```
+
+
+Main source of data:
+
+https://www.ars.usda.gov/northeast-area/beltsville-md-bhnrc/beltsville-human-nutrition-research-center/food-surveys-research-group/docs/wweia-documentation-and-data-sets/
+
+
+Questions:
+Insulin resistance and diabetes is a growing health issue for Americans. Causes of this includes consumption of foods high in carbohydrates and saturated fats, causing blood glucose levels to spike and insulin is needed to bring the blood glucose levels back down to normal. Over time, consistent high blood glucose spikes lead to the body becoming accustomed to high amounts of sugar, and therefore acquiring insulin resistance. In this project, I will be investigating what attributes cause people to eat foods that lead to blood glucose spikes. 
+* What time and/or day of the week do people generally eat foods high in sugar/saturated fats?
+* Does having a dietary restriction affect sugar/fat consumption?
+* Does sugar consumption vary by age, gender, or pregnancy status?
+        
+        
+```{r Read in data sets from website, cache = TRUE}
+
+
+fs_d1 <- read_xpt("https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_DR1IFF.xpt")
+
+
+
+demographic <- read_xpt("https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_DEMO.xpt")
+
+
+
+food_categories <- read_xpt("https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_drxfcd.xpt")
+
+```
+
+
+#### Data Cleaning
+
+```{r Changing column names}
+# Get get all of the column labels in a data frame
+fs_d1_labels <- purrr::map_df(fs_d1, ~attributes(.x))
+
+demographic_labels <- purrr::map_df(demographic, ~attributes(.x))
+
+fc_labels <- purrr::map_df(food_categories, ~attributes(.x))
+
+
+# gsub() the spaces to underscores and put into vector
+fs_d1_labels <- gsub(" ", "_", fs_d1_labels$label) %>%
+  as.vector() %>%
+  tolower()
+
+demographic_labels <- gsub(" ", "_", demographic_labels$label) %>%
+  as.vector() %>%
+  tolower()
+
+fc_labels <- gsub(" ", "_", fc_labels$label) %>%
+  as.vector() %>%
+  tolower()
+ 
+
+#reassign names
+names(fs_d1) <- fs_d1_labels
+
+names(demographic) <- demographic_labels
+
+names(food_categories) <- fc_labels
+
+# check for successful column name conversion
+names(fs_d1)
+names(demographic)
+names(food_categories)
+```
+
+
+
+
+```{r convert to data tables}
+fs_d1 <- as.data.table(fs_d1)
+food_categories <- as.data.table(food_categories)
+demographic <- as.data.table(demographic)
+```
+
+
+
+Remove unneeded columns in demographic data table
+```{r filter demographic table}
+names(demographic)
+
+demographic <- demographic[, respondent_sequence_number:pregnancy_status_at_exam]
+
+head(demographic)
+```
+
+
+```{r columns that contain NAs that will have to be accounted for}
+colSums(is.na(demographic))
+```
+
+
+Change categorical columns from number codes to categorical variables in demographic table
+```{r decoding categorical variables in demographic table}
+demographic[, `interview/examination_status` := fifelse(`interview/examination_status` == 1, "interview_only", "interview_and_mec_examined")]
+
+demographic[, gender := fifelse(gender == 1, "male", "female")]
+
+demographic[, `race/hispanic_origin` := fifelse(`race/hispanic_origin` == 1, "mexican_american",
+                                                 fifelse(`race/hispanic_origin` == 2, "other_hispanic",
+                                                          fifelse(`race/hispanic_origin` == 3, "non-hispanic_white",
+                                                                   fifelse(`race/hispanic_origin` == 4, "non-hispanic_black", "other_race_incl_multiracial"))))]
+
+demographic[, `race/hispanic_origin_w/_nh_asian` := fifelse(`race/hispanic_origin_w/_nh_asian` == 1, "mexican_american",
+                                                 fifelse(`race/hispanic_origin_w/_nh_asian` == 2, "other_hispanic",
+                                                          fifelse(`race/hispanic_origin_w/_nh_asian` == 3, "non-hispanic_white",
+                                                                   fifelse(`race/hispanic_origin_w/_nh_asian` == 4, "non-hispanic_black", 
+                                                                           fifelse(`race/hispanic_origin_w/_nh_asian` == 6, "non-hispanic_asian", "other_race_incl_multiracial")))))]
+
+demographic[, six_month_time_period := fifelse(six_month_time_period == 1, "nov1-apr30", 
+                                               fifelse(six_month_time_period == 2, "may1-oct31", NA_character_))]
+
+demographic[, country_of_birth := fifelse(country_of_birth == 1, "united_states", 
+                                          fifelse(country_of_birth == 2, "other",
+                                                  fifelse(country_of_birth == 77, "refused", "dont_know")))]
+
+demographic[, length_of_time_in_us := fifelse(length_of_time_in_us == 1, "less_than_5", 
+                                              fifelse(length_of_time_in_us == 2, "between_5_and_15",
+                                                      fifelse(length_of_time_in_us == 3, "between_15_and_30",
+                                                              fifelse(length_of_time_in_us == 4, "30_or_more",
+                                                                      fifelse(length_of_time_in_us == 77, "refused", 
+                                                                              fifelse(length_of_time_in_us == 99, "dont_know", NA_character_))))))]
+
+demographic[, pregnancy_status_at_exam := fifelse(pregnancy_status_at_exam == 1, "pregnant",
+                                                  fifelse(pregnancy_status_at_exam == 2, "not_pregnant",
+                                                          fifelse(pregnancy_status_at_exam == 3, "cannot_ascertain", NA_character_)))]
+```
+
+
+
+```{r filter food_category table and rename cols}
+food_categories <- food_categories[, -(former_short_food_code_description:former_long_food_code_description)]
+
+setnames(food_categories, old = names(food_categories), new = c("USDA_food_code", "short_description", "long_description"))
+
+```
+
+```{r filter day 1 survey}
+fs_d1
+
+
+```
+
+```{r, eval = FALSE}
+survey_cols <- c("seq_num",
+                 "dietary_one_sample_weight",
+                 "dietary_two_sample_weight",
+                 "indv_food_component_number",
+                 "dietary_recall_status",
+                 "interviewer_id",
+                 "breast_fed_infant",
+                 "number_days_intake",
+                 "days_btwn_intake_interview",
+                 "intake_day_of_week",
+                 "respondent_language",
+                 "combination_food_num",
+                 "combination_food_type",
+                 "time_ate",
+                 "name_eating_occasion",
+                 "source_of_food",
+                 "eaten_at_home",
+                 "USDA_food_code",
+                 "grams",
+                 "kcal",
+                 "protein",
+                 "carbohydrate",
+                 "total_sugar",
+                 "dietary_fiber",
+                 "total_fat",
+                 "total_saturated_fat",
+                 "total_monounsaturated_FA",
+                 "total_polyunsaturated_FA"
+                 )
+
+setnames(food_survey_day1, old = names(food_survey_day1), new = survey_cols)
+```
+
+
+```{r}
+joined_df <- merge(
+  x = merge(
+    x = food_survey_day1, 
+    y = food_categories, 
+    by.x = "USDA_food_code", 
+    by.y = "USDA_food_code"),
+  y = demographic,
+  by.x = "seq_num",
+  by.y = "seq_num"
+)
+```
+
+Categorize variables
+
+```{r}
+str(joined_df)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+joined_df[kcal == 0, .(unique(short_description))]
+```
+
+
+
+```{r}
+joined_df[, sum(kcal, na.rm = TRUE), by = seq_num] %>%
+  ggplot(aes(x = V1)) +
+  geom_histogram(bins = 200) +
+  xlab("Average Daily Calories")
+```
+```{r temporal patterns separated by day and time}
+joined_df[, .(.N), by = c("time_ate", "intake_day_of_week")][order(intake_day_of_week, time_ate)] %>%
+  ggplot(aes(x = time_ate, y = N)) +
+  geom_line() +
+  facet_wrap(~intake_day_of_week, nrow = 3)
+```
+
+
+```{r temporal eating patterns separated by just time}
+joined_df[, .(.N), by = time_ate] %>%
+  ggplot(aes(x = time_ate, y = N)) +
+  geom_line()
+```
+
+
+
+
+
+
+
+
+
+
+
+```{r getting list of unique food categories in the data set, eval=FALSE, echo=FALSE}
+foods_list <- food_categories[, unique(category_description)]
+
+foods_list <- tolower(foods_list)
+
+#Baby foods
+foods_list[grepl("(baby|infant|human milk)", foods_list)]
+
+#protein
+foods_list[grepl("(beef|pork|chicken|sausage|meat|bacon|frankfurters|lamb|egg)", foods_list)]
+
+#milk and dairy
+foods_list[grepl("(milk|yogurt|dairy|cream)", foods_list)]
+
+#fruits
+foods_list[grepl("(apple|*berry|*berries|banana|grape|peach)", foods_list)]
+```
+
+```{r testing new data file}
+day_1_total_nutrients <- read_xpt("C:\\Users\\flemm\\Downloads\\P_DR1TOT.xpt") #has info on what kind of diet a person was on
+```
+
+```{r}
+
+d1_tn_labels <- purrr::map_df(day_1_total_nutrients, ~attributes(.x))
+
+d1_tn_labels
+
+d1_tn_labels <- gsub(" ", "_", d1_tn_labels$label) %>%
+  as.vector()
+
+d1_tn_labels
+names(day_1_total_nutrients) <- d1_tn_labels
+
+names(day_1_total_nutrients)
+
+str(day_1_total_nutrients)
+```
+
+
+```{r}
+joined_df <- merge(
+  x = merge(
+    x = food_survey, 
+    y = food_categories, 
+    by.x = "DR1IFDCD", 
+    by.y = "food_code"),
+  y = demographic,
+  by.x = "SEQN",
+  by.y = "SEQN"
+)
+```
+
+
+
+
+
+
