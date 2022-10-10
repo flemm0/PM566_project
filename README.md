@@ -117,3 +117,68 @@ fs_d1 <- fs_d1[, c(1:30)]
 demographic <- demographic[, respondent_sequence_number:pregnancy_status_at_exam]
 food_categories <- food_categories[, -(former_short_food_code_description:former_long_food_code_description)]
 ```
+
+Change categorical columns from number codes to categorical variables in
+demographic table
+
+``` r
+demographic[, `:=`(`interview/examination_status`, fifelse(`interview/examination_status` ==
+    1, "interview_only", "interview_and_mec_examined"))]
+
+demographic[, `:=`(gender, fifelse(gender == 1, "male", "female"))]
+
+demographic[, `:=`(`race/hispanic_origin`, fifelse(`race/hispanic_origin` ==
+    1, "mexican_american", fifelse(`race/hispanic_origin` ==
+    2, "other_hispanic", fifelse(`race/hispanic_origin` == 3,
+    "non-hispanic_white", fifelse(`race/hispanic_origin` == 4,
+        "non-hispanic_black", "other_race_incl_multiracial")))))]
+
+demographic[, `:=`(`race/hispanic_origin_w/_nh_asian`, fifelse(`race/hispanic_origin_w/_nh_asian` ==
+    1, "mexican_american", fifelse(`race/hispanic_origin_w/_nh_asian` ==
+    2, "other_hispanic", fifelse(`race/hispanic_origin_w/_nh_asian` ==
+    3, "non-hispanic_white", fifelse(`race/hispanic_origin_w/_nh_asian` ==
+    4, "non-hispanic_black", fifelse(`race/hispanic_origin_w/_nh_asian` ==
+    6, "non-hispanic_asian", "other_race_incl_multiracial"))))))]
+
+demographic[, `:=`(six_month_time_period, fifelse(six_month_time_period ==
+    1, "nov1-apr30", fifelse(six_month_time_period == 2, "may1-oct31",
+    NA_character_)))]
+
+demographic[, `:=`(country_of_birth, fifelse(country_of_birth ==
+    1, "united_states", fifelse(country_of_birth == 2, "other",
+    fifelse(country_of_birth == 77, "refused", "dont_know"))))]
+
+demographic[, `:=`(length_of_time_in_us, fifelse(length_of_time_in_us ==
+    1, "less_than_5", fifelse(length_of_time_in_us == 2, "between_5_and_15",
+    fifelse(length_of_time_in_us == 3, "between_15_and_30", fifelse(length_of_time_in_us ==
+        4, "30_or_more", fifelse(length_of_time_in_us == 77,
+        "refused", fifelse(length_of_time_in_us == 99, "dont_know",
+            NA_character_)))))))]
+
+demographic[, `:=`(pregnancy_status_at_exam, fifelse(pregnancy_status_at_exam ==
+    1, "pregnant", fifelse(pregnancy_status_at_exam == 2, "not_pregnant",
+    fifelse(pregnancy_status_at_exam == 3, "cannot_ascertain",
+        NA_character_))))]
+```
+
+``` r
+demographic[, `:=`(age_category, fifelse(age_in_years_at_screening %between%
+    c(1, 3), "1-3", fifelse(age_in_years_at_screening %between%
+    c(4, 8), "4-8", fifelse(age_in_years_at_screening %between%
+    c(9, 13), "9-13", fifelse(age_in_years_at_screening %between%
+    c(14, 18), "14-18", fifelse(age_in_years_at_screening %between%
+    c(19, 30), "19-30", fifelse(age_in_years_at_screening %between%
+    c(31, 50), "31-50", fifelse(age_in_years_at_screening %between%
+    c(51, 70), "51-70", "70+"))))))))]
+```
+
+Categorize the answers in the food survey.
+
+``` r
+fs_d1[, `:=`(intake_day_of_the_week, fifelse(intake_day_of_the_week ==
+    1, "Sunday", fifelse(intake_day_of_the_week == 2, "Monday",
+    fifelse(intake_day_of_the_week == 3, "Tuesday", fifelse(intake_day_of_the_week ==
+        4, "Wednesday", fifelse(intake_day_of_the_week == 5,
+        "Thursday", fifelse(intake_day_of_the_week == 6, "Friday",
+            "Saturday")))))))]
+```
