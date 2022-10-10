@@ -1,7 +1,7 @@
 PM566 Midterm Project
 ================
 Flemming Wu
-2022-10-09
+2022-10-10
 
 Main source of data:
 
@@ -31,34 +31,11 @@ Load Libraries
 library(haven)
 library(data.table)
 library(tidyverse)
-```
-
-    ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
-    ## ✔ ggplot2 3.3.6      ✔ purrr   0.3.4 
-    ## ✔ tibble  3.1.8      ✔ dplyr   1.0.10
-    ## ✔ tidyr   1.2.1      ✔ stringr 1.4.1 
-    ## ✔ readr   2.1.2      ✔ forcats 0.5.2 
-    ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-    ## ✖ dplyr::between()   masks data.table::between()
-    ## ✖ dplyr::filter()    masks stats::filter()
-    ## ✖ dplyr::first()     masks data.table::first()
-    ## ✖ dplyr::lag()       masks stats::lag()
-    ## ✖ dplyr::last()      masks data.table::last()
-    ## ✖ purrr::transpose() masks data.table::transpose()
-
-``` r
 library(dtplyr)
 library(httr)
 library(xml2)
 library(rvest)
 ```
-
-    ## 
-    ## Attaching package: 'rvest'
-    ## 
-    ## The following object is masked from 'package:readr':
-    ## 
-    ##     guess_encoding
 
 Read in data from CDC website
 
@@ -161,6 +138,8 @@ demographic[, `:=`(pregnancy_status_at_exam, fifelse(pregnancy_status_at_exam ==
         NA_character_))))]
 ```
 
+Create age category variable for demographic table.
+
 ``` r
 demographic[, `:=`(age_category, fifelse(age_in_years_at_screening %between%
     c(1, 3), "1-3", fifelse(age_in_years_at_screening %between%
@@ -172,7 +151,9 @@ demographic[, `:=`(age_category, fifelse(age_in_years_at_screening %between%
     c(51, 70), "51-70", "70+"))))))))]
 ```
 
-Categorize the answers in the food survey.
+Categorize the answers in the food survey. Need day of the week, name of
+eating occasion, source of food, and if the food was eaten at home
+categorized.
 
 ``` r
 fs_d1[, `:=`(intake_day_of_the_week, fifelse(intake_day_of_the_week ==
@@ -181,4 +162,116 @@ fs_d1[, `:=`(intake_day_of_the_week, fifelse(intake_day_of_the_week ==
         4, "Wednesday", fifelse(intake_day_of_the_week == 5,
         "Thursday", fifelse(intake_day_of_the_week == 6, "Friday",
             "Saturday")))))))]
+
+# table(fs_d1$`did_you_eat_this_meal_at_home?`) #1, 2, and
+# 9 are the only answers
+fs_d1[, `:=`(`did_you_eat_this_meal_at_home?`, fifelse(`did_you_eat_this_meal_at_home?` ==
+    1, "yes", fifelse(`did_you_eat_this_meal_at_home?` == 2,
+    "no", "dont_know")))]
 ```
+
+``` r
+# for the next categorization steps, I will be reading in
+# tables from the CDC website because they contain many
+# possible values
+
+# categorize the name of eating occasion read in name of
+# eating occasion table from CDC website using html and
+# full Xpath
+eating_occasion <- read_html("https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_DR1IFF.htm#DR1DAY") %>%
+    html_nodes(xpath = "/html/body/div[2]/div[4]/div[15]/table") %>%
+    html_table() %>%
+    as.data.frame() %>%
+    select(Code.or.Value, Value.Description)
+
+# merge table into original data table
+fs_d1 <- merge(x = eating_occasion, y = fs_d1, by.x = "Code.or.Value",
+    by.y = "name_of_eating_occasion")
+
+# the merge replaced the old column
+# 'name_of_eating_occasion' with 'Code.or.Value' from the
+# new table I only need the 'Value.Description' column so
+# rename it and remove 'Code.or.Value' column
+setnames(fs_d1, "Value.Description", "eating_occasion")
+fs_d1 <- fs_d1[-c(1)]
+
+######################################
+
+# categorize source of food
+source_of_food <- read_html("https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_DR1IFF.htm#DR1DAY") %>%
+    html_nodes(xpath = "/html/body/div[2]/div[4]/div[16]/table") %>%
+    html_table() %>%
+    as.data.frame() %>%
+    select(Code.or.Value, Value.Description)
+
+fs_d1 <- merge(x = source_of_food, y = fs_d1, by.x = "Code.or.Value",
+    by.y = "source_of_food")
+
+setnames(fs_d1, "Value.Description", "food_source")
+fs_d1 <- fs_d1[-c(1)]
+```
+
+``` r
+str(fs_d1)
+```
+
+    ## 'data.frame':    171744 obs. of  30 variables:
+    ##  $ food_source                           : chr  "Store - grocery/supermarket" "Store - grocery/supermarket" "Store - grocery/supermarket" "Store - grocery/supermarket" ...
+    ##  $ eating_occasion                       : chr  "Breakfast" "Breakfast" "Desayano" "Breakfast" ...
+    ##  $ respondent_sequence_number            : num  122474 119677 123644 112441 109587 ...
+    ##  $ dietary_day_one_sample_weight         : num  12511 3463 6272 4751 36013 ...
+    ##  $ dietary_two-day_sample_weight         : num  15417 2762 6218 0 35149 ...
+    ##  $ food/individual_component_number      : num  1 3 2 2 7 2 4 8 1 1 ...
+    ##  $ dietary_recall_status                 : num  1 1 1 1 1 1 1 1 1 1 ...
+    ##  $ interviewer_id_code                   : num  89 81 90 86 91 86 88 81 91 81 ...
+    ##  $ breast-fed_infant_(either_day)        : num  2 2 2 2 2 2 2 2 2 2 ...
+    ##  $ number_of_days_of_intake              : num  2 2 2 1 2 2 2 2 2 1 ...
+    ##  $ #_of_days_b/w_intake_and_hh_interview : num  1 13 33 NA -2 -6 43 23 -1 15 ...
+    ##  $ intake_day_of_the_week                : chr  "Monday" "Saturday" "Tuesday" "Saturday" ...
+    ##  $ language_respondent_used_mostly       : num  1 1 2 1 1 1 1 2 1 1 ...
+    ##  $ combination_food_number               : num  0 0 1 1 3 1 2 0 1 1 ...
+    ##  $ combination_food_type                 : num  0 0 1 2 90 1 1 0 1 2 ...
+    ##  $ time_of_eating_occasion_(hh:mm)       : 'hms' num  07:00:00 09:00:00 08:30:00 08:30:00 ...
+    ##   ..- attr(*, "units")= chr "secs"
+    ##  $ did_you_eat_this_meal_at_home?        : chr  "no" "yes" "yes" "yes" ...
+    ##  $ usda_food_code                        : num  22600200 54325000 12210210 11112210 63200100 ...
+    ##  $ grams                                 : num  32 18 60 122 150 ...
+    ##  $ energy_(kcal)                         : num  155 75 151 52 62 2 48 382 4 297 ...
+    ##  $ protein_(gm)                          : num  11.97 1.7 0.41 4.12 1.01 ...
+    ##  $ carbohydrate_(gm)                     : num  0.61 13.33 21.04 6.33 14.53 ...
+    ##  $ total_sugars_(gm)                     : num  0.5 0.23 19.82 6.05 10.09 ...
+    ##  $ dietary_fiber_(gm)                    : num  0 0.5 0.7 0 3 0 0 2.4 0 4.9 ...
+    ##  $ total_fat_(gm)                        : num  11.45 1.56 8.1 1.16 0.38 ...
+    ##  $ total_saturated_fatty_acids_(gm)      : num  3.93 0.298 1.581 0.693 0.012 ...
+    ##  $ total_monounsaturated_fatty_acids_(gm): num  5.013 0.357 2.401 0.256 0.021 ...
+    ##  $ total_polyunsaturated_fatty_acids_(gm): num  1.938 0.87 3.761 0.039 0.066 ...
+    ##  $ cholesterol_(mg)                      : num  32 0 0 6 0 0 0 44 0 0 ...
+    ##  $ vitamin_e_as_alpha-tocopherol_(mg)    : num  0.13 0.21 0.95 0.02 0.56 0.02 0 0.21 0 1.55 ...
+
+``` r
+str(demographic)
+```
+
+    ## Classes 'data.table' and 'data.frame':   15560 obs. of  15 variables:
+    ##  $ respondent_sequence_number              : num  109263 109264 109265 109266 109267 ...
+    ##   ..- attr(*, "label")= chr "Respondent sequence number"
+    ##  $ data_release_cycle                      : num  66 66 66 66 66 66 66 66 66 66 ...
+    ##   ..- attr(*, "label")= chr "Data release cycle"
+    ##  $ interview/examination_status            : chr  "interview_and_mec_examined" "interview_and_mec_examined" "interview_and_mec_examined" "interview_and_mec_examined" ...
+    ##  $ gender                                  : chr  "male" "female" "male" "female" ...
+    ##  $ age_in_years_at_screening               : num  2 13 2 29 21 18 2 11 49 0 ...
+    ##   ..- attr(*, "label")= chr "Age in years at screening"
+    ##  $ age_in_months_at_screening_-_0_to_24_mos: num  NA NA NA NA NA NA NA NA NA 3 ...
+    ##   ..- attr(*, "label")= chr "Age in months at screening - 0 to 24 mos"
+    ##  $ race/hispanic_origin                    : chr  "other_race_incl_multiracial" "mexican_american" "non-hispanic_white" "other_race_incl_multiracial" ...
+    ##  $ race/hispanic_origin_w/_nh_asian        : chr  "non-hispanic_asian" "mexican_american" "non-hispanic_white" "non-hispanic_asian" ...
+    ##  $ six_month_time_period                   : chr  "may1-oct31" "may1-oct31" "may1-oct31" "may1-oct31" ...
+    ##  $ country_of_birth                        : chr  "united_states" "united_states" "united_states" "other" ...
+    ##  $ length_of_time_in_us                    : chr  NA NA NA "between_5_and_15" ...
+    ##  $ education_level_-_adults_20+            : num  NA NA NA 5 4 NA NA NA 2 NA ...
+    ##   ..- attr(*, "label")= chr "Education level - Adults 20+"
+    ##  $ marital_status                          : num  NA NA NA 3 3 NA NA NA 3 NA ...
+    ##   ..- attr(*, "label")= chr "Marital status"
+    ##  $ pregnancy_status_at_exam                : chr  NA NA NA "not_pregnant" ...
+    ##  $ age_category                            : chr  "1-3" "9-13" "1-3" "19-30" ...
+    ##  - attr(*, ".internal.selfref")=<externalptr>

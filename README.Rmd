@@ -28,7 +28,7 @@ setwd("~/Desktop/PM566/midterm")
 ```
 
 Load Libraries
-```{r load libraries, warning=FALSE}
+```{r load libraries, warning=FALSE, message=FALSE}
 library(haven)
 library(data.table)
 library(tidyverse)
@@ -128,6 +128,8 @@ demographic[, pregnancy_status_at_exam := fifelse(pregnancy_status_at_exam == 1,
                                                           fifelse(pregnancy_status_at_exam == 3, "cannot_ascertain", NA_character_)))]
 ```
 
+
+Create age category variable for demographic table.
 ```{r create age category variable for demographic table}
 demographic[, age_category := fifelse(age_in_years_at_screening %between% c(1,3), "1-3",
                                       fifelse(age_in_years_at_screening %between% c(4,8), "4-8",
@@ -138,34 +140,70 @@ demographic[, age_category := fifelse(age_in_years_at_screening %between% c(1,3)
                                                                               fifelse(age_in_years_at_screening %between% c(51,70), "51-70", "70+")))))))]
 ```
 
-Categorize the answers in the food survey.
-```{r Categorize food survey day 1}
+Categorize the answers in the food survey. Need day of the week, name of eating occasion, source of food, and if the food was eaten at home categorized.
+```{r Categorize food survey day 1 using fifelse}
 fs_d1[, intake_day_of_the_week := fifelse(intake_day_of_the_week == 1, "Sunday",
                                           fifelse(intake_day_of_the_week == 2, "Monday",
                                                   fifelse(intake_day_of_the_week == 3, "Tuesday",
                                                           fifelse(intake_day_of_the_week == 4, "Wednesday",
                                                                   fifelse(intake_day_of_the_week == 5, "Thursday", 
                                                                           fifelse(intake_day_of_the_week == 6, "Friday", "Saturday"))))))]
+
+#table(fs_d1$`did_you_eat_this_meal_at_home?`) #1, 2, and 9 are the only answers
+fs_d1[, `did_you_eat_this_meal_at_home?` := fifelse(`did_you_eat_this_meal_at_home?` == 1, "yes",
+                                                    fifelse(`did_you_eat_this_meal_at_home?` == 2, "no", "dont_know"))]
 ```
 
-```{r test to see if i can import table from website to encode variables instead, eval = FALSE, include = FALSE}
-fs_test = copy(fs_d1)
+```{r categorize food survey day 1 using xpath and merge}
 
-table <- read_html("https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_DR1IFF.htm#DR1DAY") %>%
-  html_nodes(xpath = "/html/body/div[2]/div[4]/div[13]/table") %>%
+# for the next categorization steps, I will be reading in tables from the CDC website because they contain many possible values
+
+# categorize the name of eating occasion
+# read in name of eating occasion table from CDC website using html and full Xpath
+eating_occasion <- read_html("https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_DR1IFF.htm#DR1DAY") %>%
+  html_nodes(xpath = "/html/body/div[2]/div[4]/div[15]/table") %>%
   html_table() %>%
   as.data.frame() %>%
   select(Code.or.Value, Value.Description)
 
-fs_test$combination_food_type[match(fs_test$combination_food_type, table$Code.or.Value)] <- table$Value.Description
-
-
-
-merge(
-  x = table,
-  y = fs_test,
+# merge table into original data table
+fs_d1 <- merge(
+  x = eating_occasion,
+  y = fs_d1,
   by.x = "Code.or.Value",
-  by.y = "combination_food_type"
+  by.y = "name_of_eating_occasion"
 )
+
+# the merge replaced the old column "name_of_eating_occasion" with "Code.or.Value" from the new table
+# I only need the "Value.Description" column so rename it and remove "Code.or.Value" column
+setnames(fs_d1, "Value.Description", "eating_occasion")
+fs_d1 <- fs_d1[-c(1)]
+
+######################################
+
+# categorize source of food
+source_of_food <- read_html("https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_DR1IFF.htm#DR1DAY") %>%
+  html_nodes(xpath = "/html/body/div[2]/div[4]/div[16]/table") %>%
+  html_table() %>%
+  as.data.frame() %>%
+  select(Code.or.Value, Value.Description)
+
+fs_d1 <- merge(
+  x = source_of_food,
+  y = fs_d1,
+  by.x = "Code.or.Value",
+  by.y = "source_of_food"
+)
+
+setnames(fs_d1, "Value.Description", "food_source")
+fs_d1 <- fs_d1[-c(1)]
 ```
+
+```{r}
+str(fs_d1)
+
+str(demographic)
+```
+
+
 
