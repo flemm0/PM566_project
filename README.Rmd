@@ -1,0 +1,94 @@
+---
+title: "PM566 Midterm Project"
+author: "Flemming Wu"
+date: "`r Sys.Date()`"
+output: github_document
+always_allow_html: true
+---
+
+
+Main source of data:
+
+https://www.ars.usda.gov/northeast-area/beltsville-md-bhnrc/beltsville-human-nutrition-research-center/food-surveys-research-group/docs/wweia-documentation-and-data-sets/
+
+
+Questions:\
+Insulin resistance and diabetes is a growing health issue for Americans. Causes of this includes consumption of foods high in carbohydrates and saturated fats, causing blood glucose levels to spike and insulin is needed to bring the blood glucose levels back down to normal. Over time, consistent high blood glucose spikes lead to the body becoming accustomed to high amounts of sugar, and therefore acquiring insulin resistance. In this project, I will be investigating what attributes cause people to eat foods that lead to blood glucose spikes.\
+
+* What time and/or day of the week do people generally eat foods high in sugar/saturated fats?
+* Does having a dietary restriction affect sugar/fat consumption?
+* Does sugar consumption vary by age, ethnicity, gender, or pregnancy status?
+* Does source of food or whether the meal was eaten at home have an effect?
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 60), tidy = TRUE)
+setwd("~/Desktop/PM566/midterm")
+```
+
+Load Libraries
+```{r load libraries, warning=FALSE}
+library(haven)
+library(data.table)
+library(tidyverse)
+library(dtplyr)
+library(httr)
+library(xml2)
+library(rvest)
+```
+
+Read in data from CDC website
+```{r Read in data sets from website, cache = TRUE}
+fs_d1 <- read_xpt("https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_DR1IFF.xpt")
+demographic <- read_xpt("https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_DEMO.xpt")
+food_categories <- read_xpt("https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_drxfcd.xpt")
+```
+
+Rename columns with the column labels provided
+```{r Changing column names, warning = FALSE}
+# Get get all of the column labels in a data frame
+fs_d1_labels <- purrr::map_df(fs_d1, ~attributes(.x))
+
+demographic_labels <- purrr::map_df(demographic, ~attributes(.x))
+
+fc_labels <- purrr::map_df(food_categories, ~attributes(.x))
+
+
+# gsub() the spaces to underscores and put into vector
+fs_d1_labels <- gsub(" ", "_", fs_d1_labels$label) %>%
+  as.vector() %>%
+  tolower() %>%
+  unique()
+
+demographic_labels <- gsub(" ", "_", demographic_labels$label) %>%
+  as.vector() %>%
+  tolower()
+
+fc_labels <- gsub(" ", "_", fc_labels$label) %>%
+  as.vector() %>%
+  tolower()
+ 
+
+#reassign names
+names(fs_d1) <- fs_d1_labels
+
+names(demographic) <- demographic_labels
+
+names(food_categories) <- fc_labels
+```
+
+Convert to data table
+```{r convert to data tables}
+fs_d1 <- as.data.table(fs_d1)
+food_categories <- as.data.table(food_categories)
+demographic <- as.data.table(demographic)
+```
+
+Remove unnecessary columns
+```{r}
+fs_d1 <- fs_d1[, c(1:30)]
+demographic <- demographic[, respondent_sequence_number:pregnancy_status_at_exam]
+food_categories <- food_categories[, -(former_short_food_code_description:former_long_food_code_description)]
+```
+
