@@ -73,6 +73,7 @@ fc_labels <- gsub(" ", "_", fc_labels$label) %>%
 
 #reassign names
 names(fs_d1) <- fs_d1_labels
+names(fs_d1) <- make.names(names(fs_d1))
 
 names(demographic) <- demographic_labels
 
@@ -151,8 +152,8 @@ fs_d1[, intake_day_of_the_week := fifelse(intake_day_of_the_week == 1, "Sunday",
                                                                           fifelse(intake_day_of_the_week == 6, "Friday", "Saturday"))))))]
 
 #table(fs_d1$`did_you_eat_this_meal_at_home?`) #1, 2, and 9 are the only answers
-fs_d1[, `did_you_eat_this_meal_at_home?` := fifelse(`did_you_eat_this_meal_at_home?` == 1, "yes",
-                                                    fifelse(`did_you_eat_this_meal_at_home?` == 2, "no", "dont_know"))]
+fs_d1[, `did_you_eat_this_meal_at_home.` := fifelse(`did_you_eat_this_meal_at_home.` == 1, "yes",
+                                                    fifelse(`did_you_eat_this_meal_at_home.` == 2, "no", "dont_know"))]
 ```
 
 ```{r categorize food survey day 1 using xpath and merge}
@@ -210,13 +211,46 @@ str(demographic)
 
 Check key variables and provide summary statistics in tabular form.
 
+First, check the predicted variables.
 ```{r summary tables of total sugar and fat consumption}
-quantile(fs_d1$total_sugars_gm, seq(0, 1, 0.1))
+quantile(fs_d1$total_sugars_gm, seq(0, 1, 0.1)) %>%
+  knitr::kable(col.names = "grams sugar in food item")
+
+quantile(fs_d1$total_saturated_fatty_acids_gm, seq(0, 1, 0.1)) %>%
+  knitr::kable(col.names = "grams saturated FA in food item")
+```
+Some food items seem to be high in sugars and saturated fats, lets see what it makes sense
+```{r view total sugar and fat measurements in food items}
+survey_cats_merged <- merge(
+  x = fs_d1,
+  y = food_categories,
+  by.x = "usda_food_code",
+  by.y = "food_code"
+)
+
+survey_cats_merged <- as.data.table(survey_cats_merged)
+
+survey_cats_merged[total_sugars_gm > 200, .(unique(long_food_code_description), total_sugars_gm)] %>%
+  head(n = 20) %>%
+  knitr::kable(col.names = c("Food item", "grams sugar in food item"))
+
+survey_cats_merged[total_saturated_fatty_acids_gm > 50, 
+                   .(unique(long_food_code_description), total_saturated_fatty_acids_gm)] %>%
+  head(n = 20) %>%
+  knitr::kable(col.names = c("Food item", "grams saturated FA in food item"))
 ```
 
-
-
-
+Next, check the predictor variables.
+```{r check predictor variables}
+#fs_d1[, .(mean(total_sugars_gm)), by = "time_of_eating_occasion_hh.mm"]
+unique(fs_d1$food_source)
+unique(fs_d1$eating_occasion)
+unique(fs_d1$did_you_eat_this_meal_at_home.)
+unique(fs_d1$intake_day_of_the_week)
+summary(demographic$age_in_years_at_screening)
+unique(demographic$gender)
+unique(demographic$`race/hispanic_origin_w/_nh_asian`)
+```
 
 
 
@@ -235,14 +269,13 @@ quantile(fs_d1$total_sugars_gm, seq(0, 1, 0.1))
 Plot sugar consumption versus time.
 ```{r plot sugar consumption against time}
 # make names for food survey table and convert back to data table
-names(fs_d1) <- make.names(names(fs_d1))
 fs_d1 <- as.data.table(fs_d1)
 
-table(fs_d1$time_of_eating_occasion_hh.mm)
 
-fs_d1[, mean(total_sugars_gm), by = "time_of_eating_occasion_hh.mm"] %>%
+fs_d1[, mean(total_sugars_gm), by = c("time_of_eating_occasion_hh.mm", "intake_day_of_the_week")] %>%
   ggplot() +
-  geom_line(aes(x = time_of_eating_occasion_hh.mm, y = V1))
+  geom_line(aes(x = time_of_eating_occasion_hh.mm, y = V1)) +
+  facet_wrap(~intake_day_of_the_week, nrow = 3)
 ```
 
 

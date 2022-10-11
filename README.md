@@ -1,7 +1,7 @@
 PM566 Midterm Project
 ================
 Flemming Wu
-2022-10-10
+2022-10-11
 
 Main source of data:
 
@@ -74,6 +74,7 @@ fc_labels <- gsub(" ", "_", fc_labels$label) %>%
 
 # reassign names
 names(fs_d1) <- fs_d1_labels
+names(fs_d1) <- make.names(names(fs_d1))
 
 names(demographic) <- demographic_labels
 
@@ -166,9 +167,9 @@ fs_d1[, `:=`(intake_day_of_the_week, fifelse(intake_day_of_the_week ==
 
 # table(fs_d1$`did_you_eat_this_meal_at_home?`) #1, 2, and
 # 9 are the only answers
-fs_d1[, `:=`(`did_you_eat_this_meal_at_home?`, fifelse(`did_you_eat_this_meal_at_home?` ==
-    1, "yes", fifelse(`did_you_eat_this_meal_at_home?` == 2,
-    "no", "dont_know")))]
+fs_d1[, `:=`(did_you_eat_this_meal_at_home., fifelse(did_you_eat_this_meal_at_home. ==
+    1, "yes", fifelse(did_you_eat_this_meal_at_home. == 2, "no",
+    "dont_know")))]
 ```
 
 ``` r
@@ -217,37 +218,37 @@ str(fs_d1)
 ```
 
     ## 'data.frame':    171744 obs. of  30 variables:
-    ##  $ food_source                          : chr  "Store - grocery/supermarket" "Store - grocery/supermarket" "Store - grocery/supermarket" "Store - grocery/supermarket" ...
-    ##  $ eating_occasion                      : chr  "Breakfast" "Breakfast" "Desayano" "Breakfast" ...
-    ##  $ respondent_sequence_number           : num  122474 119677 123644 112441 109587 ...
-    ##  $ dietary_day_one_sample_weight        : num  12511 3463 6272 4751 36013 ...
-    ##  $ dietary_two-day_sample_weight        : num  15417 2762 6218 0 35149 ...
-    ##  $ food/individual_component_number     : num  1 3 2 2 7 2 4 8 1 1 ...
-    ##  $ dietary_recall_status                : num  1 1 1 1 1 1 1 1 1 1 ...
-    ##  $ interviewer_id_code                  : num  89 81 90 86 91 86 88 81 91 81 ...
-    ##  $ breast-fed_infant_either_day         : num  2 2 2 2 2 2 2 2 2 2 ...
-    ##  $ number_of_days_of_intake             : num  2 2 2 1 2 2 2 2 2 1 ...
-    ##  $ #_of_days_b/w_intake_and_hh_interview: num  1 13 33 NA -2 -6 43 23 -1 15 ...
-    ##  $ intake_day_of_the_week               : chr  "Monday" "Saturday" "Tuesday" "Saturday" ...
-    ##  $ language_respondent_used_mostly      : num  1 1 2 1 1 1 1 2 1 1 ...
-    ##  $ combination_food_number              : num  0 0 1 1 3 1 2 0 1 1 ...
-    ##  $ combination_food_type                : num  0 0 1 2 90 1 1 0 1 2 ...
-    ##  $ time_of_eating_occasion_hh:mm        : 'hms' num  07:00:00 09:00:00 08:30:00 08:30:00 ...
+    ##  $ food_source                           : chr  "Store - grocery/supermarket" "Store - grocery/supermarket" "Store - grocery/supermarket" "Store - grocery/supermarket" ...
+    ##  $ eating_occasion                       : chr  "Breakfast" "Breakfast" "Desayano" "Breakfast" ...
+    ##  $ respondent_sequence_number            : num  122474 119677 123644 112441 109587 ...
+    ##  $ dietary_day_one_sample_weight         : num  12511 3463 6272 4751 36013 ...
+    ##  $ dietary_two.day_sample_weight         : num  15417 2762 6218 0 35149 ...
+    ##  $ food.individual_component_number      : num  1 3 2 2 7 2 4 8 1 1 ...
+    ##  $ dietary_recall_status                 : num  1 1 1 1 1 1 1 1 1 1 ...
+    ##  $ interviewer_id_code                   : num  89 81 90 86 91 86 88 81 91 81 ...
+    ##  $ breast.fed_infant_either_day          : num  2 2 2 2 2 2 2 2 2 2 ...
+    ##  $ number_of_days_of_intake              : num  2 2 2 1 2 2 2 2 2 1 ...
+    ##  $ X._of_days_b.w_intake_and_hh_interview: num  1 13 33 NA -2 -6 43 23 -1 15 ...
+    ##  $ intake_day_of_the_week                : chr  "Monday" "Saturday" "Tuesday" "Saturday" ...
+    ##  $ language_respondent_used_mostly       : num  1 1 2 1 1 1 1 2 1 1 ...
+    ##  $ combination_food_number               : num  0 0 1 1 3 1 2 0 1 1 ...
+    ##  $ combination_food_type                 : num  0 0 1 2 90 1 1 0 1 2 ...
+    ##  $ time_of_eating_occasion_hh.mm         : 'hms' num  07:00:00 09:00:00 08:30:00 08:30:00 ...
     ##   ..- attr(*, "units")= chr "secs"
-    ##  $ did_you_eat_this_meal_at_home?       : chr  "no" "yes" "yes" "yes" ...
-    ##  $ usda_food_code                       : num  22600200 54325000 12210210 11112210 63200100 ...
-    ##  $ grams                                : num  32 18 60 122 150 ...
-    ##  $ energy_kcal                          : num  155 75 151 52 62 2 48 382 4 297 ...
-    ##  $ protein_gm                           : num  11.97 1.7 0.41 4.12 1.01 ...
-    ##  $ carbohydrate_gm                      : num  0.61 13.33 21.04 6.33 14.53 ...
-    ##  $ total_sugars_gm                      : num  0.5 0.23 19.82 6.05 10.09 ...
-    ##  $ dietary_fiber_gm                     : num  0 0.5 0.7 0 3 0 0 2.4 0 4.9 ...
-    ##  $ total_fat_gm                         : num  11.45 1.56 8.1 1.16 0.38 ...
-    ##  $ total_saturated_fatty_acids_gm       : num  3.93 0.298 1.581 0.693 0.012 ...
-    ##  $ total_monounsaturated_fatty_acids_gm : num  5.013 0.357 2.401 0.256 0.021 ...
-    ##  $ total_polyunsaturated_fatty_acids_gm : num  1.938 0.87 3.761 0.039 0.066 ...
-    ##  $ cholesterol_mg                       : num  32 0 0 6 0 0 0 44 0 0 ...
-    ##  $ vitamin_e_as_alpha-tocopherol_mg     : num  0.13 0.21 0.95 0.02 0.56 0.02 0 0.21 0 1.55 ...
+    ##  $ did_you_eat_this_meal_at_home.        : chr  "no" "yes" "yes" "yes" ...
+    ##  $ usda_food_code                        : num  22600200 54325000 12210210 11112210 63200100 ...
+    ##  $ grams                                 : num  32 18 60 122 150 ...
+    ##  $ energy_kcal                           : num  155 75 151 52 62 2 48 382 4 297 ...
+    ##  $ protein_gm                            : num  11.97 1.7 0.41 4.12 1.01 ...
+    ##  $ carbohydrate_gm                       : num  0.61 13.33 21.04 6.33 14.53 ...
+    ##  $ total_sugars_gm                       : num  0.5 0.23 19.82 6.05 10.09 ...
+    ##  $ dietary_fiber_gm                      : num  0 0.5 0.7 0 3 0 0 2.4 0 4.9 ...
+    ##  $ total_fat_gm                          : num  11.45 1.56 8.1 1.16 0.38 ...
+    ##  $ total_saturated_fatty_acids_gm        : num  3.93 0.298 1.581 0.693 0.012 ...
+    ##  $ total_monounsaturated_fatty_acids_gm  : num  5.013 0.357 2.401 0.256 0.021 ...
+    ##  $ total_polyunsaturated_fatty_acids_gm  : num  1.938 0.87 3.761 0.039 0.066 ...
+    ##  $ cholesterol_mg                        : num  32 0 0 6 0 0 0 44 0 0 ...
+    ##  $ vitamin_e_as_alpha.tocopherol_mg      : num  0.13 0.21 0.95 0.02 0.56 0.02 0 0.21 0 1.55 ...
 
 ``` r
 str(demographic)
@@ -281,14 +282,200 @@ str(demographic)
 
 Check key variables and provide summary statistics in tabular form.
 
+First, check the predicted variables.
+
 ``` r
-quantile(fs_d1$total_sugars_gm, seq(0, 1, 0.1))
+quantile(fs_d1$total_sugars_gm, seq(0, 1, 0.1)) %>%
+    knitr::kable(col.names = "grams sugar in food item")
 ```
 
-    ##      0%     10%     20%     30%     40%     50%     60%     70%     80%     90% 
-    ##   0.000   0.000   0.050   0.260   0.770   1.825   3.660   6.830  12.200  21.570 
-    ##    100% 
-    ## 690.230
+|      | grams sugar in food item |
+|:-----|-------------------------:|
+| 0%   |                    0.000 |
+| 10%  |                    0.000 |
+| 20%  |                    0.050 |
+| 30%  |                    0.260 |
+| 40%  |                    0.770 |
+| 50%  |                    1.825 |
+| 60%  |                    3.660 |
+| 70%  |                    6.830 |
+| 80%  |                   12.200 |
+| 90%  |                   21.570 |
+| 100% |                  690.230 |
+
+``` r
+quantile(fs_d1$total_saturated_fatty_acids_gm, seq(0, 1, 0.1)) %>%
+    knitr::kable(col.names = "grams saturated FA in food item")
+```
+
+|      | grams saturated FA in food item |
+|:-----|--------------------------------:|
+| 0%   |                          0.0000 |
+| 10%  |                          0.0000 |
+| 20%  |                          0.0020 |
+| 30%  |                          0.0130 |
+| 40%  |                          0.0710 |
+| 50%  |                          0.3680 |
+| 60%  |                          0.9148 |
+| 70%  |                          1.6820 |
+| 80%  |                          3.0270 |
+| 90%  |                          5.6380 |
+| 100% |                        131.1270 |
+
+Some food items seem to be high in sugars and saturated fats, lets see
+what it makes sense
+
+``` r
+survey_cats_merged <- merge(x = fs_d1, y = food_categories, by.x = "usda_food_code",
+    by.y = "food_code")
+
+survey_cats_merged <- as.data.table(survey_cats_merged)
+
+survey_cats_merged[total_sugars_gm > 200, .(unique(long_food_code_description),
+    total_sugars_gm)] %>%
+    head(n = 20) %>%
+    knitr::kable(col.names = c("Food item", "grams sugar in food item"))
+```
+
+    ## Warning in as.data.table.list(jval, .named = NULL): Item 1 has 35 rows but
+    ## longest item has 78; recycled with remainder.
+
+| Food item                                                              | grams sugar in food item |
+|:-----------------------------------------------------------------------|-------------------------:|
+| Cake or cupcake, chocolate with white icing, bakery                    |                   209.20 |
+| Cake or cupcake, chocolate with chocolate icing, bakery                |                   217.38 |
+| Cake or cupcake, marble                                                |                   218.30 |
+| Cake, pound                                                            |                   314.35 |
+| Cake, pound, with icing or filling                                     |                   286.10 |
+| Cookie, coconut                                                        |                   219.04 |
+| Tart, all types                                                        |                   241.14 |
+| Pie, sweet potato                                                      |                   203.46 |
+| Orange juice, 100%, with calcium added, canned, bottled or in a carton |                   270.96 |
+| Apple juice, 100%                                                      |                   214.00 |
+| Grape juice, 100%                                                      |                   204.75 |
+| Sugar, white, granulated or lump                                       |                   329.74 |
+| Pancake syrup                                                          |                   313.13 |
+| Fruit leather and fruit snacks candy                                   |                   301.47 |
+| Candy, taffy                                                           |                   210.64 |
+| Tea, iced, instant, black, pre-sweetened with sugar                    |                   598.80 |
+| Tea, iced, brewed, black, pre-sweetened with sugar                     |                   224.55 |
+| Tea, iced, bottled, black                                              |                   201.60 |
+| Soft drink, cola                                                       |                   212.55 |
+| Soft drink, pepper type                                                |                   235.23 |
+
+``` r
+survey_cats_merged[total_saturated_fatty_acids_gm > 50, .(unique(long_food_code_description),
+    total_saturated_fatty_acids_gm)] %>%
+    head(n = 20) %>%
+    knitr::kable(col.names = c("Food item", "grams saturated FA in food item"))
+```
+
+    ## Warning in as.data.table.list(jval, .named = NULL): Item 1 has 39 rows but
+    ## longest item has 47; recycled with remainder.
+
+| Food item                                          | grams saturated FA in food item |
+|:---------------------------------------------------|--------------------------------:|
+| Milk, whole                                        |                          72.614 |
+| Cream, heavy                                       |                         110.554 |
+| Sour cream, regular                                |                          60.840 |
+| Tiramisu                                           |                          67.958 |
+| Cheese, Cheddar                                    |                          78.336 |
+| Cheese, Monterey                                   |                          52.224 |
+| Beef, shortribs, cooked, lean and fat eaten        |                          56.054 |
+| Pork, spareribs, cooked, lean and fat eaten        |                          50.264 |
+| Chicken “wings” with hot sauce, from other sources |                          82.703 |
+| Seafood thermidor                                  |                          68.177 |
+| Pot pie, chicken                                   |                          60.118 |
+| Coconut milk, used in cooking                      |                          57.947 |
+| Roll, sweet, cinnamon bun, frosted                 |                          50.736 |
+| Cheesecake, plain                                  |                          96.765 |
+| Cheesecake, fruit                                  |                          67.883 |
+| Cookie, coconut                                    |                          51.205 |
+| Cookie, butter or sugar, with fruit and/or nuts    |                          52.672 |
+| Pie, sweet potato                                  |                         120.594 |
+| Popcorn, movie theater, with added butter          |                          58.760 |
+| Popcorn, movie theater, no butter added            |                          93.884 |
+
+Next, check the predictor variables.
+
+``` r
+# fs_d1[, .(mean(total_sugars_gm)), by =
+# 'time_of_eating_occasion_hh.mm']
+unique(fs_d1$food_source)
+```
+
+    ##  [1] "Store - grocery/supermarket"                 
+    ##  [2] "Soup kitchen/shelter/food pantry"            
+    ##  [3] "Meals on Wheels"                             
+    ##  [4] "Community food program - other"              
+    ##  [5] "Community program no additional information" 
+    ##  [6] "Vending machine"                             
+    ##  [7] "Common coffee pot or snack tray"             
+    ##  [8] "From someone else/gift"                      
+    ##  [9] "Mail order purchase"                         
+    ## [10] "Residential dining facility"                 
+    ## [11] "Grown or caught by you or someone you know"  
+    ## [12] "Restaurant with waiter/waitress"             
+    ## [13] "Fish caught by you or someone you know"      
+    ## [14] "Sport, recreation, or entertainment facility"
+    ## [15] "Street vendor, vending truck"                
+    ## [16] "Fundraiser sales"                            
+    ## [17] "Store - convenience type"                    
+    ## [18] "Store - no additional info"                  
+    ## [19] "Restaurant fast food/pizza"                  
+    ## [20] "Bar/tavern/lounge"                           
+    ## [21] "Restaurant no additional information"        
+    ## [22] "Cafeteria NOT in a K-12 school"              
+    ## [23] "Cafeteria in a K-12 school"                  
+    ## [24] "Child/Adult care center"                     
+    ## [25] "Child/Adult home care"                       
+    ## [26] "Don't know"
+
+``` r
+unique(fs_d1$eating_occasion)
+```
+
+    ##  [1] "Breakfast"            "Desayano"             "Comida"              
+    ##  [4] "Almuerzo"             "Snack"                "Lunch"               
+    ##  [7] "Supper"               "Dinner"               "Merienda"            
+    ## [10] "Infant feeding"       "Cena"                 "Brunch"              
+    ## [13] "Entre comida"         "Botana"               "Extended consumption"
+    ## [16] "Bocadillo"            "Tentempie"            "Bebida"              
+    ## [19] "Drink"                "Don't know"
+
+``` r
+unique(fs_d1$did_you_eat_this_meal_at_home.)
+```
+
+    ## [1] "no"        "yes"       "dont_know"
+
+``` r
+unique(fs_d1$intake_day_of_the_week)
+```
+
+    ## [1] "Monday"    "Saturday"  "Tuesday"   "Thursday"  "Friday"    "Sunday"   
+    ## [7] "Wednesday"
+
+``` r
+summary(demographic$age_in_years_at_screening)
+```
+
+    ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+    ##    0.00   10.00   30.00   33.74   56.00   80.00
+
+``` r
+unique(demographic$gender)
+```
+
+    ## [1] "male"   "female"
+
+``` r
+unique(demographic$`race/hispanic_origin_w/_nh_asian`)
+```
+
+    ## [1] "non-hispanic_asian"          "mexican_american"           
+    ## [3] "non-hispanic_white"          "other_hispanic"             
+    ## [5] "non-hispanic_black"          "other_race_incl_multiracial"
 
 #### What time and/or day of the week do people generally eat foods high in sugar/saturated fats?
 
@@ -297,128 +484,13 @@ Plot sugar consumption versus time.
 ``` r
 # make names for food survey table and convert back to data
 # table
-names(fs_d1) <- make.names(names(fs_d1))
 fs_d1 <- as.data.table(fs_d1)
 
-table(fs_d1$time_of_eating_occasion_hh.mm)
-```
 
-    ## 
-    ## 00:00:00 00:01:00 00:05:00 00:10:00 00:15:00 00:20:00 00:30:00 00:40:00 
-    ##      318        1        5        4       18        1       97        3 
-    ## 00:45:00 01:00:00 01:15:00 01:30:00 02:00:00 02:20:00 02:30:00 03:00:00 
-    ##        5      284        1       77      274        2       73      246 
-    ## 03:30:00 03:45:00 03:50:00 04:00:00 04:15:00 04:20:00 04:23:00 04:30:00 
-    ##       85        5        3      242       31        2        2      192 
-    ## 04:32:00 04:40:00 04:45:00 04:50:00 05:00:00 05:05:00 05:10:00 05:15:00 
-    ##        3        2       42        2      568        2        7       28 
-    ## 05:20:00 05:25:00 05:30:00 05:32:00 05:35:00 05:40:00 05:45:00 05:50:00 
-    ##        8        6      516        2        9       22       93       18 
-    ## 05:51:00 06:00:00 06:03:00 06:07:00 06:10:00 06:15:00 06:16:00 06:20:00 
-    ##        2     1543        1        1       10      141        9       24 
-    ## 06:24:00 06:25:00 06:30:00 06:35:00 06:40:00 06:45:00 06:47:00 06:50:00 
-    ##        1       13     1331        4       63      232        2       73 
-    ## 06:55:00 07:00:00 07:01:00 07:02:00 07:05:00 07:06:00 07:07:00 07:10:00 
-    ##        3     4082        2        4       10        1        2       57 
-    ## 07:12:00 07:13:00 07:14:00 07:15:00 07:18:00 07:20:00 07:21:00 07:25:00 
-    ##       11        7       11      337        7      130        5       12 
-    ## 07:28:00 07:30:00 07:33:00 07:35:00 07:36:00 07:38:00 07:39:00 07:40:00 
-    ##        3     2897        2       20        4       12        4      117 
-    ## 07:43:00 07:45:00 07:46:00 07:48:00 07:50:00 07:54:00 07:55:00 07:59:00 
-    ##        3      398        3        3       73        5        4        1 
-    ## 08:00:00 08:05:00 08:07:00 08:10:00 08:12:00 08:15:00 08:20:00 08:21:00 
-    ##     6172       11        2       64        3      373       86        3 
-    ## 08:25:00 08:27:00 08:30:00 08:35:00 08:37:00 08:39:00 08:40:00 08:45:00 
-    ##        5        3     3398       13        5        4       78      250 
-    ## 08:46:00 08:50:00 09:00:00 09:04:00 09:05:00 09:10:00 09:12:00 09:15:00 
-    ##        1       39     6407        2        7       27        1      184 
-    ## 09:16:00 09:17:00 09:18:00 09:20:00 09:22:00 09:23:00 09:25:00 09:27:00 
-    ##        1        6        4       48        2        7        3        4 
-    ## 09:30:00 09:35:00 09:40:00 09:45:00 09:50:00 09:52:00 09:53:00 09:55:00 
-    ##     2442        9       59      129       17        1        1        4 
-    ## 10:00:00 10:01:00 10:05:00 10:10:00 10:15:00 10:17:00 10:20:00 10:25:00 
-    ##     5801        1       14       13      152        2       30       10 
-    ## 10:30:00 10:32:00 10:35:00 10:40:00 10:43:00 10:45:00 10:46:00 10:50:00 
-    ##     2139        5       19       41        3      252        2       63 
-    ## 10:55:00 10:56:00 11:00:00 11:03:00 11:05:00 11:06:00 11:07:00 11:08:00 
-    ##       13        3     5327        2       44        4        4        7 
-    ## 11:10:00 11:11:00 11:12:00 11:14:00 11:15:00 11:16:00 11:20:00 11:21:00 
-    ##       41        6        6        1      316        1       94        2 
-    ## 11:24:00 11:25:00 11:28:00 11:29:00 11:30:00 11:32:00 11:35:00 11:36:00 
-    ##        4       58        9        3     3311        6       42        8 
-    ## 11:37:00 11:38:00 11:39:00 11:40:00 11:41:00 11:45:00 11:47:00 11:50:00 
-    ##        2        7        4      144        3      710        7      105 
-    ## 11:54:00 11:55:00 12:00:00 12:01:00 12:02:00 12:03:00 12:04:00 12:05:00 
-    ##        7       31     9560        7        7       14       10       41 
-    ## 12:08:00 12:10:00 12:11:00 12:12:00 12:13:00 12:14:00 12:15:00 12:16:00 
-    ##        5      110        7        4        9        2      583        6 
-    ## 12:17:00 12:18:00 12:19:00 12:20:00 12:24:00 12:25:00 12:27:00 12:30:00 
-    ##        3        3        5      148        5       54        4     4549 
-    ## 12:31:00 12:32:00 12:33:00 12:34:00 12:35:00 12:36:00 12:38:00 12:40:00 
-    ##       11        7        4        2       48        3        1      124 
-    ## 12:42:00 12:45:00 12:46:00 12:47:00 12:49:00 12:50:00 12:52:00 12:55:00 
-    ##        2      415        5       18        2       52        4        6 
-    ## 12:56:00 13:00:00 13:02:00 13:03:00 13:05:00 13:09:00 13:10:00 13:15:00 
-    ##        4     7223        5        1        2        3       35      275 
-    ## 13:18:00 13:20:00 13:22:00 13:23:00 13:24:00 13:25:00 13:27:00 13:30:00 
-    ##        4       78        3        1        1        1        5     3010 
-    ## 13:35:00 13:36:00 13:37:00 13:39:00 13:40:00 13:43:00 13:45:00 13:50:00 
-    ##        9        1        2        1       57        1      159       12 
-    ## 13:53:00 13:55:00 13:57:00 14:00:00 14:03:00 14:05:00 14:10:00 14:12:00 
-    ##        2        1        1     6413        2       12        7        7 
-    ## 14:14:00 14:15:00 14:17:00 14:20:00 14:23:00 14:30:00 14:32:00 14:33:00 
-    ##        1      157        7       26        1     2001        1        3 
-    ## 14:35:00 14:40:00 14:43:00 14:45:00 14:50:00 14:57:00 15:00:00 15:05:00 
-    ##        9       30        4      105        9        3     5835        6 
-    ## 15:06:00 15:08:00 15:10:00 15:11:00 15:15:00 15:18:00 15:20:00 15:21:00 
-    ##        4        6       18        1      110        4       46        1 
-    ## 15:25:00 15:30:00 15:32:00 15:38:00 15:40:00 15:41:00 15:42:00 15:45:00 
-    ##        7     1845        1        1       61        3        2      162 
-    ## 15:49:00 15:50:00 15:55:00 16:00:00 16:02:00 16:03:00 16:05:00 16:10:00 
-    ##        1       15        1     5517        2        1        5       14 
-    ## 16:11:00 16:13:00 16:15:00 16:20:00 16:21:00 16:22:00 16:25:00 16:26:00 
-    ##        4        2      171       28        1        5        5        8 
-    ## 16:30:00 16:35:00 16:36:00 16:38:00 16:40:00 16:45:00 16:50:00 16:54:00 
-    ##     1957       16        4        1       43      170       23        1 
-    ## 16:55:00 16:57:00 17:00:00 17:04:00 17:05:00 17:10:00 17:15:00 17:16:00 
-    ##        9        2     7060        2        2        8      257        1 
-    ## 17:20:00 17:25:00 17:30:00 17:35:00 17:36:00 17:40:00 17:45:00 17:49:00 
-    ##       48        7     3833        3       15       48      335        1 
-    ## 17:50:00 17:54:00 17:57:00 18:00:00 18:05:00 18:06:00 18:08:00 18:10:00 
-    ##        8        4        3     9318        5        6        1       35 
-    ## 18:12:00 18:15:00 18:20:00 18:25:00 18:30:00 18:32:00 18:35:00 18:40:00 
-    ##        4      358       82        8     4957        1        6       65 
-    ## 18:45:00 18:50:00 19:00:00 19:01:00 19:05:00 19:06:00 19:10:00 19:12:00 
-    ##      455       23     9035        1        5        3       18        1 
-    ## 19:14:00 19:15:00 19:20:00 19:23:00 19:25:00 19:30:00 19:35:00 19:37:00 
-    ##        3      227       32        1       10     4217        3        1 
-    ## 19:38:00 19:40:00 19:42:00 19:45:00 19:48:00 19:50:00 19:51:00 19:59:00 
-    ##        1       62        3      315        4       29        1        2 
-    ## 20:00:00 20:01:00 20:04:00 20:05:00 20:10:00 20:12:00 20:13:00 20:15:00 
-    ##     7708        2        2        3       19        1        3      190 
-    ## 20:17:00 20:18:00 20:20:00 20:21:00 20:23:00 20:25:00 20:29:00 20:30:00 
-    ##       18       16       33        1        4       10        3     3051 
-    ## 20:35:00 20:40:00 20:45:00 20:47:00 20:48:00 20:50:00 20:51:00 20:55:00 
-    ##        7       37      203        2        1       18        5        6 
-    ## 21:00:00 21:02:00 21:05:00 21:10:00 21:15:00 21:16:00 21:20:00 21:23:00 
-    ##     5108        2        8        5      142        2       50        1 
-    ## 21:26:00 21:30:00 21:40:00 21:45:00 21:50:00 21:51:00 21:53:00 21:55:00 
-    ##        1     1822       33      141       23        4        2        2 
-    ## 21:59:00 22:00:00 22:03:00 22:05:00 22:07:00 22:10:00 22:11:00 22:14:00 
-    ##        1     3229        1        5        1        6        1        2 
-    ## 22:15:00 22:20:00 22:22:00 22:25:00 22:30:00 22:40:00 22:42:00 22:45:00 
-    ##       57       33        1        2      918       15        2       75 
-    ## 22:48:00 22:50:00 22:55:00 23:00:00 23:04:00 23:05:00 23:10:00 23:12:00 
-    ##        1       16        3     1551        1        3        7        1 
-    ## 23:15:00 23:16:00 23:20:00 23:25:00 23:28:00 23:30:00 23:31:00 23:37:00 
-    ##       72        2       36        6        1      511        4        1 
-    ## 23:40:00 23:45:00 23:49:00 23:50:00 23:52:00 23:55:00 23:58:00 23:59:00 
-    ##       13      110        6       14        1        6        1       19
-
-``` r
-fs_d1[, mean(total_sugars_gm), by = "time_of_eating_occasion_hh.mm"] %>%
+fs_d1[, mean(total_sugars_gm), by = c("time_of_eating_occasion_hh.mm",
+    "intake_day_of_the_week")] %>%
     ggplot() + geom_line(aes(x = time_of_eating_occasion_hh.mm,
-    y = V1))
+    y = V1)) + facet_wrap(~intake_day_of_the_week, nrow = 3)
 ```
 
 ![](README_files/figure-gfm/plot%20sugar%20consumption%20against%20time-1.png)<!-- -->
