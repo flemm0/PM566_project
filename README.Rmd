@@ -56,7 +56,8 @@ fc_labels <- purrr::map_df(food_categories, ~attributes(.x))
 
 
 # gsub() the spaces to underscores and put into vector
-fs_d1_labels <- gsub(" ", "_", fs_d1_labels$label) %>%
+fs_d1_labels <- gsub(" ", "_", fs_d1_labels$label) 
+fs_d1_labels <-  gsub("\\(|\\)", "", fs_d1_labels) %>%
   as.vector() %>%
   tolower() %>%
   unique()
@@ -205,5 +206,43 @@ str(fs_d1)
 str(demographic)
 ```
 
+### Preliminary Results
+
+Check key variables and provide summary statistics in tabular form.
+
+```{r summary tables of total sugar and fat consumption}
+quantile(fs_d1$total_sugars_gm, seq(0, 1, 0.1))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### What time and/or day of the week do people generally eat foods high in sugar/saturated fats?
+Plot sugar consumption versus time.
+```{r plot sugar consumption against time}
+# make names for food survey table and convert back to data table
+names(fs_d1) <- make.names(names(fs_d1))
+fs_d1 <- as.data.table(fs_d1)
+
+table(fs_d1$time_of_eating_occasion_hh.mm)
+
+fs_d1[, mean(total_sugars_gm), by = "time_of_eating_occasion_hh.mm"] %>%
+  ggplot() +
+  geom_line(aes(x = time_of_eating_occasion_hh.mm, y = V1))
+```
 
 
