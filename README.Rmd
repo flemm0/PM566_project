@@ -144,7 +144,8 @@ demographic[, age_category := fifelse(age_in_years_at_screening %between% c(1,3)
 
 Categorize the answers in the food survey. Need day of the week, name of eating occasion, source of food, and if the food was eaten at home categorized.
 ```{r Categorize food survey day 1 using fifelse}
-fs_d1[, intake_day_of_the_week := fifelse(intake_day_of_the_week == 1, "Sunday",
+# create new column for this so it can still be ordered
+fs_d1[, intake_day_cat := fifelse(intake_day_of_the_week == 1, "Sunday",
                                           fifelse(intake_day_of_the_week == 2, "Monday",
                                                   fifelse(intake_day_of_the_week == 3, "Tuesday",
                                                           fifelse(intake_day_of_the_week == 4, "Wednesday",
@@ -201,61 +202,117 @@ setnames(fs_d1, "Value.Description", "food_source")
 fs_d1 <- fs_d1[-c(1)]
 ```
 
-```{r}
-str(fs_d1)
-
-str(demographic)
-```
 
 ### Preliminary Results
 
-Check key variables and provide summary statistics in tabular form.
 
-First, check the predicted variables.
-```{r summary tables of total sugar and fat consumption}
-quantile(fs_d1$total_sugars_gm, seq(0, 1, 0.1)) %>%
-  knitr::kable(col.names = "grams sugar in food item")
+#### Exploratory Data Analysis
 
-quantile(fs_d1$total_saturated_fatty_acids_gm, seq(0, 1, 0.1)) %>%
-  knitr::kable(col.names = "grams saturated FA in food item")
-```
-Some food items seem to be high in sugars and saturated fats, lets see what it makes sense
-```{r view total sugar and fat measurements in food items}
-survey_cats_merged <- merge(
-  x = fs_d1,
+Check dimensions, headers, and footers
+```{r merge data}
+# First merge all the data tables into one
+
+df <- merge(
+  x = merge(
+        x = fs_d1, 
+        y = demographic,
+        by.x = "respondent_sequence_number",
+        by.y = "respondent_sequence_number"
+  ),
   y = food_categories,
   by.x = "usda_food_code",
   by.y = "food_code"
 )
 
-survey_cats_merged <- as.data.table(survey_cats_merged)
+df <- as.data.table(df)
+```
 
-survey_cats_merged[total_sugars_gm > 200, .(unique(long_food_code_description), total_sugars_gm)] %>%
-  head(n = 20) %>%
-  knitr::kable(col.names = c("Food item", "grams sugar in food item"))
+```{r check dimensions headers and footers}
+dim(df)
+head(df)
+tail(df)
+```
 
-survey_cats_merged[total_saturated_fatty_acids_gm > 50, 
+Check variable types
+```{r check variable types}
+str(df)
+```
+
+Check key variables and provide summary statistics in tabular form.
+
+First, check the predicted variables.
+```{r summary tables of total sugar and fat consumption}
+quantile(df$total_sugars_gm, seq(0, 1, 0.1))
+
+quantile(df$total_saturated_fatty_acids_gm, seq(0, 1, 0.1))
+```
+Some food items seem to be high in sugars and saturated fats, lets see what it makes sense
+```{r view total sugar and fat measurements in food items}
+df[total_sugars_gm > 200, .(unique(long_food_code_description), total_sugars_gm)] %>%
+  head(n = 20) 
+
+df[total_saturated_fatty_acids_gm > 50, 
                    .(unique(long_food_code_description), total_saturated_fatty_acids_gm)] %>%
-  head(n = 20) %>%
-  knitr::kable(col.names = c("Food item", "grams saturated FA in food item"))
+  head(n = 20)
 ```
 
 Next, check the predictor variables.
 ```{r check predictor variables}
 #fs_d1[, .(mean(total_sugars_gm)), by = "time_of_eating_occasion_hh.mm"]
-unique(fs_d1$food_source)
-unique(fs_d1$eating_occasion)
-unique(fs_d1$did_you_eat_this_meal_at_home.)
-unique(fs_d1$intake_day_of_the_week)
-summary(demographic$age_in_years_at_screening)
-unique(demographic$gender)
-unique(demographic$`race/hispanic_origin_w/_nh_asian`)
+unique(df$food_source)
+unique(df$eating_occasion)
+unique(df$did_you_eat_this_meal_at_home.)
+unique(df$intake_day_of_the_week)
+summary(df$age_in_years_at_screening)
+unique(df$gender)
+unique(df$`race/hispanic_origin_w/_nh_asian`)
 ```
 
 
+Summary tables
+
+```{r sugar fat consumption by day of week}
+# average and standard deviation of sugar consumption and saturated fatty acid consumption by day of the week
+df[, 
+   .(avg_total_sugar = mean(total_sugars_gm), 
+     std_total_sugar = sd(total_sugars_gm),
+     avg_total_sat_fa = mean(total_saturated_fatty_acids_gm),
+     std_total_sat_fa = sd(total_saturated_fatty_acids_gm),
+     num_observations = .N
+     ),
+   by = c("intake_day_of_the_week", "intake_day_cat")][order(intake_day_of_the_week)][, intake_day_cat:num_observations] %>%
+  knitr::kable()
+
+```
+From the summary table above, it can be observed that average sugar and saturated fat consumption is slightly higher on the weekends, as well as Friday and Wednesday.
+ 
+```{r sugar fat consumption by time of consumption}
+# average and standard deviation of sugar consumption and saturated fatty acid consumption versus by time of day
+
+df[, 
+   .(avg_total_sugar = mean(total_sugars_gm), 
+     std_total_sugar = sd(total_sugars_gm),
+     avg_total_sat_fa = mean(total_saturated_fatty_acids_gm),
+     std_total_sat_fa = sd(total_saturated_fatty_acids_gm),
+     num_observations = .N
+     ), 
+   by = hour(time_of_eating_occasion_hh.mm)][order(hour)] %>%
+  knitr::kable()
+```
+From the summary table above that groups sugar and saturated fat consumption by the hours that they were consumed, it can be seen that higher sugar and saturated fat consumption occurs between the hours of 8PM to 2AM. 3PM and 4PM also had slightly higher sugar and saturated fat consumption.
 
 
-
+```{r sugar and saturated fat consumption by age category}
+df[, 
+   .(avg_total_sugar = mean(total_sugars_gm), 
+     std_total_sugar = sd(total_sugars_gm),
+     avg_total_sat_fa = mean(total_saturated_fatty_acids_gm),
+     std_total_sat_fa = sd(total_saturated_fatty_acids_gm),
+     num_observations = .N
+     ), 
+   by = "age_category"][order(desc(avg_total_sugar))] %>%
+  knitr::kable()
+```
 
 
 
