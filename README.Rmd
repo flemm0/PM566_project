@@ -16,7 +16,6 @@ Questions:\
 Insulin resistance and diabetes is a growing health issue for Americans. Causes of this includes consumption of foods high in carbohydrates and saturated fats, causing blood glucose levels to spike and insulin is needed to bring the blood glucose levels back down to normal. Over time, consistent high blood glucose spikes lead to the body becoming accustomed to high amounts of sugar, and therefore acquiring insulin resistance. In this project, I will be investigating what attributes cause people to eat foods that lead to blood glucose spikes.\
 
 * What time and/or day of the week do people generally eat foods high in sugar/saturated fats?
-* Does having a dietary restriction affect sugar/fat consumption?
 * Does sugar consumption vary by age, ethnicity, gender, or pregnancy status?
 * Does source of food or whether the meal was eaten at home have an effect?
 
@@ -133,13 +132,14 @@ demographic[, pregnancy_status_at_exam := fifelse(pregnancy_status_at_exam == 1,
 
 Create age category variable for demographic table.
 ```{r create age category variable for demographic table}
-demographic[, age_category := fifelse(age_in_years_at_screening %between% c(1,3), "1-3",
-                                      fifelse(age_in_years_at_screening %between% c(4,8), "4-8",
-                                              fifelse(age_in_years_at_screening %between% c(9,13), "9-13",
-                                                      fifelse(age_in_years_at_screening %between% c(14,18), "14-18",
-                                                              fifelse(age_in_years_at_screening %between% c(19,30), "19-30",
-                                                                      fifelse(age_in_years_at_screening %between% c(31,50), "31-50", 
-                                                                              fifelse(age_in_years_at_screening %between% c(51,70), "51-70", "70+")))))))]
+demographic[, age_category := fifelse(age_in_years_at_screening == 0, "<1",
+                              fifelse(age_in_years_at_screening %between% c(1,3), "1-3",
+                              fifelse(age_in_years_at_screening %between% c(4,8), "4-8",
+                              fifelse(age_in_years_at_screening %between% c(9,13), "9-13",
+                              fifelse(age_in_years_at_screening %between% c(14,18), "14-18",
+                              fifelse(age_in_years_at_screening %between% c(19,30), "19-30",
+                              fifelse(age_in_years_at_screening %between% c(31,50), "31-50", 
+                              fifelse(age_in_years_at_screening %between% c(51,70), "51-70", "70+"))))))))]
 ```
 
 Categorize the answers in the food survey. Need day of the week, name of eating occasion, source of food, and if the food was eaten at home categorized.
@@ -227,14 +227,14 @@ df <- merge(
 df <- as.data.table(df)
 ```
 
-```{r check dimensions headers and footers}
+```{r check dimensions headers and footers, echo = TRUE, results = "hide"}
 dim(df)
 head(df)
 tail(df)
 ```
 
 Check variable types
-```{r check variable types}
+```{r check variable types, echo = TRUE, results = "hide"}
 str(df)
 ```
 
@@ -281,7 +281,12 @@ df[,
      num_observations = .N
      ),
    by = c("intake_day_of_the_week", "intake_day_cat")][order(intake_day_of_the_week)][, intake_day_cat:num_observations] %>%
-  knitr::kable()
+  knitr::kable(col.names = c("Day of Food Intake", 
+                             "Averge Total Sugar Consumption",
+                             "Standard Deviation of Total Sugar Consumption",
+                             "Average Total Saturated Fatty Acid Consumption",
+                             "Standard Deviation of Total Saturated Fatty Acid Consumption",
+                             "Number of Observations"))
 
 ```
 From the summary table above, it can be observed that average sugar and saturated fat consumption is slightly higher on the weekends, as well as Friday and Wednesday.
@@ -297,7 +302,12 @@ df[,
      num_observations = .N
      ), 
    by = hour(time_of_eating_occasion_hh.mm)][order(hour)] %>%
-  knitr::kable()
+  knitr::kable(col.names = c("Hour of the Day (0 = 12:00 AM - 12:59 AM, 23 = 11:00 PM - 11:59 PM)", 
+                             "Averge Total Sugar Consumption",
+                             "Standard Deviation of Total Sugar Consumption",
+                             "Average Total Saturated Fatty Acid Consumption",
+                             "Standard Deviation of Total Saturated Fatty Acid Consumption",
+                             "Number of Observations"))
 ```
 From the summary table above that groups sugar and saturated fat consumption by the hours that they were consumed, it can be seen that higher sugar and saturated fat consumption occurs between the hours of 8PM to 2AM. 3PM and 4PM also had slightly higher sugar and saturated fat consumption.
 
@@ -308,12 +318,83 @@ df[,
      std_total_sugar = sd(total_sugars_gm),
      avg_total_sat_fa = mean(total_saturated_fatty_acids_gm),
      std_total_sat_fa = sd(total_saturated_fatty_acids_gm),
-     num_observations = .N
+     num_observations = .N,
+     min(age_in_years_at_screening)
      ), 
-   by = "age_category"][order(desc(avg_total_sugar))] %>%
-  knitr::kable()
+   by = "age_category"][order(V6)][, !c("V6")] %>%
+  knitr::kable(col.names = c("Age Range", 
+                             "Averge Total Sugar Consumption",
+                             "Standard Deviation of Total Sugar Consumption",
+                             "Average Total Saturated Fatty Acid Consumption",
+                             "Standard Deviation of Total Saturated Fatty Acid Consumption",
+                             "Number of Observations"))
 ```
 
+
+```{r sugar and saturated fat consumption by gender}
+df[, 
+   .(avg_total_sugar = mean(total_sugars_gm), 
+     std_total_sugar = sd(total_sugars_gm),
+     avg_total_sat_fa = mean(total_saturated_fatty_acids_gm),
+     std_total_sat_fa = sd(total_saturated_fatty_acids_gm),
+     num_observations = .N
+     ), 
+   by = "gender"] %>%
+  knitr::kable(col.names = c("Gender", 
+                             "Averge Total Sugar Consumption",
+                             "Standard Deviation of Total Sugar Consumption",
+                             "Average Total Saturated Fatty Acid Consumption",
+                             "Standard Deviation of Total Saturated Fatty Acid Consumption",
+                             "Number of Observations"))
+```
+```{r sugar and saturated fat consumption by ethnicity}
+df[, 
+   .(avg_total_sugar = mean(total_sugars_gm), 
+     std_total_sugar = sd(total_sugars_gm),
+     avg_total_sat_fa = mean(total_saturated_fatty_acids_gm),
+     std_total_sat_fa = sd(total_saturated_fatty_acids_gm),
+     num_observations = .N
+     ), 
+   by = "race/hispanic_origin_w/_nh_asian"] %>%
+  knitr::kable(col.names = c("Race", 
+                             "Averge Total Sugar Consumption",
+                             "Standard Deviation of Total Sugar Consumption",
+                             "Average Total Saturated Fatty Acid Consumption",
+                             "Standard Deviation of Total Saturated Fatty Acid Consumption",
+                             "Number of Observations"))
+```
+```{r sugar and saturated fat consumption by source of food}
+df[, 
+   .(avg_total_sugar = mean(total_sugars_gm), 
+     std_total_sugar = sd(total_sugars_gm),
+     avg_total_sat_fa = mean(total_saturated_fatty_acids_gm),
+     std_total_sat_fa = sd(total_saturated_fatty_acids_gm),
+     num_observations = .N
+     ), 
+   by = "food_source"][order(-avg_total_sugar, -avg_total_sat_fa)] %>%
+  knitr::kable(col.names = c("Food Source", 
+                             "Averge Total Sugar Consumption",
+                             "Standard Deviation of Total Sugar Consumption",
+                             "Average Total Saturated Fatty Acid Consumption",
+                             "Standard Deviation of Total Saturated Fatty Acid Consumption",
+                             "Number of Observations"))
+```
+```{r sugar and saturated fat consumption by where meal was eaten}
+df[, 
+   .(avg_total_sugar = mean(total_sugars_gm), 
+     std_total_sugar = sd(total_sugars_gm),
+     avg_total_sat_fa = mean(total_saturated_fatty_acids_gm),
+     std_total_sat_fa = sd(total_saturated_fatty_acids_gm),
+     num_observations = .N
+     ), 
+   by = "did_you_eat_this_meal_at_home."][order(-avg_total_sugar)] %>%
+  knitr::kable(col.names = c("Meal Eaten at Home", 
+                             "Averge Total Sugar Consumption",
+                             "Standard Deviation of Total Sugar Consumption",
+                             "Average Total Saturated Fatty Acid Consumption",
+                             "Standard Deviation of Total Saturated Fatty Acid Consumption",
+                             "Number of Observations"))
+```
 
 
 
