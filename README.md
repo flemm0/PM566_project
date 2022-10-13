@@ -1,7 +1,7 @@
 PM566 Midterm Project
 ================
 Flemming Wu
-2022-10-12
+2022-10-13
 
 Main source of data:
 
@@ -736,7 +736,7 @@ df[, .(mean(total_sugars_gm)), by = c("intake_day_of_the_week",
         title = "Average Total Sugar Consumption vs Time of Day by Day of Week")
 ```
 
-![](README_files/figure-gfm/plot%20sugar%20and%20saturated%20fa%20consumption%20against%20time%20grouped%20by%20day%20of%20the%20week-1.png)<!-- -->
+<img src="README_files/figure-gfm/plot sugar and saturated fa consumption against time grouped by day of the week-1.png" style="display: block; margin: auto;" />
 
 ``` r
 df[, .(mean(total_saturated_fatty_acids_gm)), by = c("intake_day_of_the_week",
@@ -748,5 +748,106 @@ df[, .(mean(total_saturated_fatty_acids_gm)), by = c("intake_day_of_the_week",
         title = "Average Total Saturated Fatty Acid Consumption vs Time of Day by Day of Week")
 ```
 
-![](README_files/figure-gfm/plot%20sugar%20and%20saturated%20fa%20consumption%20against%20time%20grouped%20by%20day%20of%20the%20week-2.png)<!-- -->
-Make plots above bigger
+<img src="README_files/figure-gfm/plot sugar and saturated fa consumption against time grouped by day of the week-2.png" style="display: block; margin: auto;" />
+
+``` r
+unique(df$eating_occasion)
+```
+
+    ##  [1] "Snack"                "Lunch"                "Breakfast"           
+    ##  [4] "Supper"               "Desayano"             "Dinner"              
+    ##  [7] "Almuerzo"             "Cena"                 "Drink"               
+    ## [10] "Brunch"               "Infant feeding"       "Comida"              
+    ## [13] "Bebida"               "Bocadillo"            "Merienda"            
+    ## [16] "Entre comida"         "Extended consumption" "Botana"              
+    ## [19] "Tentempie"            "Don't know"
+
+``` r
+# Sugar
+df[!is.na(eating_occasion) & !is.na(total_sugars_gm)] %>%
+    ggplot(mapping = aes(x = forcats::fct_reorder(factor(eating_occasion),
+        total_sugars_gm, mean), y = total_sugars_gm)) + stat_summary(fun.data = mean_se,
+    geom = "errorbar") + stat_summary(fun = mean, size = 0.1) +
+    theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1)) +
+    labs(x = "Name of Eating Occasion", y = "Average Grams Sugar Consumption",
+        title = "Sugar Consumption vs Eating Occasion")
+```
+
+<img src="README_files/figure-gfm/plot sugar and saturated fa consumption by eating occasion-1.png" style="display: block; margin: auto;" />
+
+``` r
+# Saturated Fatty Acid
+df[!is.na(eating_occasion) & !is.na(total_saturated_fatty_acids_gm)] %>%
+    ggplot(mapping = aes(x = forcats::fct_reorder(factor(eating_occasion),
+        total_saturated_fatty_acids_gm, mean), y = total_saturated_fatty_acids_gm)) +
+    stat_summary(fun.data = mean_se, geom = "errorbar") + stat_summary(fun = mean,
+    size = 0.1) + theme(axis.text.x = element_text(angle = 90,
+    vjust = 1, hjust = 1)) + labs(x = "Name of Eating Occasion",
+    y = "Average Grams Saturated Fatty Acid Consumption", title = "Saturated Fatty Acid Consumption vs Eating Occasion")
+```
+
+<img src="README_files/figure-gfm/plot sugar and saturated fa consumption by eating occasion-2.png" style="display: block; margin: auto;" />
+
+#### Does sugar / saturated fatty acid consumption vary by age, ethnicity, gender?
+
+``` r
+# sugars
+unique(df[, .(sugar_consumption = sum(total_sugars_gm), age_category,
+    gender), by = "respondent_sequence_number"]) %>%
+    ggplot(mapping = aes(x = factor(age_category, levels = c("<1",
+        "1-3", "4-8", "9-13", "14-18", "19-30", "31-50", "51-70",
+        "70+")), y = sugar_consumption, fill = gender)) + geom_violin(size = 0.1,
+    cex = 0.2) + labs(x = "Age Range", y = "Sugar Consumption (grams) in 24 Hours",
+    title = "Sugar Consumption vs Age")
+```
+
+    ## Warning: Duplicated aesthetics after name standardisation: size
+
+![](README_files/figure-gfm/sugar%20and%20sat%20fa%20consumption%20by%20age-1.png)<!-- -->
+
+``` r
+# saturated fa
+unique(df[, .(sat_fa_consumption = sum(total_saturated_fatty_acids_gm),
+    age_category, gender), by = "respondent_sequence_number"]) %>%
+    ggplot(mapping = aes(x = factor(age_category, levels = c("<1",
+        "1-3", "4-8", "9-13", "14-18", "19-30", "31-50", "51-70",
+        "70+")), y = sat_fa_consumption, fill = gender)) + geom_violin(size = 0.1,
+    cex = 0.2) + labs(x = "Age Range", y = "Saturated FA Consumption (grams) in 24 Hours",
+    title = "Saturated FA Consumption vs Age")
+```
+
+    ## Warning: Duplicated aesthetics after name standardisation: size
+
+![](README_files/figure-gfm/sugar%20and%20sat%20fa%20consumption%20by%20age-2.png)<!-- -->
+
+``` r
+# sugar
+unique(df[, .(sugar_consumption = sum(total_sugars_gm), `race/hispanic_origin_w/_nh_asian`,
+    gender), by = "respondent_sequence_number"]) %>%
+    ggplot(mapping = aes(x = `race/hispanic_origin_w/_nh_asian`,
+        y = sugar_consumption, fill = gender)) + geom_violin(size = 0.1,
+    cex = 0.2) + theme(axis.text.x = element_text(angle = 90,
+    vjust = 1, hjust = 1)) + labs(x = "Ethnicity", y = "Sugar Consumption (grams) in 24 Hours",
+    title = "Sugar Consumption vs Ethnicity")
+```
+
+    ## Warning: Duplicated aesthetics after name standardisation: size
+
+![](README_files/figure-gfm/sugar%20and%20sat%20fa%20consumption%20by%20ethnicity-1.png)<!-- -->
+
+``` r
+# saturated fa
+unique(df[, .(sat_fa_consumption = sum(total_saturated_fatty_acids_gm),
+    `race/hispanic_origin_w/_nh_asian`, gender), by = "respondent_sequence_number"]) %>%
+    ggplot(mapping = aes(x = `race/hispanic_origin_w/_nh_asian`,
+        y = sat_fa_consumption, fill = gender)) + geom_violin(size = 0.1,
+    cex = 0.2) + theme(axis.text.x = element_text(angle = 90,
+    vjust = 1, hjust = 1)) + labs(x = "Ethnicity", y = "Saturated FA Consumption (grams) in 24 Hours",
+    title = "Sugar Consumption vs Ethnicity")
+```
+
+    ## Warning: Duplicated aesthetics after name standardisation: size
+
+![](README_files/figure-gfm/sugar%20and%20sat%20fa%20consumption%20by%20ethnicity-2.png)<!-- -->
+
+#### Does the source of the food or whether the meal was eaten at home have an effect?

@@ -438,7 +438,7 @@ df[, .(mean(total_saturated_fatty_acids_gm)), by = "time_of_eating_occasion_hh.m
        title = "Average Saturated Fatty Acid Consumption vs Hour of the Day")
 ```
 
-```{r plot sugar and saturated fa consumption against time grouped by day of the week}
+```{r plot sugar and saturated fa consumption against time grouped by day of the week, fig.height = 8, fig.width = 12, fig.align = "center"}
 labels <- c("1" = "Sunday", "2" = "Monday", "3" = "Tuesday", "4" = "Wednesday", "5" = "Thursday", "6" = "Friday", "7" = "Saturday")  
 
 df[, .(mean(total_sugars_gm)), by = c("intake_day_of_the_week", "time_of_eating_occasion_hh.mm")][, intake_day_of_the_week := as.character(intake_day_of_the_week)] %>%
@@ -457,5 +457,69 @@ df[, .(mean(total_saturated_fatty_acids_gm)), by = c("intake_day_of_the_week", "
        y = "Average Total Saturated Fatty Acid Consumption (grams)",
        title = "Average Total Saturated Fatty Acid Consumption vs Time of Day by Day of Week")
 ```
-Make plots above bigger
+
+```{r look at names of eating occasions}
+unique(df$eating_occasion)
+```
+
+```{r plot sugar and saturated fa consumption by eating occasion, warning=FALSE, fig.height = 8, fig.width = 12, fig.align = "center"}
+#Sugar
+df[!is.na(eating_occasion) & !is.na(total_sugars_gm)] %>%
+  ggplot(mapping = aes(x = forcats::fct_reorder(factor(eating_occasion),
+    total_sugars_gm, mean), y = total_sugars_gm)) +
+  stat_summary(fun.data = mean_se, geom = "errorbar") +
+  stat_summary(fun = mean, size = 0.1) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1)) +
+  labs(x = "Name of Eating Occasion", y = "Average Grams Sugar Consumption", title = "Sugar Consumption vs Eating Occasion")
+
+#Saturated Fatty Acid
+df[!is.na(eating_occasion) & !is.na(total_saturated_fatty_acids_gm)] %>%
+  ggplot(mapping = aes(x = forcats::fct_reorder(factor(eating_occasion),
+    total_saturated_fatty_acids_gm, mean), y = total_saturated_fatty_acids_gm)) +
+  stat_summary(fun.data = mean_se, geom = "errorbar") +
+  stat_summary(fun = mean, size = 0.1) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1)) +
+  labs(x = "Name of Eating Occasion", y = "Average Grams Saturated Fatty Acid Consumption", title = "Saturated Fatty Acid Consumption vs Eating Occasion")
+```
+
+#### Does sugar / saturated fatty acid consumption vary by age, ethnicity, gender?
+
+```{r sugar and sat fa consumption by age}
+# sugars
+unique(df[, .(sugar_consumption = sum(total_sugars_gm), age_category, gender), by = "respondent_sequence_number"]) %>%
+  ggplot(mapping= aes(x = factor(age_category, levels = c("<1", "1-3", "4-8", "9-13", "14-18", "19-30", "31-50", "51-70", "70+")), y = sugar_consumption, fill = gender)) +
+  geom_violin(size = 0.1, cex = 0.2) +
+  labs(x = "Age Range", y = "Sugar Consumption (grams) in 24 Hours", title = "Sugar Consumption vs Age")
+
+
+# saturated fa
+unique(df[, .(sat_fa_consumption = sum(total_saturated_fatty_acids_gm), age_category, gender), by = "respondent_sequence_number"]) %>%
+  ggplot(mapping= aes(x = factor(age_category, levels = c("<1", "1-3", "4-8", "9-13", "14-18", "19-30", "31-50", "51-70", "70+")), y = sat_fa_consumption, fill = gender)) +
+  geom_violin(size = 0.1, cex = 0.2) +
+  labs(x = "Age Range", y = "Saturated FA Consumption (grams) in 24 Hours", title = "Saturated FA Consumption vs Age")
+```
+
+```{r sugar and sat fa consumption by ethnicity}
+#sugar
+unique(df[, .(sugar_consumption = sum(total_sugars_gm), `race/hispanic_origin_w/_nh_asian`, gender), by = "respondent_sequence_number"]) %>%
+  ggplot(mapping = aes(x = `race/hispanic_origin_w/_nh_asian`, y = sugar_consumption, fill = gender)) +
+  geom_violin(size = 0.1, cex = 0.2) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1)) +
+  labs(x = "Ethnicity", y = "Sugar Consumption (grams) in 24 Hours", title = "Sugar Consumption vs Ethnicity")
+
+
+
+#saturated fa
+unique(df[, .(sat_fa_consumption = sum(total_saturated_fatty_acids_gm), `race/hispanic_origin_w/_nh_asian`, gender), by = "respondent_sequence_number"]) %>%
+  ggplot(mapping = aes(x = `race/hispanic_origin_w/_nh_asian`, y = sat_fa_consumption, fill = gender)) +
+  geom_violin(size = 0.1, cex = 0.2) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1)) +
+  labs(x = "Ethnicity", y = "Saturated FA Consumption (grams) in 24 Hours", title = "Sugar Consumption vs Ethnicity")
+```
+
+#### Does the source of the food or whether the meal was eaten at home have an effect?
+
+
+
+
 
