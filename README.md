@@ -1,7 +1,7 @@
 PM566 Midterm Project
 ================
 Flemming Wu
-2022-10-13
+2022-10-15
 
 Main source of data:
 
@@ -686,29 +686,13 @@ Plot sugar consumption versus time.
 df[, .(mean(total_sugars_gm)), by = "time_of_eating_occasion_hh.mm"] %>%
     ggplot(mapping = aes(x = time_of_eating_occasion_hh.mm, y = V1)) +
     geom_line() + geom_smooth(formula = y ~ x, alpha = 0.01,
-    se = FALSE, linetype = "dashed")
+    se = FALSE, linetype = "dashed") + labs(x = "Hour of the Day (0 = 12:00 AM - 12:59 AM, 23 = 11:00 PM - 11:59 PM)",
+    y = "Average Total Sugar Consumption (grams)", title = "Average Sugar Consumption vs Hour of the Day")
 ```
 
     ## `geom_smooth()` using method = 'loess'
 
-![](README_files/figure-gfm/plot%20sugar%20and%20saturated%20fa%20consumption%20against%20time-1.png)<!-- -->
-
-``` r
-labs(x = "Hour of the Day (0 = 12:00 AM - 12:59 AM, 23 = 11:00 PM - 11:59 PM)",
-    y = "Average Total Sugar Consumption (grams)", title = "Average Sugar Consumption vs Hour of the Day")
-```
-
-    ## $x
-    ## [1] "Hour of the Day (0 = 12:00 AM - 12:59 AM, 23 = 11:00 PM - 11:59 PM)"
-    ## 
-    ## $y
-    ## [1] "Average Total Sugar Consumption (grams)"
-    ## 
-    ## $title
-    ## [1] "Average Sugar Consumption vs Hour of the Day"
-    ## 
-    ## attr(,"class")
-    ## [1] "labels"
+<img src="README_files/figure-gfm/plot sugar and saturated fa consumption against time-1.png" style="display: block; margin: auto;" />
 
 ``` r
 df[, .(mean(total_saturated_fatty_acids_gm)), by = "time_of_eating_occasion_hh.mm"] %>%
@@ -721,7 +705,7 @@ df[, .(mean(total_saturated_fatty_acids_gm)), by = "time_of_eating_occasion_hh.m
 
     ## `geom_smooth()` using method = 'loess'
 
-![](README_files/figure-gfm/plot%20sugar%20and%20saturated%20fa%20consumption%20against%20time-2.png)<!-- -->
+<img src="README_files/figure-gfm/plot sugar and saturated fa consumption against time-2.png" style="display: block; margin: auto;" />
 
 ``` r
 labels <- c(`1` = "Sunday", `2` = "Monday", `3` = "Tuesday",
@@ -796,14 +780,13 @@ unique(df[, .(sugar_consumption = sum(total_sugars_gm), age_category,
     gender), by = "respondent_sequence_number"]) %>%
     ggplot(mapping = aes(x = factor(age_category, levels = c("<1",
         "1-3", "4-8", "9-13", "14-18", "19-30", "31-50", "51-70",
-        "70+")), y = sugar_consumption, fill = gender)) + geom_violin(size = 0.1,
-    cex = 0.2) + labs(x = "Age Range", y = "Sugar Consumption (grams) in 24 Hours",
-    title = "Sugar Consumption vs Age")
+        "70+")), y = sugar_consumption, fill = gender)) + geom_violin() +
+    stat_summary(fun = median, geom = "point", position = position_dodge(0.9)) +
+    labs(x = "Age Range", y = "Sugar Consumption (grams) in 24 Hours",
+        title = "Sugar Consumption vs Age", fill = "Gender")
 ```
 
-    ## Warning: Duplicated aesthetics after name standardisation: size
-
-![](README_files/figure-gfm/sugar%20and%20sat%20fa%20consumption%20by%20age-1.png)<!-- -->
+<img src="README_files/figure-gfm/sugar and sat fa consumption by age-1.png" style="display: block; margin: auto;" />
 
 ``` r
 # saturated fa
@@ -811,43 +794,86 @@ unique(df[, .(sat_fa_consumption = sum(total_saturated_fatty_acids_gm),
     age_category, gender), by = "respondent_sequence_number"]) %>%
     ggplot(mapping = aes(x = factor(age_category, levels = c("<1",
         "1-3", "4-8", "9-13", "14-18", "19-30", "31-50", "51-70",
-        "70+")), y = sat_fa_consumption, fill = gender)) + geom_violin(size = 0.1,
-    cex = 0.2) + labs(x = "Age Range", y = "Saturated FA Consumption (grams) in 24 Hours",
-    title = "Saturated FA Consumption vs Age")
+        "70+")), y = sat_fa_consumption, fill = gender)) + geom_violin() +
+    stat_summary(fun = median, geom = "point", position = position_dodge(0.9)) +
+    labs(x = "Age Range", y = "Saturated FA Consumption (grams) in 24 Hours",
+        title = "Saturated FA Consumption vs Age", fill = "Gender")
 ```
 
-    ## Warning: Duplicated aesthetics after name standardisation: size
-
-![](README_files/figure-gfm/sugar%20and%20sat%20fa%20consumption%20by%20age-2.png)<!-- -->
+<img src="README_files/figure-gfm/sugar and sat fa consumption by age-2.png" style="display: block; margin: auto;" />
 
 ``` r
 # sugar
 unique(df[, .(sugar_consumption = sum(total_sugars_gm), `race/hispanic_origin_w/_nh_asian`,
     gender), by = "respondent_sequence_number"]) %>%
     ggplot(mapping = aes(x = `race/hispanic_origin_w/_nh_asian`,
-        y = sugar_consumption, fill = gender)) + geom_violin(size = 0.1,
-    cex = 0.2) + theme(axis.text.x = element_text(angle = 90,
-    vjust = 1, hjust = 1)) + labs(x = "Ethnicity", y = "Sugar Consumption (grams) in 24 Hours",
-    title = "Sugar Consumption vs Ethnicity")
+        y = sugar_consumption, fill = gender)) + geom_violin() +
+    stat_summary(fun = median, geom = "point", position = position_dodge(0.9)) +
+    labs(x = "Ethnicity", y = "Sugar Consumption (grams) in 24 Hours",
+        title = "Sugar Consumption vs Ethnicity", fill = "Gender")
 ```
 
-    ## Warning: Duplicated aesthetics after name standardisation: size
-
-![](README_files/figure-gfm/sugar%20and%20sat%20fa%20consumption%20by%20ethnicity-1.png)<!-- -->
+<img src="README_files/figure-gfm/sugar and sat fa consumption by ethnicity-1.png" style="display: block; margin: auto;" />
 
 ``` r
 # saturated fa
 unique(df[, .(sat_fa_consumption = sum(total_saturated_fatty_acids_gm),
     `race/hispanic_origin_w/_nh_asian`, gender), by = "respondent_sequence_number"]) %>%
     ggplot(mapping = aes(x = `race/hispanic_origin_w/_nh_asian`,
-        y = sat_fa_consumption, fill = gender)) + geom_violin(size = 0.1,
-    cex = 0.2) + theme(axis.text.x = element_text(angle = 90,
-    vjust = 1, hjust = 1)) + labs(x = "Ethnicity", y = "Saturated FA Consumption (grams) in 24 Hours",
-    title = "Sugar Consumption vs Ethnicity")
+        y = sat_fa_consumption, fill = gender)) + geom_violin() +
+    stat_summary(fun = median, geom = "point", position = position_dodge(0.9)) +
+    labs(x = "Ethnicity", y = "Saturated FA Consumption (grams) in 24 Hours",
+        title = "Sugar Consumption vs Ethnicity", fill = "Gender")
 ```
 
-    ## Warning: Duplicated aesthetics after name standardisation: size
-
-![](README_files/figure-gfm/sugar%20and%20sat%20fa%20consumption%20by%20ethnicity-2.png)<!-- -->
+<img src="README_files/figure-gfm/sugar and sat fa consumption by ethnicity-2.png" style="display: block; margin: auto;" />
 
 #### Does the source of the food or whether the meal was eaten at home have an effect?
+
+``` r
+# sugar
+ggplot(data = df, mapping = aes(x = log10(total_sugars_gm + 1),
+    fill = did_you_eat_this_meal_at_home.)) + geom_histogram(bins = 200,
+    alpha = 0.5) + labs(x = "Log10 + 1 of Total Sugar Consumption",
+    y = "Number of Observations", title = "Log Transformation of Sugar Consumption vs Whether Meal Was Eaten at Home",
+    fill = "Meal Eaten at Home")
+```
+
+<img src="README_files/figure-gfm/plot meal eaten at home-1.png" style="display: block; margin: auto;" />
+
+``` r
+# saturated fa
+ggplot(data = df, mapping = aes(x = log10(total_saturated_fatty_acids_gm +
+    1), fill = did_you_eat_this_meal_at_home.)) + geom_histogram(bins = 200,
+    alpha = 0.5) + labs(x = "Log10 + 1 of Total Saturated FA Consumption",
+    y = "Number of Observations", title = "Log Transformation of Saturated FA Consumption vs Whether Meal Was Eaten at Home",
+    fill = "Meal Eaten at Home")
+```
+
+<img src="README_files/figure-gfm/plot meal eaten at home-2.png" style="display: block; margin: auto;" />
+
+``` r
+# sugars
+df[!is.na(food_source) & !is.na(total_sugars_gm)] %>%
+    ggplot(mapping = aes(x = forcats::fct_reorder(factor(food_source),
+        total_sugars_gm, mean), y = total_sugars_gm)) + stat_summary(fun.data = mean_se,
+    geom = "errorbar") + stat_summary(fun = mean, size = 0.1) +
+    theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1)) +
+    labs(x = "Source of Food", y = "Total Sugar Consumption (grams)",
+        title = "Sugar Consumption vs Source of Food")
+```
+
+<img src="README_files/figure-gfm/plot source of food-1.png" style="display: block; margin: auto;" />
+
+``` r
+# saturated fa
+df[!is.na(food_source) & !is.na(total_sugars_gm)] %>%
+    ggplot(mapping = aes(x = forcats::fct_reorder(factor(food_source),
+        total_saturated_fatty_acids_gm, mean), y = total_saturated_fatty_acids_gm)) +
+    stat_summary(fun.data = mean_se, geom = "errorbar") + stat_summary(fun = mean,
+    size = 0.1) + theme(axis.text.x = element_text(angle = 90,
+    vjust = 1, hjust = 1)) + labs(x = "Source of Food", y = "Total Saturated FA Consumption (grams)",
+    title = "Saturated FA Consumption vs Source of Food")
+```
+
+<img src="README_files/figure-gfm/plot source of food-2.png" style="display: block; margin: auto;" />
