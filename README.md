@@ -9,20 +9,28 @@ Main source of data:
 
 Questions:  
 Insulin resistance and diabetes is a growing health issue for Americans.
-Causes of this includes consumption of foods high in carbohydrates and
-saturated fats, causing blood glucose levels to spike and insulin is
-needed to bring the blood glucose levels back down to normal. Over time,
-consistent high blood glucose spikes lead to the body becoming
-accustomed to high amounts of sugar, and therefore acquiring insulin
-resistance. In this project, I will be investigating what attributes
-cause people to eat foods that lead to blood glucose spikes.  
+When foods with a high glycemic index (causing a rapid rise in blood
+sugar) are consumed, the pancreas must pump insulin to move sugar from
+the blood back into the cells. Over time, if these foods are constantly
+being consumed, the cells stop responding to insulin and the normal
+blood sugar level rises. This leads to weight gain, as excess blood
+sugar is sent to be stored as body fat, and sets the stage for
+prediabetes and type 2 diabetes.  
+While there are many other factors that influence the development of
+insulin resistance and diabetes such as lifestyle, environmental
+factors, and genetics, in this project, I will only be investigating
+factors affecting our food choices using the NHANES (National Health and
+Nutrition Examination Survey) data. More specifically, I examined the
+data that was collected in What We Eat in America (WWEIA), the dietary
+interview component of the NHANES. I will use the data to investigate
+the following questions that I have asked:  
 
 -   What time and/or day of the week do people generally eat foods high
-    in sugar/saturated fats?
--   Does sugar consumption vary by age, ethnicity, gender, or pregnancy
-    status?
--   Does source of food or whether the meal was eaten at home have an
-    effect?
+    in sugar or saturated fatty acids (FA)?
+-   Does sugar or saturated fa consumption vary by age, ethnicity, or
+    gender?
+-   Does the source of food or whether the meal was eaten at home have
+    an effect on sugar or saturated fa consumption?
 
 ### Preliminary Results
 
@@ -39,8 +47,8 @@ Summary tables
 | Saturday           |                        7.869872 |                                      15.29819 |                                       2.017774 |                                                     3.952384 |                  38534 |
 
 From the summary table above, it can be observed that average sugar and
-saturated fat consumption is slightly higher on the weekends, as well as
-Friday and Wednesday.
+saturated fat consumption is slightly higher on the weekends, and are
+closely followed by Friday and Wednesday.
 
 | Hour of the Day (0 = 12:00 AM - 12:59 AM, 23 = 11:00 PM - 11:59 PM) | Average Total Sugar Consumption | Standard Deviation of Total Sugar Consumption | Average Total Saturated Fatty Acid Consumption | Standard Deviation of Total Saturated Fatty Acid Consumption | Number of Observations |
 |--------------------------------------------------------------------:|--------------------------------:|----------------------------------------------:|-----------------------------------------------:|-------------------------------------------------------------:|-----------------------:|
@@ -69,34 +77,41 @@ Friday and Wednesday.
 |                                                                  22 |                        9.603860 |                                      17.01041 |                                       2.365811 |                                                     4.602343 |                   4368 |
 |                                                                  23 |                        8.734024 |                                      14.78982 |                                       2.170832 |                                                     4.285383 |                   2366 |
 
-From the summary table above that groups sugar and saturated fat
+From the summary table above, which groups sugar and saturated fat
 consumption by the hours that they were consumed, it can be seen that
 higher sugar and saturated fat consumption occurs between the hours of
-8PM to 2AM. 3PM and 4PM also had slightly higher sugar and saturated fat
-consumption.
+8PM to 2AM. Additionally, 3PM and 4PM also had slightly higher sugar and
+saturated fat consumption.
 
 | Eating Occasion      | Average Total Sugar Consumption | Standard Deviation of Total Sugar Consumption | Average Total Saturated Fatty Acid Consumption | Standard Deviation of Total Saturated Fatty Acid Consumption | Number of Observations |
 |:---------------------|--------------------------------:|----------------------------------------------:|-----------------------------------------------:|-------------------------------------------------------------:|-----------------------:|
-| Comida               |                        5.996550 |                                     12.452777 |                                      1.9596370 |                                                     4.220748 |                   2168 |
-| Almuerzo             |                        6.040902 |                                     12.888273 |                                      1.8254938 |                                                     3.930899 |                   2351 |
-| Dinner               |                        6.088390 |                                     12.764289 |                                      2.3426095 |                                                     4.315730 |                  37289 |
-| Lunch                |                        6.444327 |                                     13.067584 |                                      2.0005485 |                                                     3.759927 |                  34174 |
-| Desayano             |                        6.601639 |                                     10.990466 |                                      1.4365567 |                                                     2.791270 |                   3032 |
-| Bebida               |                        6.648814 |                                     14.167280 |                                      0.3213970 |                                                     1.120434 |                    801 |
-| Cena                 |                        6.745963 |                                     12.785199 |                                      1.9265675 |                                                     4.209928 |                   2992 |
-| Supper               |                        6.799386 |                                     13.952740 |                                      2.5479036 |                                                     4.750105 |                   9388 |
-| Breakfast            |                        7.498159 |                                     12.440818 |                                      1.6602312 |                                                     3.106925 |                  31741 |
-| Brunch               |                        7.512050 |                                     13.522190 |                                      2.3093810 |                                                     4.393188 |                   2005 |
-| Infant feeding       |                        7.545321 |                                      6.038356 |                                      1.5679247 |                                                     1.438459 |                   2988 |
-| Entre comida         |                        8.335434 |                                     14.733579 |                                      1.3515717 |                                                     3.758018 |                    495 |
-| Drink                |                        8.943371 |                                     18.033214 |                                      0.4381726 |                                                     1.939871 |                   8423 |
-| Botana               |                        9.186853 |                                     12.589935 |                                      1.4895198 |                                                     3.466799 |                    429 |
-| Merienda             |                        9.470025 |                                     14.209530 |                                      1.4602024 |                                                     3.090206 |                   1186 |
-| Tentempie            |                        9.664634 |                                     10.323859 |                                      1.7000976 |                                                     2.823390 |                     41 |
-| Snack                |                       10.751874 |                                     16.167832 |                                      2.0776491 |                                                     4.102707 |                  29089 |
-| Bocadillo            |                       10.968052 |                                     16.025106 |                                      1.7000406 |                                                     3.950243 |                    616 |
-| Extended consumption |                       15.721413 |                                     50.865800 |                                      0.6547581 |                                                     3.519036 |                   2534 |
 | Don’t know           |                       20.900000 |                                      0.000000 |                                      1.0370000 |                                                     0.000000 |                      2 |
+| Extended consumption |                       15.721413 |                                     50.865800 |                                      0.6547581 |                                                     3.519036 |                   2534 |
+| Bocadillo            |                       10.968052 |                                     16.025106 |                                      1.7000406 |                                                     3.950243 |                    616 |
+| Snack                |                       10.751874 |                                     16.167832 |                                      2.0776491 |                                                     4.102707 |                  29089 |
+| Tentempie            |                        9.664634 |                                     10.323859 |                                      1.7000976 |                                                     2.823390 |                     41 |
+| Merienda             |                        9.470025 |                                     14.209530 |                                      1.4602024 |                                                     3.090206 |                   1186 |
+| Botana               |                        9.186853 |                                     12.589935 |                                      1.4895198 |                                                     3.466799 |                    429 |
+| Drink                |                        8.943371 |                                     18.033214 |                                      0.4381726 |                                                     1.939871 |                   8423 |
+| Entre comida         |                        8.335434 |                                     14.733579 |                                      1.3515717 |                                                     3.758018 |                    495 |
+| Infant feeding       |                        7.545321 |                                      6.038356 |                                      1.5679247 |                                                     1.438459 |                   2988 |
+| Brunch               |                        7.512050 |                                     13.522190 |                                      2.3093810 |                                                     4.393188 |                   2005 |
+| Breakfast            |                        7.498159 |                                     12.440818 |                                      1.6602312 |                                                     3.106925 |                  31741 |
+| Supper               |                        6.799386 |                                     13.952740 |                                      2.5479036 |                                                     4.750105 |                   9388 |
+| Cena                 |                        6.745963 |                                     12.785199 |                                      1.9265675 |                                                     4.209928 |                   2992 |
+| Bebida               |                        6.648814 |                                     14.167280 |                                      0.3213970 |                                                     1.120434 |                    801 |
+| Desayano             |                        6.601639 |                                     10.990466 |                                      1.4365567 |                                                     2.791270 |                   3032 |
+| Lunch                |                        6.444327 |                                     13.067584 |                                      2.0005485 |                                                     3.759927 |                  34174 |
+| Dinner               |                        6.088390 |                                     12.764289 |                                      2.3426095 |                                                     4.315730 |                  37289 |
+| Almuerzo             |                        6.040902 |                                     12.888273 |                                      1.8254938 |                                                     3.930899 |                   2351 |
+| Comida               |                        5.996550 |                                     12.452777 |                                      1.9596370 |                                                     4.220748 |                   2168 |
+
+From the summary table above, we can see that eating occasions that are
+more considered to be more formal meals, such as dinner, lunch,
+almuerzo, desayano, supper, etc. generally involve less consumption of
+sugar than do informal eating occasions such as snacks. The reverse is
+true for saturated fatty acid consumption, as the average grams consumed
+for these are higher in more formal eating occasions.
 
 | Age Range | Average Total Sugar Consumption | Standard Deviation of Total Sugar Consumption | Average Total Saturated Fatty Acid Consumption | Standard Deviation of Total Saturated Fatty Acid Consumption | Number of Observations |
 |:----------|--------------------------------:|----------------------------------------------:|-----------------------------------------------:|-------------------------------------------------------------:|-----------------------:|
@@ -110,10 +125,17 @@ consumption.
 | 51-70     |                        6.763384 |                                     14.683986 |                                       1.755763 |                                                     3.651541 |                  42803 |
 | 70+       |                        6.073965 |                                     11.764628 |                                       1.625322 |                                                     3.279340 |                  17955 |
 
+The summary table above shows that average sugar and fatty acid
+consumption increases from birth until the ages of 14-18, and then
+decreases after age 18.
+
 | Gender | Average Total Sugar Consumption | Standard Deviation of Total Sugar Consumption | Average Total Saturated Fatty Acid Consumption | Standard Deviation of Total Saturated Fatty Acid Consumption | Number of Observations |
 |:-------|--------------------------------:|----------------------------------------------:|-----------------------------------------------:|-------------------------------------------------------------:|-----------------------:|
 | female |                        6.843890 |                                      13.02220 |                                       1.680465 |                                                     3.289837 |                  87533 |
 | male   |                        8.487986 |                                      16.88883 |                                       2.178095 |                                                     4.305765 |                  84211 |
+
+From the table above, it can be seen that males consume higher amounts
+of sugar and saturated fatty acids on average.
 
 | Race                        | Average Total Sugar Consumption | Standard Deviation of Total Sugar Consumption | Average Total Saturated Fatty Acid Consumption | Standard Deviation of Total Saturated Fatty Acid Consumption | Number of Observations |
 |:----------------------------|--------------------------------:|----------------------------------------------:|-----------------------------------------------:|-------------------------------------------------------------:|-----------------------:|
@@ -123,6 +145,10 @@ consumption.
 | non-hispanic_black          |                        8.394050 |                                      15.73418 |                                       2.038325 |                                                     4.074282 |                  42203 |
 | other_race_incl_multiracial |                        8.607685 |                                      16.77969 |                                       2.084585 |                                                     3.934074 |                  10509 |
 | other_hispanic              |                        7.160682 |                                      14.03439 |                                       1.717158 |                                                     3.441850 |                  17396 |
+
+The groups with the highest average sugar and saturated fatty acid
+consumption are “other race including multiracial” and “non-hispanic
+black”, and they are closely followed by “non-hispanic white”.
 
 | Food Source                                  | Average Total Sugar Consumption | Standard Deviation of Total Sugar Consumption | Average Total Saturated Fatty Acid Consumption | Standard Deviation of Total Saturated Fatty Acid Consumption | Number of Observations |
 |:---------------------------------------------|--------------------------------:|----------------------------------------------:|-----------------------------------------------:|-------------------------------------------------------------:|-----------------------:|
@@ -153,46 +179,82 @@ consumption.
 | Restaurant no additional information         |                        3.431039 |                                      7.588165 |                                      1.7768182 |                                                     3.541378 |                     77 |
 | Fish caught by you or someone you know       |                        1.707647 |                                      3.441011 |                                      3.7097647 |                                                     5.645766 |                     17 |
 
+High average sugar consumption can be seen to come from food sources
+such as vending machines and convenience stores, likely due to the sale
+of sugar-sweetened beverages. High saturated fatty acid consumption can
+be seen to come from food sources such as fish (due to naturally
+occurring omega fatty acids in fish) as well as fast food restaurants
+and recreational facilities.
+
 | Meal Eaten at Home | Average Total Sugar Consumption | Standard Deviation of Total Sugar Consumption | Average Total Saturated Fatty Acid Consumption | Standard Deviation of Total Saturated Fatty Acid Consumption | Number of Observations |
 |:-------------------|--------------------------------:|----------------------------------------------:|-----------------------------------------------:|-------------------------------------------------------------:|-----------------------:|
 | no                 |                        7.890357 |                                     15.566681 |                                       1.952841 |                                                     3.828746 |                  52001 |
 | yes                |                        7.546146 |                                     14.842989 |                                       1.912270 |                                                     3.830932 |                 119689 |
 | dont_know          |                        6.498519 |                                      9.579175 |                                       1.636796 |                                                     2.444655 |                     54 |
 
+The table above reveals that food not eaten at home is generally
+slightly higher in average sugars and saturated fatty acids.
+
 ### Data Visualization
 
 #### What time and/or day of the week do people generally eat foods high in sugar/saturated fats?
 
-Plot sugar consumption versus time.
-
-    ## `geom_smooth()` using method = 'loess'
-
-<img src="README_files/figure-gfm/plot sugar and saturated fa consumption against time-1.png" style="display: block; margin: auto;" />
-
-    ## `geom_smooth()` using method = 'loess'
-
-<img src="README_files/figure-gfm/plot sugar and saturated fa consumption against time-2.png" style="display: block; margin: auto;" />
+<img src="README_files/figure-gfm/plot sugar and saturated fa consumption against time-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/plot sugar and saturated fa consumption against time-2.png" style="display: block; margin: auto;" />
+The plots above reveal that average sugar consumption increases as the
+day progresses, with large spikes at around 4:00 PM, 6:00 PM, 9:00 PM
+and 4:00 AM. A similar trend can be observed for saturated fatty acid
+consumption, with a large spike at around 12:00 PM and 10:30 PM.
 
 <img src="README_files/figure-gfm/plot sugar and saturated fa consumption against time grouped by day of the week-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/plot sugar and saturated fa consumption against time grouped by day of the week-2.png" style="display: block; margin: auto;" />
-
-    ##  [1] "Snack"                "Lunch"                "Breakfast"           
-    ##  [4] "Supper"               "Desayano"             "Dinner"              
-    ##  [7] "Almuerzo"             "Cena"                 "Drink"               
-    ## [10] "Brunch"               "Infant feeding"       "Comida"              
-    ## [13] "Bebida"               "Bocadillo"            "Merienda"            
-    ## [16] "Entre comida"         "Extended consumption" "Botana"              
-    ## [19] "Tentempie"            "Don't know"
+The plots above reveal that sugar consumption is higher towards the
+evening for Monday through Wednesday. Additionally, there are spikes in
+sugar consumption in the morning around 9:30 AM on Wednesday and 5:30 AM
+on Thursday. Averages for sugar consumption tend to be more consistent
+throughout the 24 hour period on Friday, Saturday, and Sunday.  
+Averages for saturated fatty acid consumption are generally more
+consistent than sugar consumption, but there is an interesting large
+spike in consumption towards the end of the day on Wednesday. It can
+also be noted that there are more spikes in saturated fatty acid
+consumption on Saturday and Sunday.
 
 <img src="README_files/figure-gfm/plot sugar and saturated fa consumption by eating occasion-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/plot sugar and saturated fa consumption by eating occasion-2.png" style="display: block; margin: auto;" />
+The plots above reveal that average sugar consumption is lowest in meals
+eaten later in the day such as lunch and dinner, increases for earlier
+meals such as breakfast or brunch, and is highest in the snack and
+extended consumption categories. For average saturated fatty acid
+consumption, the trend can be described as an increase in consumption
+with more formal meal categories, such as brunch, dinner, and supper.
+However, snacking is also associated with higher average saturated fatty
+acid consumption. As expected, bebida, or drinks, are associated with
+the lowest saturated fatty acid consumption.
 
 #### Does sugar / saturated fatty acid consumption vary by age, ethnicity, gender?
 
 <img src="README_files/figure-gfm/sugar and sat fa consumption by age-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/sugar and sat fa consumption by age-2.png" style="display: block; margin: auto;" />
+The violin plots above reveal several trends in average sugar and
+saturated fatty acid consumption: first, that consumption is higher on
+average for males than females. Secondly, the trend in average
+consumption increases until age 18, and then decreases with age. Lastly,
+the range of values tends to increase with increasing age, especially so
+for males.
 
 <img src="README_files/figure-gfm/sugar and sat fa consumption by ethnicity-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/sugar and sat fa consumption by ethnicity-2.png" style="display: block; margin: auto;" />
+In grouping average sugar and saturated fatty acid consumption by
+ethnicity, there is not much variation between ethnicity groups and
+sugar consumption, however, the lowest average sugar and saturated fatty
+acid consumption and range of values is lowest in the non hispanic asian
+group, and highest in non hispanic black group.
 
 #### Does the source of the food or whether the meal was eaten at home have an effect?
 
 <img src="README_files/figure-gfm/plot meal eaten at home-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/plot meal eaten at home-2.png" style="display: block; margin: auto;" />
+The plots above graph the log normalized distribution of sugar and
+saturated fatty acid in foods eaten at home, not at home and unknown. It
+can be seen that the distributions of foods eaten at home and not at
+home are essentially the same for both sugar and saturated fatty acids.
 
 <img src="README_files/figure-gfm/plot source of food-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/plot source of food-2.png" style="display: block; margin: auto;" />
+
+![](README_files/figure-gfm/plot%20correlation%20between%20total%20saturated%20fatty%20acid%20consumption%20and%20sugar%20consumption-1.png)<!-- -->
+
+    ## [1] 0.4862645
