@@ -21,12 +21,11 @@ Insulin resistance and diabetes is a growing health issue for Americans. Causes 
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 60), tidy = TRUE)
 setwd("~/Desktop/PM566/midterm")
 ```
 
-Load Libraries
 ```{r load libraries, warning=FALSE, message=FALSE}
 library(haven)
 library(data.table)
@@ -37,14 +36,12 @@ library(xml2)
 library(rvest)
 ```
 
-Read in data from CDC website
 ```{r Read in data sets from website, cache = TRUE}
 fs_d1 <- read_xpt("https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_DR1IFF.xpt")
 demographic <- read_xpt("https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_DEMO.xpt")
 food_categories <- read_xpt("https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_drxfcd.xpt")
 ```
 
-Rename columns with the column labels provided
 ```{r Changing column names, warning = FALSE}
 # Get get all of the column labels in a data frame
 fs_d1_labels <- purrr::map_df(fs_d1, ~attributes(.x))
@@ -79,21 +76,18 @@ names(demographic) <- demographic_labels
 names(food_categories) <- fc_labels
 ```
 
-Convert to data table
 ```{r convert to data tables}
 fs_d1 <- as.data.table(fs_d1)
 food_categories <- as.data.table(food_categories)
 demographic <- as.data.table(demographic)
 ```
 
-Remove unnecessary columns
-```{r}
+```{r remove columns that are not needed}
 fs_d1 <- fs_d1[, c(1:30)]
 demographic <- demographic[, respondent_sequence_number:pregnancy_status_at_exam]
 food_categories <- food_categories[, -(former_short_food_code_description:former_long_food_code_description)]
 ```
 
-Change categorical columns from number codes to categorical variables in demographic table
 ```{r decoding categorical variables in demographic table}
 demographic[, `interview/examination_status` := fifelse(`interview/examination_status` == 1, "interview_only", "interview_and_mec_examined")]
 
@@ -130,7 +124,6 @@ demographic[, pregnancy_status_at_exam := fifelse(pregnancy_status_at_exam == 1,
 ```
 
 
-Create age category variable for demographic table.
 ```{r create age category variable for demographic table}
 demographic[, age_category := fifelse(age_in_years_at_screening == 0, "<1",
                               fifelse(age_in_years_at_screening %between% c(1,3), "1-3",
@@ -142,8 +135,8 @@ demographic[, age_category := fifelse(age_in_years_at_screening == 0, "<1",
                               fifelse(age_in_years_at_screening %between% c(51,70), "51-70", "70+"))))))))]
 ```
 
-Categorize the answers in the food survey. Need day of the week, name of eating occasion, source of food, and if the food was eaten at home categorized.
 ```{r Categorize food survey day 1 using fifelse}
+# columns needed: day of the week, name of eating occasion, source of food, and if the food was eaten at home categorized
 # create new column for this so it can still be ordered
 fs_d1[, intake_day_cat := fifelse(intake_day_of_the_week == 1, "Sunday",
                                           fifelse(intake_day_of_the_week == 2, "Monday",
@@ -206,10 +199,11 @@ fs_d1 <- fs_d1[-c(1)]
 ### Preliminary Results
 
 
+
+```{r merge data and begin EDA}
 #### Exploratory Data Analysis
 
-Check dimensions, headers, and footers
-```{r merge data}
+
 # First merge all the data tables into one
 
 df <- merge(
@@ -227,27 +221,27 @@ df <- merge(
 df <- as.data.table(df)
 ```
 
-```{r check dimensions headers and footers, echo = TRUE, results = "hide"}
+```{r check dimensions headers and footers, results='hide'}
 dim(df)
 head(df)
 tail(df)
 ```
 
-Check variable types
-```{r check variable types, echo = TRUE, results = "hide"}
+```{r check variable types, results = "hide"}
 str(df)
 ```
 
-Check key variables and provide summary statistics in tabular form.
+```{r summary tables of total sugar and fat consumption, results = "hide"}
+# Check key variables and provide summary statistics in tabular form
+# First, check the predicted variables
 
-First, check the predicted variables.
-```{r summary tables of total sugar and fat consumption}
 quantile(df$total_sugars_gm, seq(0, 1, 0.1))
 
 quantile(df$total_saturated_fatty_acids_gm, seq(0, 1, 0.1))
 ```
-Some food items seem to be high in sugars and saturated fats, lets see what it makes sense
-```{r view total sugar and fat measurements in food items}
+```{r view total sugar and fat measurements in food items, results = "hide", warning = FALSE}
+#Some food items seem to be high in sugars and saturated fats, lets see what it makes sense
+
 df[total_sugars_gm > 200, .(unique(long_food_code_description), total_sugars_gm)] %>%
   head(n = 20) 
 
@@ -256,9 +250,7 @@ df[total_saturated_fatty_acids_gm > 50,
   head(n = 20)
 ```
 
-Next, check the predictor variables.
-```{r check predictor variables}
-#fs_d1[, .(mean(total_sugars_gm)), by = "time_of_eating_occasion_hh.mm"]
+```{r check predictor variables, results = 'hide'}
 unique(df$food_source)
 unique(df$eating_occasion)
 unique(df$did_you_eat_this_meal_at_home.)
@@ -270,7 +262,6 @@ unique(df$`race/hispanic_origin_w/_nh_asian`)
 
 
 Summary tables
-
 ```{r sugar fat consumption by day of week}
 # average and standard deviation of sugar consumption and saturated fatty acid consumption by day of the week
 df[, 

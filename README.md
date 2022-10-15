@@ -24,448 +24,9 @@ cause people to eat foods that lead to blood glucose spikes.
 -   Does source of food or whether the meal was eaten at home have an
     effect?
 
-Load Libraries
-
-``` r
-library(haven)
-library(data.table)
-library(tidyverse)
-library(dtplyr)
-library(httr)
-library(xml2)
-library(rvest)
-```
-
-Read in data from CDC website
-
-``` r
-fs_d1 <- read_xpt("https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_DR1IFF.xpt")
-demographic <- read_xpt("https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_DEMO.xpt")
-food_categories <- read_xpt("https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_drxfcd.xpt")
-```
-
-Rename columns with the column labels provided
-
-``` r
-# Get get all of the column labels in a data frame
-fs_d1_labels <- purrr::map_df(fs_d1, ~attributes(.x))
-
-demographic_labels <- purrr::map_df(demographic, ~attributes(.x))
-
-fc_labels <- purrr::map_df(food_categories, ~attributes(.x))
-
-
-# gsub() the spaces to underscores and put into vector
-fs_d1_labels <- gsub(" ", "_", fs_d1_labels$label)
-fs_d1_labels <- gsub("\\(|\\)", "", fs_d1_labels) %>%
-    as.vector() %>%
-    tolower() %>%
-    unique()
-
-demographic_labels <- gsub(" ", "_", demographic_labels$label) %>%
-    as.vector() %>%
-    tolower()
-
-fc_labels <- gsub(" ", "_", fc_labels$label) %>%
-    as.vector() %>%
-    tolower()
-
-
-# reassign names
-names(fs_d1) <- fs_d1_labels
-names(fs_d1) <- make.names(names(fs_d1))
-
-names(demographic) <- demographic_labels
-
-names(food_categories) <- fc_labels
-```
-
-Convert to data table
-
-``` r
-fs_d1 <- as.data.table(fs_d1)
-food_categories <- as.data.table(food_categories)
-demographic <- as.data.table(demographic)
-```
-
-Remove unnecessary columns
-
-``` r
-fs_d1 <- fs_d1[, c(1:30)]
-demographic <- demographic[, respondent_sequence_number:pregnancy_status_at_exam]
-food_categories <- food_categories[, -(former_short_food_code_description:former_long_food_code_description)]
-```
-
-Change categorical columns from number codes to categorical variables in
-demographic table
-
-``` r
-demographic[, `:=`(`interview/examination_status`, fifelse(`interview/examination_status` ==
-    1, "interview_only", "interview_and_mec_examined"))]
-
-demographic[, `:=`(gender, fifelse(gender == 1, "male", "female"))]
-
-demographic[, `:=`(`race/hispanic_origin`, fifelse(`race/hispanic_origin` ==
-    1, "mexican_american", fifelse(`race/hispanic_origin` ==
-    2, "other_hispanic", fifelse(`race/hispanic_origin` == 3,
-    "non-hispanic_white", fifelse(`race/hispanic_origin` == 4,
-        "non-hispanic_black", "other_race_incl_multiracial")))))]
-
-demographic[, `:=`(`race/hispanic_origin_w/_nh_asian`, fifelse(`race/hispanic_origin_w/_nh_asian` ==
-    1, "mexican_american", fifelse(`race/hispanic_origin_w/_nh_asian` ==
-    2, "other_hispanic", fifelse(`race/hispanic_origin_w/_nh_asian` ==
-    3, "non-hispanic_white", fifelse(`race/hispanic_origin_w/_nh_asian` ==
-    4, "non-hispanic_black", fifelse(`race/hispanic_origin_w/_nh_asian` ==
-    6, "non-hispanic_asian", "other_race_incl_multiracial"))))))]
-
-demographic[, `:=`(six_month_time_period, fifelse(six_month_time_period ==
-    1, "nov1-apr30", fifelse(six_month_time_period == 2, "may1-oct31",
-    NA_character_)))]
-
-demographic[, `:=`(country_of_birth, fifelse(country_of_birth ==
-    1, "united_states", fifelse(country_of_birth == 2, "other",
-    fifelse(country_of_birth == 77, "refused", "dont_know"))))]
-
-demographic[, `:=`(length_of_time_in_us, fifelse(length_of_time_in_us ==
-    1, "less_than_5", fifelse(length_of_time_in_us == 2, "between_5_and_15",
-    fifelse(length_of_time_in_us == 3, "between_15_and_30", fifelse(length_of_time_in_us ==
-        4, "30_or_more", fifelse(length_of_time_in_us == 77,
-        "refused", fifelse(length_of_time_in_us == 99, "dont_know",
-            NA_character_)))))))]
-
-demographic[, `:=`(pregnancy_status_at_exam, fifelse(pregnancy_status_at_exam ==
-    1, "pregnant", fifelse(pregnancy_status_at_exam == 2, "not_pregnant",
-    fifelse(pregnancy_status_at_exam == 3, "cannot_ascertain",
-        NA_character_))))]
-```
-
-Create age category variable for demographic table.
-
-``` r
-demographic[, `:=`(age_category, fifelse(age_in_years_at_screening ==
-    0, "<1", fifelse(age_in_years_at_screening %between% c(1,
-    3), "1-3", fifelse(age_in_years_at_screening %between% c(4,
-    8), "4-8", fifelse(age_in_years_at_screening %between% c(9,
-    13), "9-13", fifelse(age_in_years_at_screening %between%
-    c(14, 18), "14-18", fifelse(age_in_years_at_screening %between%
-    c(19, 30), "19-30", fifelse(age_in_years_at_screening %between%
-    c(31, 50), "31-50", fifelse(age_in_years_at_screening %between%
-    c(51, 70), "51-70", "70+")))))))))]
-```
-
-Categorize the answers in the food survey. Need day of the week, name of
-eating occasion, source of food, and if the food was eaten at home
-categorized.
-
-``` r
-# create new column for this so it can still be ordered
-fs_d1[, `:=`(intake_day_cat, fifelse(intake_day_of_the_week ==
-    1, "Sunday", fifelse(intake_day_of_the_week == 2, "Monday",
-    fifelse(intake_day_of_the_week == 3, "Tuesday", fifelse(intake_day_of_the_week ==
-        4, "Wednesday", fifelse(intake_day_of_the_week == 5,
-        "Thursday", fifelse(intake_day_of_the_week == 6, "Friday",
-            "Saturday")))))))]
-
-# table(fs_d1$`did_you_eat_this_meal_at_home?`) #1, 2, and
-# 9 are the only answers
-fs_d1[, `:=`(did_you_eat_this_meal_at_home., fifelse(did_you_eat_this_meal_at_home. ==
-    1, "yes", fifelse(did_you_eat_this_meal_at_home. == 2, "no",
-    "dont_know")))]
-```
-
-``` r
-# for the next categorization steps, I will be reading in
-# tables from the CDC website because they contain many
-# possible values
-
-# categorize the name of eating occasion read in name of
-# eating occasion table from CDC website using html and
-# full Xpath
-eating_occasion <- read_html("https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_DR1IFF.htm#DR1DAY") %>%
-    html_nodes(xpath = "/html/body/div[2]/div[4]/div[15]/table") %>%
-    html_table() %>%
-    as.data.frame() %>%
-    select(Code.or.Value, Value.Description)
-
-# merge table into original data table
-fs_d1 <- merge(x = eating_occasion, y = fs_d1, by.x = "Code.or.Value",
-    by.y = "name_of_eating_occasion")
-
-# the merge replaced the old column
-# 'name_of_eating_occasion' with 'Code.or.Value' from the
-# new table I only need the 'Value.Description' column so
-# rename it and remove 'Code.or.Value' column
-setnames(fs_d1, "Value.Description", "eating_occasion")
-fs_d1 <- fs_d1[-c(1)]
-
-######################################
-
-# categorize source of food
-source_of_food <- read_html("https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_DR1IFF.htm#DR1DAY") %>%
-    html_nodes(xpath = "/html/body/div[2]/div[4]/div[16]/table") %>%
-    html_table() %>%
-    as.data.frame() %>%
-    select(Code.or.Value, Value.Description)
-
-fs_d1 <- merge(x = source_of_food, y = fs_d1, by.x = "Code.or.Value",
-    by.y = "source_of_food")
-
-setnames(fs_d1, "Value.Description", "food_source")
-fs_d1 <- fs_d1[-c(1)]
-```
-
 ### Preliminary Results
 
-#### Exploratory Data Analysis
-
-Check dimensions, headers, and footers
-
-``` r
-# First merge all the data tables into one
-
-df <- merge(x = merge(x = fs_d1, y = demographic, by.x = "respondent_sequence_number",
-    by.y = "respondent_sequence_number"), y = food_categories,
-    by.x = "usda_food_code", by.y = "food_code")
-
-df <- as.data.table(df)
-```
-
-``` r
-dim(df)
-head(df)
-tail(df)
-```
-
-Check variable types
-
-``` r
-str(df)
-```
-
-Check key variables and provide summary statistics in tabular form.
-
-First, check the predicted variables.
-
-``` r
-quantile(df$total_sugars_gm, seq(0, 1, 0.1))
-```
-
-    ##      0%     10%     20%     30%     40%     50%     60%     70%     80%     90% 
-    ##   0.000   0.000   0.050   0.260   0.770   1.825   3.660   6.830  12.200  21.570 
-    ##    100% 
-    ## 690.230
-
-``` r
-quantile(df$total_saturated_fatty_acids_gm, seq(0, 1, 0.1))
-```
-
-    ##       0%      10%      20%      30%      40%      50%      60%      70% 
-    ##   0.0000   0.0000   0.0020   0.0130   0.0710   0.3680   0.9148   1.6820 
-    ##      80%      90%     100% 
-    ##   3.0270   5.6380 131.1270
-
-Some food items seem to be high in sugars and saturated fats, lets see
-what it makes sense
-
-``` r
-df[total_sugars_gm > 200, .(unique(long_food_code_description),
-    total_sugars_gm)] %>%
-    head(n = 20)
-```
-
-    ## Warning in as.data.table.list(jval, .named = NULL): Item 1 has 35 rows but
-    ## longest item has 78; recycled with remainder.
-
-    ##                                                                         V1
-    ##  1:                    Cake or cupcake, chocolate with white icing, bakery
-    ##  2:                Cake or cupcake, chocolate with chocolate icing, bakery
-    ##  3:                                                Cake or cupcake, marble
-    ##  4:                                                            Cake, pound
-    ##  5:                                     Cake, pound, with icing or filling
-    ##  6:                                                        Cookie, coconut
-    ##  7:                                                        Tart, all types
-    ##  8:                                                      Pie, sweet potato
-    ##  9: Orange juice, 100%, with calcium added, canned, bottled or in a carton
-    ## 10:                                                      Apple juice, 100%
-    ## 11:                                                      Grape juice, 100%
-    ## 12:                                       Sugar, white, granulated or lump
-    ## 13:                                                          Pancake syrup
-    ## 14:                                   Fruit leather and fruit snacks candy
-    ## 15:                                                           Candy, taffy
-    ## 16:                    Tea, iced, instant, black, pre-sweetened with sugar
-    ## 17:                     Tea, iced, brewed, black, pre-sweetened with sugar
-    ## 18:                                              Tea, iced, bottled, black
-    ## 19:                                                       Soft drink, cola
-    ## 20:                                                Soft drink, pepper type
-    ##     total_sugars_gm
-    ##  1:          209.20
-    ##  2:          217.38
-    ##  3:          314.35
-    ##  4:          218.30
-    ##  5:          219.04
-    ##  6:          286.10
-    ##  7:          241.14
-    ##  8:          203.46
-    ##  9:          270.96
-    ## 10:          214.00
-    ## 11:          204.75
-    ## 12:          329.74
-    ## 13:          301.47
-    ## 14:          313.13
-    ## 15:          210.64
-    ## 16:          598.80
-    ## 17:          224.55
-    ## 18:          201.60
-    ## 19:          212.55
-    ## 20:          235.23
-
-``` r
-df[total_saturated_fatty_acids_gm > 50, .(unique(long_food_code_description),
-    total_saturated_fatty_acids_gm)] %>%
-    head(n = 20)
-```
-
-    ## Warning in as.data.table.list(jval, .named = NULL): Item 1 has 39 rows but
-    ## longest item has 47; recycled with remainder.
-
-    ##                                                     V1
-    ##  1:                                        Milk, whole
-    ##  2:                                       Cream, heavy
-    ##  3:                                Sour cream, regular
-    ##  4:                                           Tiramisu
-    ##  5:                                    Cheese, Cheddar
-    ##  6:                                   Cheese, Monterey
-    ##  7:        Beef, shortribs, cooked, lean and fat eaten
-    ##  8:        Pork, spareribs, cooked, lean and fat eaten
-    ##  9: Chicken "wings" with hot sauce, from other sources
-    ## 10:                                  Seafood thermidor
-    ## 11:                                   Pot pie, chicken
-    ## 12:                      Coconut milk, used in cooking
-    ## 13:                 Roll, sweet, cinnamon bun, frosted
-    ## 14:                                  Cheesecake, plain
-    ## 15:                                  Cheesecake, fruit
-    ## 16:                                    Cookie, coconut
-    ## 17:    Cookie, butter or sugar, with fruit and/or nuts
-    ## 18:                                  Pie, sweet potato
-    ## 19:          Popcorn, movie theater, with added butter
-    ## 20:            Popcorn, movie theater, no butter added
-    ##     total_saturated_fatty_acids_gm
-    ##  1:                         72.614
-    ##  2:                        110.554
-    ##  3:                         60.840
-    ##  4:                         67.958
-    ##  5:                         78.336
-    ##  6:                         52.224
-    ##  7:                         56.054
-    ##  8:                         50.264
-    ##  9:                         82.703
-    ## 10:                         68.177
-    ## 11:                         60.118
-    ## 12:                         57.947
-    ## 13:                         50.736
-    ## 14:                         96.765
-    ## 15:                         51.205
-    ## 16:                         67.883
-    ## 17:                         52.672
-    ## 18:                        120.594
-    ## 19:                         58.760
-    ## 20:                         93.884
-
-Next, check the predictor variables.
-
-``` r
-# fs_d1[, .(mean(total_sugars_gm)), by =
-# 'time_of_eating_occasion_hh.mm']
-unique(df$food_source)
-```
-
-    ##  [1] "Store - grocery/supermarket"                 
-    ##  [2] "Cafeteria in a K-12 school"                  
-    ##  [3] "Restaurant fast food/pizza"                  
-    ##  [4] "From someone else/gift"                      
-    ##  [5] "Child/Adult care center"                     
-    ##  [6] "Restaurant with waiter/waitress"             
-    ##  [7] "Don't know"                                  
-    ##  [8] "Grown or caught by you or someone you know"  
-    ##  [9] "Store - convenience type"                    
-    ## [10] "Cafeteria NOT in a K-12 school"              
-    ## [11] "Store - no additional info"                  
-    ## [12] "Community food program - other"              
-    ## [13] "Child/Adult home care"                       
-    ## [14] "Restaurant no additional information"        
-    ## [15] "Meals on Wheels"                             
-    ## [16] "Common coffee pot or snack tray"             
-    ## [17] "Soup kitchen/shelter/food pantry"            
-    ## [18] "Mail order purchase"                         
-    ## [19] "Sport, recreation, or entertainment facility"
-    ## [20] "Residential dining facility"                 
-    ## [21] "Bar/tavern/lounge"                           
-    ## [22] "Street vendor, vending truck"                
-    ## [23] "Vending machine"                             
-    ## [24] "Fundraiser sales"                            
-    ## [25] "Community program no additional information" 
-    ## [26] "Fish caught by you or someone you know"
-
-``` r
-unique(df$eating_occasion)
-```
-
-    ##  [1] "Snack"                "Lunch"                "Breakfast"           
-    ##  [4] "Supper"               "Desayano"             "Dinner"              
-    ##  [7] "Almuerzo"             "Cena"                 "Drink"               
-    ## [10] "Brunch"               "Infant feeding"       "Comida"              
-    ## [13] "Bebida"               "Bocadillo"            "Merienda"            
-    ## [16] "Entre comida"         "Extended consumption" "Botana"              
-    ## [19] "Tentempie"            "Don't know"
-
-``` r
-unique(df$did_you_eat_this_meal_at_home.)
-```
-
-    ## [1] "yes"       "no"        "dont_know"
-
-``` r
-unique(df$intake_day_of_the_week)
-```
-
-    ## [1] 3 4 6 1 5 7 2
-
-``` r
-summary(df$age_in_years_at_screening)
-```
-
-    ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-    ##    0.00   13.00   36.00   36.77   59.00   80.00
-
-``` r
-unique(df$gender)
-```
-
-    ## [1] "female" "male"
-
-``` r
-unique(df$`race/hispanic_origin_w/_nh_asian`)
-```
-
-    ## [1] "non-hispanic_asian"          "mexican_american"           
-    ## [3] "non-hispanic_white"          "non-hispanic_black"         
-    ## [5] "other_race_incl_multiracial" "other_hispanic"
-
 Summary tables
-
-``` r
-# average and standard deviation of sugar consumption and
-# saturated fatty acid consumption by day of the week
-df[, .(avg_total_sugar = mean(total_sugars_gm), std_total_sugar = sd(total_sugars_gm),
-    avg_total_sat_fa = mean(total_saturated_fatty_acids_gm),
-    std_total_sat_fa = sd(total_saturated_fatty_acids_gm), num_observations = .N),
-    by = c("intake_day_of_the_week", "intake_day_cat")][order(intake_day_of_the_week)][,
-    intake_day_cat:num_observations] %>%
-    knitr::kable(col.names = c("Day of Food Intake", "Average Total Sugar Consumption",
-        "Standard Deviation of Total Sugar Consumption", "Average Total Saturated Fatty Acid Consumption",
-        "Standard Deviation of Total Saturated Fatty Acid Consumption",
-        "Number of Observations"))
-```
 
 | Day of Food Intake | Average Total Sugar Consumption | Standard Deviation of Total Sugar Consumption | Average Total Saturated Fatty Acid Consumption | Standard Deviation of Total Saturated Fatty Acid Consumption | Number of Observations |
 |:-------------------|--------------------------------:|----------------------------------------------:|-----------------------------------------------:|-------------------------------------------------------------:|-----------------------:|
@@ -480,17 +41,6 @@ df[, .(avg_total_sugar = mean(total_sugars_gm), std_total_sugar = sd(total_sugar
 From the summary table above, it can be observed that average sugar and
 saturated fat consumption is slightly higher on the weekends, as well as
 Friday and Wednesday.
-
-``` r
-df[, .(avg_total_sugar = mean(total_sugars_gm), std_total_sugar = sd(total_sugars_gm),
-    avg_total_sat_fa = mean(total_saturated_fatty_acids_gm),
-    std_total_sat_fa = sd(total_saturated_fatty_acids_gm), num_observations = .N),
-    by = hour(time_of_eating_occasion_hh.mm)][order(hour)] %>%
-    knitr::kable(col.names = c("Hour of the Day (0 = 12:00 AM - 12:59 AM, 23 = 11:00 PM - 11:59 PM)",
-        "Average Total Sugar Consumption", "Standard Deviation of Total Sugar Consumption",
-        "Average Total Saturated Fatty Acid Consumption", "Standard Deviation of Total Saturated Fatty Acid Consumption",
-        "Number of Observations"))
-```
 
 | Hour of the Day (0 = 12:00 AM - 12:59 AM, 23 = 11:00 PM - 11:59 PM) | Average Total Sugar Consumption | Standard Deviation of Total Sugar Consumption | Average Total Saturated Fatty Acid Consumption | Standard Deviation of Total Saturated Fatty Acid Consumption | Number of Observations |
 |--------------------------------------------------------------------:|--------------------------------:|----------------------------------------------:|-----------------------------------------------:|-------------------------------------------------------------:|-----------------------:|
@@ -525,17 +75,6 @@ higher sugar and saturated fat consumption occurs between the hours of
 8PM to 2AM. 3PM and 4PM also had slightly higher sugar and saturated fat
 consumption.
 
-``` r
-df[, .(avg_total_sugar = mean(total_sugars_gm), std_total_sugar = sd(total_sugars_gm),
-    avg_total_sat_fa = mean(total_saturated_fatty_acids_gm),
-    std_total_sat_fa = sd(total_saturated_fatty_acids_gm), num_observations = .N),
-    by = eating_occasion][order(avg_total_sugar)] %>%
-    knitr::kable(col.names = c("Eating Occasion", "Average Total Sugar Consumption",
-        "Standard Deviation of Total Sugar Consumption", "Average Total Saturated Fatty Acid Consumption",
-        "Standard Deviation of Total Saturated Fatty Acid Consumption",
-        "Number of Observations"))
-```
-
 | Eating Occasion      | Average Total Sugar Consumption | Standard Deviation of Total Sugar Consumption | Average Total Saturated Fatty Acid Consumption | Standard Deviation of Total Saturated Fatty Acid Consumption | Number of Observations |
 |:---------------------|--------------------------------:|----------------------------------------------:|-----------------------------------------------:|-------------------------------------------------------------:|-----------------------:|
 | Comida               |                        5.996550 |                                     12.452777 |                                      1.9596370 |                                                     4.220748 |                   2168 |
@@ -559,18 +98,6 @@ df[, .(avg_total_sugar = mean(total_sugars_gm), std_total_sugar = sd(total_sugar
 | Extended consumption |                       15.721413 |                                     50.865800 |                                      0.6547581 |                                                     3.519036 |                   2534 |
 | Don’t know           |                       20.900000 |                                      0.000000 |                                      1.0370000 |                                                     0.000000 |                      2 |
 
-``` r
-df[, .(avg_total_sugar = mean(total_sugars_gm), std_total_sugar = sd(total_sugars_gm),
-    avg_total_sat_fa = mean(total_saturated_fatty_acids_gm),
-    std_total_sat_fa = sd(total_saturated_fatty_acids_gm), num_observations = .N,
-    min(age_in_years_at_screening)), by = "age_category"][order(V6)][,
-    !c("V6")] %>%
-    knitr::kable(col.names = c("Age Range", "Average Total Sugar Consumption",
-        "Standard Deviation of Total Sugar Consumption", "Average Total Saturated Fatty Acid Consumption",
-        "Standard Deviation of Total Saturated Fatty Acid Consumption",
-        "Number of Observations"))
-```
-
 | Age Range | Average Total Sugar Consumption | Standard Deviation of Total Sugar Consumption | Average Total Saturated Fatty Acid Consumption | Standard Deviation of Total Saturated Fatty Acid Consumption | Number of Observations |
 |:----------|--------------------------------:|----------------------------------------------:|-----------------------------------------------:|-------------------------------------------------------------:|-----------------------:|
 | \<1       |                        6.603717 |                                      5.933466 |                                       1.322429 |                                                     1.438592 |                   4073 |
@@ -583,32 +110,10 @@ df[, .(avg_total_sugar = mean(total_sugars_gm), std_total_sugar = sd(total_sugar
 | 51-70     |                        6.763384 |                                     14.683986 |                                       1.755763 |                                                     3.651541 |                  42803 |
 | 70+       |                        6.073965 |                                     11.764628 |                                       1.625322 |                                                     3.279340 |                  17955 |
 
-``` r
-df[, .(avg_total_sugar = mean(total_sugars_gm), std_total_sugar = sd(total_sugars_gm),
-    avg_total_sat_fa = mean(total_saturated_fatty_acids_gm),
-    std_total_sat_fa = sd(total_saturated_fatty_acids_gm), num_observations = .N),
-    by = "gender"] %>%
-    knitr::kable(col.names = c("Gender", "Average Total Sugar Consumption",
-        "Standard Deviation of Total Sugar Consumption", "Average Total Saturated Fatty Acid Consumption",
-        "Standard Deviation of Total Saturated Fatty Acid Consumption",
-        "Number of Observations"))
-```
-
 | Gender | Average Total Sugar Consumption | Standard Deviation of Total Sugar Consumption | Average Total Saturated Fatty Acid Consumption | Standard Deviation of Total Saturated Fatty Acid Consumption | Number of Observations |
 |:-------|--------------------------------:|----------------------------------------------:|-----------------------------------------------:|-------------------------------------------------------------:|-----------------------:|
 | female |                        6.843890 |                                      13.02220 |                                       1.680465 |                                                     3.289837 |                  87533 |
 | male   |                        8.487986 |                                      16.88883 |                                       2.178095 |                                                     4.305765 |                  84211 |
-
-``` r
-df[, .(avg_total_sugar = mean(total_sugars_gm), std_total_sugar = sd(total_sugars_gm),
-    avg_total_sat_fa = mean(total_saturated_fatty_acids_gm),
-    std_total_sat_fa = sd(total_saturated_fatty_acids_gm), num_observations = .N),
-    by = "race/hispanic_origin_w/_nh_asian"] %>%
-    knitr::kable(col.names = c("Race", "Average Total Sugar Consumption",
-        "Standard Deviation of Total Sugar Consumption", "Average Total Saturated Fatty Acid Consumption",
-        "Standard Deviation of Total Saturated Fatty Acid Consumption",
-        "Number of Observations"))
-```
 
 | Race                        | Average Total Sugar Consumption | Standard Deviation of Total Sugar Consumption | Average Total Saturated Fatty Acid Consumption | Standard Deviation of Total Saturated Fatty Acid Consumption | Number of Observations |
 |:----------------------------|--------------------------------:|----------------------------------------------:|-----------------------------------------------:|-------------------------------------------------------------:|-----------------------:|
@@ -618,17 +123,6 @@ df[, .(avg_total_sugar = mean(total_sugars_gm), std_total_sugar = sd(total_sugar
 | non-hispanic_black          |                        8.394050 |                                      15.73418 |                                       2.038325 |                                                     4.074282 |                  42203 |
 | other_race_incl_multiracial |                        8.607685 |                                      16.77969 |                                       2.084585 |                                                     3.934074 |                  10509 |
 | other_hispanic              |                        7.160682 |                                      14.03439 |                                       1.717158 |                                                     3.441850 |                  17396 |
-
-``` r
-df[, .(avg_total_sugar = mean(total_sugars_gm), std_total_sugar = sd(total_sugars_gm),
-    avg_total_sat_fa = mean(total_saturated_fatty_acids_gm),
-    std_total_sat_fa = sd(total_saturated_fatty_acids_gm), num_observations = .N),
-    by = "food_source"][order(-avg_total_sugar, -avg_total_sat_fa)] %>%
-    knitr::kable(col.names = c("Food Source", "Average Total Sugar Consumption",
-        "Standard Deviation of Total Sugar Consumption", "Average Total Saturated Fatty Acid Consumption",
-        "Standard Deviation of Total Saturated Fatty Acid Consumption",
-        "Number of Observations"))
-```
 
 | Food Source                                  | Average Total Sugar Consumption | Standard Deviation of Total Sugar Consumption | Average Total Saturated Fatty Acid Consumption | Standard Deviation of Total Saturated Fatty Acid Consumption | Number of Observations |
 |:---------------------------------------------|--------------------------------:|----------------------------------------------:|-----------------------------------------------:|-------------------------------------------------------------:|-----------------------:|
@@ -659,17 +153,6 @@ df[, .(avg_total_sugar = mean(total_sugars_gm), std_total_sugar = sd(total_sugar
 | Restaurant no additional information         |                        3.431039 |                                      7.588165 |                                      1.7768182 |                                                     3.541378 |                     77 |
 | Fish caught by you or someone you know       |                        1.707647 |                                      3.441011 |                                      3.7097647 |                                                     5.645766 |                     17 |
 
-``` r
-df[, .(avg_total_sugar = mean(total_sugars_gm), std_total_sugar = sd(total_sugars_gm),
-    avg_total_sat_fa = mean(total_saturated_fatty_acids_gm),
-    std_total_sat_fa = sd(total_saturated_fatty_acids_gm), num_observations = .N),
-    by = "did_you_eat_this_meal_at_home."][order(-avg_total_sugar)] %>%
-    knitr::kable(col.names = c("Meal Eaten at Home", "Average Total Sugar Consumption",
-        "Standard Deviation of Total Sugar Consumption", "Average Total Saturated Fatty Acid Consumption",
-        "Standard Deviation of Total Saturated Fatty Acid Consumption",
-        "Number of Observations"))
-```
-
 | Meal Eaten at Home | Average Total Sugar Consumption | Standard Deviation of Total Sugar Consumption | Average Total Saturated Fatty Acid Consumption | Standard Deviation of Total Saturated Fatty Acid Consumption | Number of Observations |
 |:-------------------|--------------------------------:|----------------------------------------------:|-----------------------------------------------:|-------------------------------------------------------------:|-----------------------:|
 | no                 |                        7.890357 |                                     15.566681 |                                       1.952841 |                                                     3.828746 |                  52001 |
@@ -682,61 +165,15 @@ df[, .(avg_total_sugar = mean(total_sugars_gm), std_total_sugar = sd(total_sugar
 
 Plot sugar consumption versus time.
 
-``` r
-df[, .(mean(total_sugars_gm)), by = "time_of_eating_occasion_hh.mm"] %>%
-    ggplot(mapping = aes(x = time_of_eating_occasion_hh.mm, y = V1)) +
-    geom_line() + geom_smooth(formula = y ~ x, alpha = 0.01,
-    se = FALSE, linetype = "dashed") + labs(x = "Hour of the Day (0 = 12:00 AM - 12:59 AM, 23 = 11:00 PM - 11:59 PM)",
-    y = "Average Total Sugar Consumption (grams)", title = "Average Sugar Consumption vs Hour of the Day")
-```
-
     ## `geom_smooth()` using method = 'loess'
 
 <img src="README_files/figure-gfm/plot sugar and saturated fa consumption against time-1.png" style="display: block; margin: auto;" />
-
-``` r
-df[, .(mean(total_saturated_fatty_acids_gm)), by = "time_of_eating_occasion_hh.mm"] %>%
-    ggplot(mapping = aes(x = time_of_eating_occasion_hh.mm, y = V1)) +
-    geom_line() + geom_smooth(formula = y ~ x, alpha = 0.01,
-    se = FALSE, linetype = "dashed") + labs(x = "Hour of the Day (0 = 12:00 AM - 12:59 AM, 23 = 11:00 PM - 11:59 PM)",
-    y = "Average Total Saturated Fatty Acid Consumption (grams)",
-    title = "Average Saturated Fatty Acid Consumption vs Hour of the Day")
-```
 
     ## `geom_smooth()` using method = 'loess'
 
 <img src="README_files/figure-gfm/plot sugar and saturated fa consumption against time-2.png" style="display: block; margin: auto;" />
 
-``` r
-labels <- c(`1` = "Sunday", `2` = "Monday", `3` = "Tuesday",
-    `4` = "Wednesday", `5` = "Thursday", `6` = "Friday", `7` = "Saturday")
-
-df[, .(mean(total_sugars_gm)), by = c("intake_day_of_the_week",
-    "time_of_eating_occasion_hh.mm")][, `:=`(intake_day_of_the_week,
-    as.character(intake_day_of_the_week))] %>%
-    ggplot(mapping = aes(x = time_of_eating_occasion_hh.mm, y = V1)) +
-    geom_line() + facet_grid(intake_day_of_the_week ~ ., labeller = labeller(intake_day_of_the_week = labels)) +
-    labs(x = "Time of the Day", y = "Average Total Sugar Consumption (grams)",
-        title = "Average Total Sugar Consumption vs Time of Day by Day of Week")
-```
-
-<img src="README_files/figure-gfm/plot sugar and saturated fa consumption against time grouped by day of the week-1.png" style="display: block; margin: auto;" />
-
-``` r
-df[, .(mean(total_saturated_fatty_acids_gm)), by = c("intake_day_of_the_week",
-    "time_of_eating_occasion_hh.mm")][, `:=`(intake_day_of_the_week,
-    as.character(intake_day_of_the_week))] %>%
-    ggplot(mapping = aes(x = time_of_eating_occasion_hh.mm, y = V1)) +
-    geom_line() + facet_grid(intake_day_of_the_week ~ ., labeller = labeller(intake_day_of_the_week = labels)) +
-    labs(x = "Time of the Day", y = "Average Total Saturated Fatty Acid Consumption (grams)",
-        title = "Average Total Saturated Fatty Acid Consumption vs Time of Day by Day of Week")
-```
-
-<img src="README_files/figure-gfm/plot sugar and saturated fa consumption against time grouped by day of the week-2.png" style="display: block; margin: auto;" />
-
-``` r
-unique(df$eating_occasion)
-```
+<img src="README_files/figure-gfm/plot sugar and saturated fa consumption against time grouped by day of the week-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/plot sugar and saturated fa consumption against time grouped by day of the week-2.png" style="display: block; margin: auto;" />
 
     ##  [1] "Snack"                "Lunch"                "Breakfast"           
     ##  [4] "Supper"               "Desayano"             "Dinner"              
@@ -746,134 +183,16 @@ unique(df$eating_occasion)
     ## [16] "Entre comida"         "Extended consumption" "Botana"              
     ## [19] "Tentempie"            "Don't know"
 
-``` r
-# Sugar
-df[!is.na(eating_occasion) & !is.na(total_sugars_gm)] %>%
-    ggplot(mapping = aes(x = forcats::fct_reorder(factor(eating_occasion),
-        total_sugars_gm, mean), y = total_sugars_gm)) + stat_summary(fun.data = mean_se,
-    geom = "errorbar") + stat_summary(fun = mean, size = 0.1) +
-    theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1)) +
-    labs(x = "Name of Eating Occasion", y = "Average Grams Sugar Consumption",
-        title = "Sugar Consumption vs Eating Occasion")
-```
-
-<img src="README_files/figure-gfm/plot sugar and saturated fa consumption by eating occasion-1.png" style="display: block; margin: auto;" />
-
-``` r
-# Saturated Fatty Acid
-df[!is.na(eating_occasion) & !is.na(total_saturated_fatty_acids_gm)] %>%
-    ggplot(mapping = aes(x = forcats::fct_reorder(factor(eating_occasion),
-        total_saturated_fatty_acids_gm, mean), y = total_saturated_fatty_acids_gm)) +
-    stat_summary(fun.data = mean_se, geom = "errorbar") + stat_summary(fun = mean,
-    size = 0.1) + theme(axis.text.x = element_text(angle = 90,
-    vjust = 1, hjust = 1)) + labs(x = "Name of Eating Occasion",
-    y = "Average Grams Saturated Fatty Acid Consumption", title = "Saturated Fatty Acid Consumption vs Eating Occasion")
-```
-
-<img src="README_files/figure-gfm/plot sugar and saturated fa consumption by eating occasion-2.png" style="display: block; margin: auto;" />
+<img src="README_files/figure-gfm/plot sugar and saturated fa consumption by eating occasion-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/plot sugar and saturated fa consumption by eating occasion-2.png" style="display: block; margin: auto;" />
 
 #### Does sugar / saturated fatty acid consumption vary by age, ethnicity, gender?
 
-``` r
-# sugars
-unique(df[, .(sugar_consumption = sum(total_sugars_gm), age_category,
-    gender), by = "respondent_sequence_number"]) %>%
-    ggplot(mapping = aes(x = factor(age_category, levels = c("<1",
-        "1-3", "4-8", "9-13", "14-18", "19-30", "31-50", "51-70",
-        "70+")), y = sugar_consumption, fill = gender)) + geom_violin() +
-    stat_summary(fun = median, geom = "point", position = position_dodge(0.9)) +
-    labs(x = "Age Range", y = "Sugar Consumption (grams) in 24 Hours",
-        title = "Sugar Consumption vs Age", fill = "Gender")
-```
+<img src="README_files/figure-gfm/sugar and sat fa consumption by age-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/sugar and sat fa consumption by age-2.png" style="display: block; margin: auto;" />
 
-<img src="README_files/figure-gfm/sugar and sat fa consumption by age-1.png" style="display: block; margin: auto;" />
-
-``` r
-# saturated fa
-unique(df[, .(sat_fa_consumption = sum(total_saturated_fatty_acids_gm),
-    age_category, gender), by = "respondent_sequence_number"]) %>%
-    ggplot(mapping = aes(x = factor(age_category, levels = c("<1",
-        "1-3", "4-8", "9-13", "14-18", "19-30", "31-50", "51-70",
-        "70+")), y = sat_fa_consumption, fill = gender)) + geom_violin() +
-    stat_summary(fun = median, geom = "point", position = position_dodge(0.9)) +
-    labs(x = "Age Range", y = "Saturated FA Consumption (grams) in 24 Hours",
-        title = "Saturated FA Consumption vs Age", fill = "Gender")
-```
-
-<img src="README_files/figure-gfm/sugar and sat fa consumption by age-2.png" style="display: block; margin: auto;" />
-
-``` r
-# sugar
-unique(df[, .(sugar_consumption = sum(total_sugars_gm), `race/hispanic_origin_w/_nh_asian`,
-    gender), by = "respondent_sequence_number"]) %>%
-    ggplot(mapping = aes(x = `race/hispanic_origin_w/_nh_asian`,
-        y = sugar_consumption, fill = gender)) + geom_violin() +
-    stat_summary(fun = median, geom = "point", position = position_dodge(0.9)) +
-    labs(x = "Ethnicity", y = "Sugar Consumption (grams) in 24 Hours",
-        title = "Sugar Consumption vs Ethnicity", fill = "Gender")
-```
-
-<img src="README_files/figure-gfm/sugar and sat fa consumption by ethnicity-1.png" style="display: block; margin: auto;" />
-
-``` r
-# saturated fa
-unique(df[, .(sat_fa_consumption = sum(total_saturated_fatty_acids_gm),
-    `race/hispanic_origin_w/_nh_asian`, gender), by = "respondent_sequence_number"]) %>%
-    ggplot(mapping = aes(x = `race/hispanic_origin_w/_nh_asian`,
-        y = sat_fa_consumption, fill = gender)) + geom_violin() +
-    stat_summary(fun = median, geom = "point", position = position_dodge(0.9)) +
-    labs(x = "Ethnicity", y = "Saturated FA Consumption (grams) in 24 Hours",
-        title = "Sugar Consumption vs Ethnicity", fill = "Gender")
-```
-
-<img src="README_files/figure-gfm/sugar and sat fa consumption by ethnicity-2.png" style="display: block; margin: auto;" />
+<img src="README_files/figure-gfm/sugar and sat fa consumption by ethnicity-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/sugar and sat fa consumption by ethnicity-2.png" style="display: block; margin: auto;" />
 
 #### Does the source of the food or whether the meal was eaten at home have an effect?
 
-``` r
-# sugar
-ggplot(data = df, mapping = aes(x = log10(total_sugars_gm + 1),
-    fill = did_you_eat_this_meal_at_home.)) + geom_histogram(bins = 200,
-    alpha = 0.5) + labs(x = "Log10 + 1 of Total Sugar Consumption",
-    y = "Number of Observations", title = "Log Transformation of Sugar Consumption vs Whether Meal Was Eaten at Home",
-    fill = "Meal Eaten at Home")
-```
+<img src="README_files/figure-gfm/plot meal eaten at home-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/plot meal eaten at home-2.png" style="display: block; margin: auto;" />
 
-<img src="README_files/figure-gfm/plot meal eaten at home-1.png" style="display: block; margin: auto;" />
-
-``` r
-# saturated fa
-ggplot(data = df, mapping = aes(x = log10(total_saturated_fatty_acids_gm +
-    1), fill = did_you_eat_this_meal_at_home.)) + geom_histogram(bins = 200,
-    alpha = 0.5) + labs(x = "Log10 + 1 of Total Saturated FA Consumption",
-    y = "Number of Observations", title = "Log Transformation of Saturated FA Consumption vs Whether Meal Was Eaten at Home",
-    fill = "Meal Eaten at Home")
-```
-
-<img src="README_files/figure-gfm/plot meal eaten at home-2.png" style="display: block; margin: auto;" />
-
-``` r
-# sugars
-df[!is.na(food_source) & !is.na(total_sugars_gm)] %>%
-    ggplot(mapping = aes(x = forcats::fct_reorder(factor(food_source),
-        total_sugars_gm, mean), y = total_sugars_gm)) + stat_summary(fun.data = mean_se,
-    geom = "errorbar") + stat_summary(fun = mean, size = 0.1) +
-    theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1)) +
-    labs(x = "Source of Food", y = "Total Sugar Consumption (grams)",
-        title = "Sugar Consumption vs Source of Food")
-```
-
-<img src="README_files/figure-gfm/plot source of food-1.png" style="display: block; margin: auto;" />
-
-``` r
-# saturated fa
-df[!is.na(food_source) & !is.na(total_sugars_gm)] %>%
-    ggplot(mapping = aes(x = forcats::fct_reorder(factor(food_source),
-        total_saturated_fatty_acids_gm, mean), y = total_saturated_fatty_acids_gm)) +
-    stat_summary(fun.data = mean_se, geom = "errorbar") + stat_summary(fun = mean,
-    size = 0.1) + theme(axis.text.x = element_text(angle = 90,
-    vjust = 1, hjust = 1)) + labs(x = "Source of Food", y = "Total Saturated FA Consumption (grams)",
-    title = "Saturated FA Consumption vs Source of Food")
-```
-
-<img src="README_files/figure-gfm/plot source of food-2.png" style="display: block; margin: auto;" />
+<img src="README_files/figure-gfm/plot source of food-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/plot source of food-2.png" style="display: block; margin: auto;" />
