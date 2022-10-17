@@ -38,6 +38,7 @@ library(rvest)
 
 ```{r Read in data sets from website, cache = TRUE}
 fs_d1 <- read_xpt("https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_DR1IFF.xpt")
+fs_d2 <- read_xpt("https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_DR2IFF.xpt")
 demographic <- read_xpt("https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_DEMO.xpt")
 food_categories <- read_xpt("https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_drxfcd.xpt")
 ```
@@ -45,6 +46,8 @@ food_categories <- read_xpt("https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_drxfcd
 ```{r Changing column names, warning = FALSE}
 # Get get all of the column labels in a data frame
 fs_d1_labels <- purrr::map_df(fs_d1, ~attributes(.x))
+fs_d2_labels <- purrr::map_df(fs_d2, ~attributes(.x))
+
 
 demographic_labels <- purrr::map_df(demographic, ~attributes(.x))
 
@@ -54,6 +57,12 @@ fc_labels <- purrr::map_df(food_categories, ~attributes(.x))
 # gsub() the spaces to underscores and put into vector
 fs_d1_labels <- gsub(" ", "_", fs_d1_labels$label) 
 fs_d1_labels <-  gsub("\\(|\\)", "", fs_d1_labels) %>%
+  as.vector() %>%
+  tolower() %>%
+  unique()
+
+fs_d2_labels <- gsub(" ", "_", fs_d2_labels$label) 
+fs_d2_labels <-  gsub("\\(|\\)", "", fs_d2_labels) %>%
   as.vector() %>%
   tolower() %>%
   unique()
@@ -71,6 +80,9 @@ fc_labels <- gsub(" ", "_", fc_labels$label) %>%
 names(fs_d1) <- fs_d1_labels
 names(fs_d1) <- make.names(names(fs_d1))
 
+names(fs_d2) <- fs_d2_labels
+names(fs_d2) <- make.names(names(fs_d2))
+
 names(demographic) <- demographic_labels
 
 names(food_categories) <- fc_labels
@@ -78,12 +90,15 @@ names(food_categories) <- fc_labels
 
 ```{r convert to data tables}
 fs_d1 <- as.data.table(fs_d1)
+fs_d2 <- as.data.table(fs_d2)
 food_categories <- as.data.table(food_categories)
 demographic <- as.data.table(demographic)
 ```
 
+
 ```{r remove columns that are not needed}
 fs_d1 <- fs_d1[, c(1:30)]
+fs_d2 <- fs_d2[, c(1:30)]
 demographic <- demographic[, respondent_sequence_number:pregnancy_status_at_exam]
 food_categories <- food_categories[, -(former_short_food_code_description:former_long_food_code_description)]
 ```
@@ -196,6 +211,76 @@ fs_d1 <- fs_d1[-c(1)]
 ```
 
 
+```{r Categorize food survey day 2 variables}
+# columns needed: day of the week, name of eating occasion, source of food, and if the food was eaten at home categorized
+# create new column for this so it can still be ordered
+fs_d2[, intake_day_cat := fifelse(intake_day_of_the_week == 1, "Sunday",
+                                          fifelse(intake_day_of_the_week == 2, "Monday",
+                                                  fifelse(intake_day_of_the_week == 3, "Tuesday",
+                                                          fifelse(intake_day_of_the_week == 4, "Wednesday",
+                                                                  fifelse(intake_day_of_the_week == 5, "Thursday", 
+                                                                          fifelse(intake_day_of_the_week == 6, "Friday", "Saturday"))))))]
+
+#table(fs_d1$`did_you_eat_this_meal_at_home?`) #1, 2, and 9 are the only answers
+fs_d2[, `did_you_eat_this_meal_at_home.` := fifelse(`did_you_eat_this_meal_at_home.` == 1, "yes",
+                                                    fifelse(`did_you_eat_this_meal_at_home.` == 2, "no", "dont_know"))]
+
+
+# for the next categorization steps, I will be reading in tables from the CDC website because they contain many possible values
+
+# categorize the name of eating occasion
+# read in name of eating occasion table from CDC website using html and full Xpath
+eating_occasion <- read_html("https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_DR1IFF.htm#DR1DAY") %>%
+  html_nodes(xpath = "/html/body/div[2]/div[4]/div[15]/table") %>%
+  html_table() %>%
+  as.data.frame() %>%
+  select(Code.or.Value, Value.Description)
+
+# merge table into original data table
+fs_d2 <- merge(
+  x = eating_occasion,
+  y = fs_d2,
+  by.x = "Code.or.Value",
+  by.y = "name_of_eating_occasion"
+)
+
+# the merge replaced the old column "name_of_eating_occasion" with "Code.or.Value" from the new table
+# I only need the "Value.Description" column so rename it and remove "Code.or.Value" column
+setnames(fs_d2, "Value.Description", "eating_occasion")
+fs_d2 <- fs_d2[-c(1)]
+
+######################################
+
+# categorize source of food
+source_of_food <- read_html("https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_DR1IFF.htm#DR1DAY") %>%
+  html_nodes(xpath = "/html/body/div[2]/div[4]/div[16]/table") %>%
+  html_table() %>%
+  as.data.frame() %>%
+  select(Code.or.Value, Value.Description)
+
+fs_d2 <- merge(
+  x = source_of_food,
+  y = fs_d2,
+  by.x = "Code.or.Value",
+  by.y = "source_of_food"
+)
+
+setnames(fs_d2, "Value.Description", "food_source")
+fs_d2 <- fs_d2[-c(1)]
+```
+
+
+```{r create columns to identify difference between day 1 and day 2 interview records}
+fs_d1 <- as.data.table(fs_d1)
+fs_d2 <- as.data.table(fs_d2)
+fs_d1[, interview_day := "Day 1"]
+fs_d2[, interview_day := "Day 2"]
+```
+
+```{r combine both days food survey into one dataframe}
+fs <- rbind(fs_d1, fs_d2)
+```
+
 ### Preliminary Results
 
 
@@ -208,7 +293,7 @@ fs_d1 <- fs_d1[-c(1)]
 
 df <- merge(
   x = merge(
-        x = fs_d1, 
+        x = fs, 
         y = demographic,
         by.x = "respondent_sequence_number",
         by.y = "respondent_sequence_number"
@@ -485,6 +570,7 @@ The plots above reveal that average sugar consumption is lowest in meals eaten l
 
 
 #### Does sugar / saturated fatty acid consumption vary by age, ethnicity, gender?
+**need to average observations for people that had recordings in day 1 and day 2**
 
 ```{r sugar and sat fa consumption by age, fig.height = 8, fig.width = 12, fig.align = "center"}
 # sugars
