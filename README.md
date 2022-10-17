@@ -3,11 +3,8 @@ PM566 Midterm Project
 Flemming Wu
 2022-10-17
 
-Main source of data:
+# Introduction
 
-<https://www.ars.usda.gov/northeast-area/beltsville-md-bhnrc/beltsville-human-nutrition-research-center/food-surveys-research-group/docs/wweia-documentation-and-data-sets/>
-
-Questions:  
 Insulin resistance and diabetes is a growing health issue for Americans.
 When foods with a high glycemic index (causing a rapid rise in blood
 sugar) are consumed, the pancreas must pump insulin to move sugar from
@@ -30,8 +27,10 @@ development of insulin resistance and diabetes such as lifestyle,
 environmental factors, and family history, in this project, I will be
 investigating factors affecting our food choices using the NHANES
 (National Health and Nutrition Examination Survey) data. More
-specifically, I examined the data that was collected in What We Eat in
-America (WWEIA), the dietary interview component of the NHANES.  
+specifically, I examined the data that was collected in [What We Eat in
+America
+(WWEIA)](https://www.ars.usda.gov/northeast-area/beltsville-md-bhnrc/beltsville-human-nutrition-research-center/food-surveys-research-group/docs/wweia-documentation-and-data-sets/),
+the dietary interview component of the NHANES.  
 I also acknowledge that people’s dietary requirements vary due to a
 variety of factors, but according to the CDC and various other sources,
 people should generally be wary of continued consumption of foods high

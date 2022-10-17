@@ -6,13 +6,9 @@ output: github_document
 always_allow_html: true
 ---
 
-
-Main source of data:
-
-https://www.ars.usda.gov/northeast-area/beltsville-md-bhnrc/beltsville-human-nutrition-research-center/food-surveys-research-group/docs/wweia-documentation-and-data-sets/
+# Introduction
 
 
-Questions:\
 Insulin resistance and diabetes is a growing health issue for Americans. When foods with a high glycemic index (causing a rapid rise in blood sugar) are consumed, the pancreas must pump insulin to move sugar from the blood back into the cells. Over time, if these foods are constantly consumed, the cells stop responding to insulin and the normal blood sugar level rises. This leads to weight gain, as excess blood sugar is sent to be stored as body fat, and sets the stage for prediabetes and type 2 diabetes.\
 
 Some quick factoids about diabetes from the CDC:\
@@ -20,13 +16,17 @@ Some quick factoids about diabetes from the CDC:\
 * 96 million US adults—over a third—have prediabetes, and more than 8 in 10 of them don’t know they have it.\
 * Diabetes is the 7th leading cause of death in the United States (and may be underreported).\
 
-While there are many other factors outside of diet that influence the development of insulin resistance and diabetes such as lifestyle, environmental factors, and family history, in this project, I will be investigating factors affecting our food choices using the NHANES (National Health and Nutrition Examination Survey) data. More specifically, I examined the data that was collected in What We Eat in America (WWEIA), the dietary interview component of the NHANES. \
+While there are many other factors outside of diet that influence the development of insulin resistance and diabetes such as lifestyle, environmental factors, and family history, in this project, I will be investigating factors affecting our food choices using the NHANES (National Health and Nutrition Examination Survey) data. More specifically, I examined the data that was collected in [What We Eat in America (WWEIA)](https://www.ars.usda.gov/northeast-area/beltsville-md-bhnrc/beltsville-human-nutrition-research-center/food-surveys-research-group/docs/wweia-documentation-and-data-sets/), the dietary interview component of the NHANES. \
 I also acknowledge that people's dietary requirements vary due to a variety of factors, but according to the CDC and  various other sources, people should generally be wary of continued consumption of foods high in added sugar and saturated fats. Therefore, in this project, I will use the data to investigate the following questions that I have asked:\
 
 * What time and/or day of the week do people generally eat foods high in sugar or saturated fatty acids (fa)?
 * Does sugar or saturated fa consumption vary by age, ethnicity, or gender?
 * Does the source of food or whether the meal was eaten at home have an effect on sugar or saturated fa consumption?
 * Finally, what specific food items are associated with high amounts of sugar or saturated fa?
+
+
+
+
 
 
 ```{r setup, include=FALSE}
