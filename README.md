@@ -15,12 +15,13 @@ sent to be stored as body fat, and sets the stage for prediabetes and
 type 2 diabetes.  
 
 Some quick factoids about diabetes from the CDC:  
-\* More than 37 million people in the United States have diabetes, and 1
-in 5 of them don’t know they have it.  
-\* 96 million US adults—over a third—have prediabetes, and more than 8
-in 10 of them don’t know they have it.  
-\* Diabetes is the 7th leading cause of death in the United States (and
-may be underreported).  
+
+-   More than 37 million people in the United States have diabetes, and
+    1 in 5 of them don’t know they have it.  
+-   96 million US adults—over a third—have prediabetes, and more than 8
+    in 10 of them don’t know they have it.  
+-   Diabetes is the 7th leading cause of death in the United States (and
+    may be underreported).  
 
 While there are many other factors outside of diet that influence the
 development of insulin resistance and diabetes such as lifestyle,
@@ -46,9 +47,52 @@ use the data to investigate the following questions that I have asked:
 -   Finally, what specific food items are associated with high amounts
     of sugar or saturated fa?
 
-### Preliminary Results
+###### About the data
 
-Summary tables
+I used a total of four data sets for my project. The first two are food
+survey questionnaire answers, in which the respondents were asked to
+recall all food and drink they consumed in a 24 hour period. These
+questions were asked twice, with day one answers being one table and day
+two answers being the other table. Not all respondents were recorded in
+both days. Observations, or rows, in the food survey data are separated
+into individual food or drink items and also includes estimates on how
+much of each item was consumed, as well as energy and nutrient estimates
+for each item. Participants were asked additional questions about their
+consumption, such as what time the item was consumed, what meal it was a
+part of, whether the meal was eaten at home, etc. The next data set I
+used contains general demographic information about each of the
+participants, such as age, gender, ethnicity, etc. The last data set I
+used contains descriptions of food information. Since the food items in
+the food survey questionnaires were encoded as numbers, I used this
+table to cross-reference the food code numbers with descriptions of the
+food or drink items.
+
+------------------------------------------------------------------------
+
+# Methods
+
+The data provided on the website were in SAS Transport File Format, so I
+used the `haven` package to read in the data directly from the http
+link. Once I read in the data into R, I noticed that the column names
+were encoded with names that weren’t intuitive such as WTDRD1PP, but
+column labels that explained the meanings of the column names were also
+provided as part of the data. I did some text processing on the labels,
+such as removing non-alphanumeric characters and removing spaces, and
+then set these as the column names to make downstream work easier. I
+then noticed that many of the categorical variables in the data were
+encoded with numbers, such as 1 for yes and 2 for no. To fix this, I
+went through the data set
+[documentation](https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_DR2IFF.htm)
+and updated the categorical observations with their actual character
+values. I then added a column to each of the food survey data tables to
+keep track of which day the answers were from, concatenated the data
+from day 1 and day 2. Lastly, I merged all of the data into one data
+table, using the respondent id numbers and food code numbers as the
+common keys.
+
+------------------------------------------------------------------------
+
+# Preliminary Results
 
 | Day of Food Intake | Average Total Sugar Consumption | Standard Deviation of Total Sugar Consumption | Average Total Saturated Fatty Acid Consumption | Standard Deviation of Total Saturated Fatty Acid Consumption | Number of Observations |
 |:-------------------|--------------------------------:|----------------------------------------------:|-----------------------------------------------:|-------------------------------------------------------------:|-----------------------:|
