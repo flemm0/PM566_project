@@ -35,7 +35,7 @@ knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 60), tidy = TRUE)
 #setwd("~/Desktop/PM566/midterm")
 ```
 
-```{r load libraries, warning=FALSE, message=FALSE}
+```{r load libraries, warning=FALSE, message=FALSE, results = 'hide'}
 load.lib<-c("haven", "sjlabelled", "data.table", "tidyverse", "xml2", "rvest") #list of packages needed
 install.lib <- load.lib[!load.lib %in% installed.packages()] #select those not installed for installation
 
@@ -69,52 +69,6 @@ names(fs_d1) <- edit_names(fs_d1)
 names(fs_d2) <- edit_names(fs_d2)
 names(demographic) <- edit_names(demographic)
 names(food_categories) <- edit_names(food_categories)
-```
-
-
-```{r Changing column names, warning = FALSE, eval = FALSE}
-# Get get all of the column labels in a data frame
-fs_d1_labels <- purrr::map_df(fs_d1, ~attributes(.x))
-fs_d2_labels <- purrr::map_df(fs_d2, ~attributes(.x))
-
-
-demographic_labels <- purrr::map_df(demographic, ~attributes(.x))
-
-fc_labels <- purrr::map_df(food_categories, ~attributes(.x))
-
-
-# gsub() the spaces to underscores and put into vector
-fs_d1_labels <- gsub(" ", "_", fs_d1_labels$label) 
-fs_d1_labels <-  gsub("\\(|\\)", "", fs_d1_labels) %>%
-  as.vector() %>%
-  tolower() %>%
-  unique()
-
-fs_d2_labels <- gsub(" ", "_", fs_d2_labels$label) 
-fs_d2_labels <-  gsub("\\(|\\)", "", fs_d2_labels) %>%
-  as.vector() %>%
-  tolower() %>%
-  unique()
-
-demographic_labels <- gsub(" ", "_", demographic_labels$label) %>%
-  as.vector() %>%
-  tolower()
-
-fc_labels <- gsub(" ", "_", fc_labels$label) %>%
-  as.vector() %>%
-  tolower()
- 
-
-#reassign names
-names(fs_d1) <- fs_d1_labels
-names(fs_d1) <- make.names(names(fs_d1))
-
-names(fs_d2) <- fs_d2_labels
-names(fs_d2) <- make.names(names(fs_d2))
-
-names(demographic) <- demographic_labels
-
-names(food_categories) <- fc_labels
 ```
 
 ```{r convert to data tables}

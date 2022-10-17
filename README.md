@@ -47,11 +47,6 @@ use the data to investigate the following questions that I have asked:
 -   Finally, what specific food items are associated with high amounts
     of sugar or saturated fa?
 
-<!-- -->
-
-    ##      haven sjlabelled data.table  tidyverse       xml2      rvest 
-    ##       TRUE       TRUE       TRUE       TRUE       TRUE       TRUE
-
 ### Preliminary Results
 
 Summary tables
