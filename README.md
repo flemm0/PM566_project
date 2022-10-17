@@ -12,25 +12,40 @@ Insulin resistance and diabetes is a growing health issue for Americans.
 When foods with a high glycemic index (causing a rapid rise in blood
 sugar) are consumed, the pancreas must pump insulin to move sugar from
 the blood back into the cells. Over time, if these foods are constantly
-being consumed, the cells stop responding to insulin and the normal
-blood sugar level rises. This leads to weight gain, as excess blood
-sugar is sent to be stored as body fat, and sets the stage for
-prediabetes and type 2 diabetes.  
-While there are many other factors that influence the development of
-insulin resistance and diabetes such as lifestyle, environmental
-factors, and genetics, in this project, I will only be investigating
-factors affecting our food choices using the NHANES (National Health and
-Nutrition Examination Survey) data. More specifically, I examined the
-data that was collected in What We Eat in America (WWEIA), the dietary
-interview component of the NHANES. I will use the data to investigate
-the following questions that I have asked:  
+consumed, the cells stop responding to insulin and the normal blood
+sugar level rises. This leads to weight gain, as excess blood sugar is
+sent to be stored as body fat, and sets the stage for prediabetes and
+type 2 diabetes.  
+
+Some quick factoids about diabetes from the CDC:  
+\* More than 37 million people in the United States have diabetes, and 1
+in 5 of them don’t know they have it.  
+\* 96 million US adults—over a third—have prediabetes, and more than 8
+in 10 of them don’t know they have it.  
+\* Diabetes is the 7th leading cause of death in the United States (and
+may be underreported).  
+
+While there are many other factors outside of diet that influence the
+development of insulin resistance and diabetes such as lifestyle,
+environmental factors, and family history, in this project, I will be
+investigating factors affecting our food choices using the NHANES
+(National Health and Nutrition Examination Survey) data. More
+specifically, I examined the data that was collected in What We Eat in
+America (WWEIA), the dietary interview component of the NHANES.  
+I also acknowledge that people’s dietary requirements vary due to a
+variety of factors, but according to the CDC and various other sources,
+people should generally be wary of continued consumption of foods high
+in added sugar and saturated fats. Therefore, in this project, I will
+use the data to investigate the following questions that I have asked:  
 
 -   What time and/or day of the week do people generally eat foods high
-    in sugar or saturated fatty acids (FA)?
+    in sugar or saturated fatty acids (fa)?
 -   Does sugar or saturated fa consumption vary by age, ethnicity, or
     gender?
 -   Does the source of food or whether the meal was eaten at home have
     an effect on sugar or saturated fa consumption?
+-   Finally, what specific food items are associated with high amounts
+    of sugar or saturated fa?
 
 ### Preliminary Results
 
@@ -230,6 +245,9 @@ the lowest saturated fatty acid consumption.
 
 #### Does sugar / saturated fatty acid consumption vary by age, ethnicity, gender?
 
+**need to average observations for people that had recordings in day 1
+and day 2**
+
 <img src="README_files/figure-gfm/sugar and sat fa consumption by age-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/sugar and sat fa consumption by age-2.png" style="display: block; margin: auto;" />
 The violin plots above reveal several trends in average sugar and
 saturated fatty acid consumption: first, that consumption is higher on
@@ -258,3 +276,31 @@ home are essentially the same for both sugar and saturated fatty acids.
 ![](README_files/figure-gfm/plot%20correlation%20between%20total%20saturated%20fatty%20acid%20consumption%20and%20sugar%20consumption-1.png)<!-- -->
 
     ## [1] 0.5577345
+
+#### What foods are associated with high sugar or high saturated fatty acids?
+
+    ##   95% 
+    ## 33.11
+
+<img src="README_files/figure-gfm/unnamed-chunk-2-1.png" style="display: block; margin: auto;" />
+
+    ##      0%      5%     10%     15%     20%     25%     30%     35%     40%     45% 
+    ##   0.000   0.000   0.000   0.000   0.002   0.006   0.013   0.031   0.071   0.178 
+    ##     50%     55%     60%     65%     70%     75%     80%     85%     90%     95% 
+    ##   0.362   0.572   0.892   1.246   1.646   2.205   2.948   3.893   5.458   8.511 
+    ##    100% 
+    ## 160.279
+
+    ##   95% 
+    ## 8.511
+
+<img src="README_files/figure-gfm/unnamed-chunk-3-1.png" style="display: block; margin: auto;" />
+
+#### Preliminary Conclusions
+
+From the variables that I have investigated in this project, it appears
+that
+
+#### Sources
+
+-   <https://www.cdc.gov/diabetes/index.html>
