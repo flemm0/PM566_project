@@ -1,7 +1,7 @@
 PM566 Midterm Project
 ================
 Flemming Wu
-2022-10-16
+2022-10-17
 
 Main source of data:
 
@@ -46,6 +46,11 @@ use the data to investigate the following questions that I have asked:
     an effect on sugar or saturated fa consumption?
 -   Finally, what specific food items are associated with high amounts
     of sugar or saturated fa?
+
+<!-- -->
+
+    ##      haven sjlabelled data.table  tidyverse       xml2      rvest 
+    ##       TRUE       TRUE       TRUE       TRUE       TRUE       TRUE
 
 ### Preliminary Results
 
@@ -273,16 +278,12 @@ home are essentially the same for both sugar and saturated fatty acids.
 
 <img src="README_files/figure-gfm/plot source of food-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/plot source of food-2.png" style="display: block; margin: auto;" />
 
-![](README_files/figure-gfm/plot%20correlation%20between%20total%20saturated%20fatty%20acid%20consumption%20and%20sugar%20consumption-1.png)<!-- -->
-
-    ## [1] 0.5577345
-
 #### What foods are associated with high sugar or high saturated fatty acids?
 
     ##   95% 
     ## 33.11
 
-<img src="README_files/figure-gfm/unnamed-chunk-2-1.png" style="display: block; margin: auto;" />
+<img src="README_files/figure-gfm/unnamed-chunk-1-1.png" style="display: block; margin: auto;" />
 
     ##      0%      5%     10%     15%     20%     25%     30%     35%     40%     45% 
     ##   0.000   0.000   0.000   0.000   0.002   0.006   0.013   0.031   0.071   0.178 
@@ -294,7 +295,7 @@ home are essentially the same for both sugar and saturated fatty acids.
     ##   95% 
     ## 8.511
 
-<img src="README_files/figure-gfm/unnamed-chunk-3-1.png" style="display: block; margin: auto;" />
+<img src="README_files/figure-gfm/unnamed-chunk-2-1.png" style="display: block; margin: auto;" />
 
 #### Preliminary Conclusions
 
