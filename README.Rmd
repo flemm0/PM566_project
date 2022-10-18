@@ -272,7 +272,7 @@ fs <- rbind(fs_d1, fs_d2)
 
 # Preliminary Results
 
-
+###### Summary Tables
 
 ```{r merge data and begin EDA}
 #### Exploratory Data Analysis
@@ -365,9 +365,9 @@ df[,
      ), 
    by = hour(time_of_eating_occasion_hhmm)][order(hour)] %>%
   knitr::kable(col.names = c("Hour of the Day (0 = 12:00 AM - 12:59 AM, 23 = 11:00 PM - 11:59 PM)", 
-                             "Average Total Sugar Consumption",
+                             "Average Total Sugar Consumption (grams)",
                              "Standard Deviation of Total Sugar Consumption",
-                             "Average Total Saturated Fatty Acid Consumption",
+                             "Average Total Saturated Fatty Acid Consumption (grams)",
                              "Standard Deviation of Total Saturated Fatty Acid Consumption",
                              "Number of Observations"))
 ```
@@ -383,9 +383,9 @@ df[,
      ), 
    by = eating_occasion][order(-avg_total_sugar, -avg_total_sat_fa)] %>%
   knitr::kable(col.names = c("Eating Occasion", 
-                             "Average Total Sugar Consumption",
+                             "Average Total Sugar Consumption (grams)",
                              "Standard Deviation of Total Sugar Consumption",
-                             "Average Total Saturated Fatty Acid Consumption",
+                             "Average Total Saturated Fatty Acid Consumption (grams)",
                              "Standard Deviation of Total Saturated Fatty Acid Consumption",
                              "Number of Observations"))
 ```
@@ -419,9 +419,9 @@ df[,
      ), 
    by = "age_category"][order(V6)][, !c("V6")] %>%
   knitr::kable(col.names = c("Age Range", 
-                             "Average Total Sugar Consumption",
+                             "Average Total Sugar Consumption (grams)",
                              "Standard Deviation of Total Sugar Consumption",
-                             "Average Total Saturated Fatty Acid Consumption",
+                             "Average Total Saturated Fatty Acid Consumption (grams)",
                              "Standard Deviation of Total Saturated Fatty Acid Consumption",
                              "Number of Observations"))
 ```
@@ -437,9 +437,9 @@ df[,
      ), 
    by = "gender"] %>%
   knitr::kable(col.names = c("Gender", 
-                             "Average Total Sugar Consumption",
+                             "Average Total Sugar Consumption (grams)",
                              "Standard Deviation of Total Sugar Consumption",
-                             "Average Total Saturated Fatty Acid Consumption",
+                             "Average Total Saturated Fatty Acid Consumption (grams)",
                              "Standard Deviation of Total Saturated Fatty Acid Consumption",
                              "Number of Observations"))
 ```
@@ -455,9 +455,9 @@ df[,
      ), 
    by = "racehispanic_origin_w_nh_asian"] %>%
   knitr::kable(col.names = c("Race", 
-                             "Average Total Sugar Consumption",
+                             "Average Total Sugar Consumption (grams)",
                              "Standard Deviation of Total Sugar Consumption",
-                             "Average Total Saturated Fatty Acid Consumption",
+                             "Average Total Saturated Fatty Acid Consumption (grams)",
                              "Standard Deviation of Total Saturated Fatty Acid Consumption",
                              "Number of Observations"))
 ```
@@ -473,9 +473,9 @@ df[,
      ), 
    by = "food_source"][order(-avg_total_sugar, -avg_total_sat_fa)] %>%
   knitr::kable(col.names = c("Food Source", 
-                             "Average Total Sugar Consumption",
+                             "Average Total Sugar Consumption (grams)",
                              "Standard Deviation of Total Sugar Consumption",
-                             "Average Total Saturated Fatty Acid Consumption",
+                             "Average Total Saturated Fatty Acid Consumption (grams)",
                              "Standard Deviation of Total Saturated Fatty Acid Consumption",
                              "Number of Observations"))
 ```
@@ -491,21 +491,17 @@ df[,
      ), 
    by = "did_you_eat_this_meal_at_home"][order(-avg_total_sugar)] %>%
   knitr::kable(col.names = c("Meal Eaten at Home", 
-                             "Average Total Sugar Consumption",
+                             "Average Total Sugar Consumption (grams)",
                              "Standard Deviation of Total Sugar Consumption",
-                             "Average Total Saturated Fatty Acid Consumption",
+                             "Average Total Saturated Fatty Acid Consumption (grams)",
                              "Standard Deviation of Total Saturated Fatty Acid Consumption",
                              "Number of Observations"))
 ```
 The table above reveals that food not eaten at home is generally slightly higher in average sugars and saturated fatty acids, however, the difference is quite small.
 
 
+###### Figures
 
-
-### Data Visualization
-
-
-#### What time and/or day of the week do people generally eat foods high in sugar/saturated fats?
 ```{r plot sugar and saturated fa consumption against time, message=FALSE, fig.height = 8, fig.width = 12, fig.align = "center"}
 #Plot sugar consumption versus time.
 
@@ -548,6 +544,7 @@ df[, .(mean(total_saturated_fatty_acids_gm)), by = c("intake_day_of_the_week", "
        y = "Average Total Saturated Fatty Acid Consumption (grams)",
        title = "Average Total Saturated Fatty Acid Consumption vs Time of Day by Day of Week")
 ```
+
 The plots above reveal that sugar consumption is higher towards the evening for Monday through Wednesday. Additionally, there are spikes in sugar consumption in the morning around 9:30 AM on Wednesday and 5:30 AM on Thursday. Averages for sugar consumption tend to be more consistent throughout the 24 hour period on Friday, Saturday, and Sunday. \
 Averages for saturated fatty acid consumption are generally more consistent than sugar consumption, but there is an interesting large spike in consumption towards the end of the day on Wednesday. It can also be noted that there are more spikes in saturated fatty acid consumption on Saturday and Sunday.
 
