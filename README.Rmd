@@ -9,7 +9,7 @@ always_allow_html: true
 # Introduction
 
 
-Insulin resistance and diabetes is a growing health issue for Americans. When foods with a high glycemic index (causing a rapid rise in blood sugar) are consumed, the pancreas must pump insulin to move sugar from the blood back into the cells. Over time, if these foods are constantly consumed, the cells stop responding to insulin and the normal blood sugar level rises. This leads to weight gain, as excess blood sugar is sent to be stored as body fat, and sets the stage for prediabetes and type 2 diabetes.\
+Insulin resistance and diabetes is a growing health issue for Americans. When foods with a high glycemic index (causing a rapid rise in blood sugar) are consumed, the pancreas must pump insulin to move sugar from the blood back into the cells. Over time, if these foods are consumed on a consistent basis, cells stop responding to insulin and the normal blood sugar level rises. This leads to weight gain, as excess blood sugar is sent to be stored as body fat, and sets the stage for prediabetes and type 2 diabetes.\
 
 Some quick factoids about diabetes from the CDC:\
 
@@ -18,12 +18,12 @@ Some quick factoids about diabetes from the CDC:\
 * Diabetes is the 7th leading cause of death in the United States (and may be underreported).\
 
 While there are many other factors outside of diet that influence the development of insulin resistance and diabetes such as lifestyle, environmental factors, and family history, in this project, I will be investigating factors affecting our food choices using the NHANES (National Health and Nutrition Examination Survey) data. More specifically, I examined the data that was collected in [What We Eat in America (WWEIA)](https://www.ars.usda.gov/northeast-area/beltsville-md-bhnrc/beltsville-human-nutrition-research-center/food-surveys-research-group/docs/wweia-documentation-and-data-sets/), the dietary interview component of the NHANES. \
-I also acknowledge that people's dietary requirements vary due to a variety of factors, but according to the CDC and  various other sources, people should generally be wary of continued consumption of foods high in added sugar and saturated fats. Therefore, in this project, I will use the data to investigate the following questions that I have asked:\
+I also acknowledge that people's dietary requirements vary due to a variety of factors, but according to the CDC and other sources, people should generally be wary of continued consumption of foods high in added sugar and saturated fats. Therefore, in this project, I will use the data to investigate the following questions that I have asked:\
 
-* What time and/or day of the week do people generally eat foods high in sugar or saturated fatty acids (fa)?
-* Does sugar or saturated fa consumption vary by age, ethnicity, or gender?
-* Does the source of food or whether the meal was eaten at home have an effect on sugar or saturated fa consumption?
-* Finally, what specific food items are associated with high amounts of sugar or saturated fa?
+1. What time and/or day of the week do people generally eat foods high in sugar or saturated fatty acids (fa)?
+2. Does sugar or saturated fa consumption vary by age, ethnicity, or gender?
+3. Does the source of food or whether the meal was eaten at home have an effect on sugar or saturated fa consumption?
+4. Finally, what specific food items are associated with high amounts of sugar or saturated fa?
 
 ###### About the data
 I used a total of four data sets for my project. The first two are food survey questionnaire answers, in which the respondents were asked to recall all food and drink they consumed in a 24 hour period. These questions were asked twice, with day one answers being one table and day two answers being the other table. Not all respondents were recorded in both days. Observations, or rows, in the food survey data are separated into individual food or drink items and also includes estimates on how much of each item was consumed, as well as energy and nutrient estimates for each item. Participants were asked additional questions about their consumption, such as what time the item was consumed, what meal it was a part of, whether the meal was eaten at home, etc. The next data set I used contains general demographic information about each of the participants, such as age, gender, ethnicity, etc. The last data set I used contains descriptions of food information. Since the food items in the food survey questionnaires were encoded as numbers, I used this table to cross-reference the food code numbers with descriptions of the food or drink items.
@@ -346,14 +346,14 @@ df[,
      ),
    by = c("intake_day_of_the_week", "intake_day_cat")][order(intake_day_of_the_week)][, intake_day_cat:num_observations] %>%
   knitr::kable(col.names = c("Day of Food Intake", 
-                             "Average Total Sugar Consumption",
+                             "Average Total Sugar Consumption (grams)",
                              "Standard Deviation of Total Sugar Consumption",
-                             "Average Total Saturated Fatty Acid Consumption",
+                             "Average Total Saturated Fatty Acid Consumption (grams)",
                              "Standard Deviation of Total Saturated Fatty Acid Consumption",
                              "Number of Observations"))
 
 ```
-From the summary table above, it can be observed that average sugar and saturated fat consumption is slightly higher on the weekends, and are closely followed by Friday and Wednesday.
+Average sugar and saturated fat consumption appears to be highest on Friday, Saturday, and Sunday. Tuesday is the day with the lowest average sugar and saturated fat consumption.
  
 ```{r sugar fat consumption by time of consumption}
 df[, 
@@ -371,7 +371,7 @@ df[,
                              "Standard Deviation of Total Saturated Fatty Acid Consumption",
                              "Number of Observations"))
 ```
-From the summary table above, which groups sugar and saturated fat consumption by the hours that they were consumed, it can be seen that higher sugar and saturated fat consumption occurs between the hours of 8PM to 2AM. Additionally, 3PM and 4PM also had slightly higher sugar and saturated fat consumption.
+The table above looks at hourly average sugar and saturated fat consumption, with 0 corresponding to all items consumed between 12:00 AM and 12:59 PM, 1 corresponding to all items consumed between 1:00 AM and 1:59 AM, etc. It appears that average sugar and saturated fat consumption is highest between the hours of 8:00 PM and 3:00 AM.
 
 ```{r sugar and saturated fat consumption by eating occasion}
 df[, 
@@ -389,7 +389,24 @@ df[,
                              "Standard Deviation of Total Saturated Fatty Acid Consumption",
                              "Number of Observations"))
 ```
-From the summary table above, we can see that eating occasions that are more considered to be more formal meals, such as dinner, lunch, almuerzo, desayano, supper, etc. generally involve less consumption of sugar than do informal eating occasions such as snacks. The reverse is true for saturated fatty acid consumption, as the average grams consumed for these are higher in more formal eating occasions.
+Eating occasions that are more considered to be more formal meals, such as dinner, lunch, almuerzo (breakfast), desayano (breakfast), supper, etc. generally involve less consumption of sugar than do informal eating occasions such as snacks (including bocadillo, botana, merienda, entre comida). The reverse is true for saturated fats consumption, as the average grams consumed for these are higher in more formal eating occasions.
+\
+Note: in the 2003-2004 NHANES data [documentation](https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/dr1iff_c.htm#DR1_030Z), English translations were provided for Spanish eating occasion names, which I will be using for reference in this analysis:
+
+```{r spanish and english meal names}
+read_html("https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/dr1iff_c.htm#DR1_030Z") %>%
+  html_nodes(xpath = "/html/body/div[2]/div[4]/div[14]/table") %>%
+  html_table() %>%
+  as.data.frame() %>%
+  filter(row_number() %in% c(10:19)) %>%
+  select(Value.Description) %>%
+  mutate(new_code = str_extract(Value.Description, "\\([a-z]+\\)")) %>%
+  mutate(Value.Description = str_replace(Value.Description, "\\([a-z]+\\)", "")) %>%
+  rename("Spanish" = "Value.Description", "English" = "new_code") %>%
+  knitr::kable()
+  
+```
+
 
 ```{r sugar and saturated fat consumption by age category}
 df[, 
@@ -408,7 +425,7 @@ df[,
                              "Standard Deviation of Total Saturated Fatty Acid Consumption",
                              "Number of Observations"))
 ```
-The summary table above shows that average sugar and fatty acid consumption increases from birth until the ages of 14-18, and then decreases after age 18.
+Average sugar and saturated fat consumption increases from birth until the ages of 14-18, and then decreases after age 18.
 
 ```{r sugar and saturated fat consumption by gender}
 df[, 
@@ -426,7 +443,7 @@ df[,
                              "Standard Deviation of Total Saturated Fatty Acid Consumption",
                              "Number of Observations"))
 ```
-From the table above, it can be seen that males consume higher amounts of sugar and saturated fatty acids on average.
+Males consume higher amounts of sugar and saturated fatty acids on average, which makes sense considering that generally males have larger bodies than females, requiring them to consume more calories on average.
 
 ```{r sugar and saturated fat consumption by ethnicity}
 df[, 
@@ -444,7 +461,7 @@ df[,
                              "Standard Deviation of Total Saturated Fatty Acid Consumption",
                              "Number of Observations"))
 ```
-The groups with the highest average sugar and saturated fatty acid consumption are "other race including multiracial" and "non-hispanic black", and they are closely followed by "non-hispanic white".
+The groups with the highest average sugar and saturated fat consumption are "other race including multiracial" and "non-hispanic black", and they are closely followed by "non-hispanic white". Non hispanic asians consume less sugar and saturated fats on average than other groups.
 
 ```{r sugar and saturated fat consumption by source of food}
 df[, 
@@ -462,7 +479,7 @@ df[,
                              "Standard Deviation of Total Saturated Fatty Acid Consumption",
                              "Number of Observations"))
 ```
-High average sugar consumption can be seen to come from food sources such as vending machines and convenience stores, likely due to the sale of sugar-sweetened beverages. High saturated fatty acid consumption can be seen to come from food sources such as fish (due to naturally occurring omega fatty acids in fish) as well as fast food restaurants and recreational facilities.
+High average sugar consumption can be seen to come from food sources such as vending machines and convenience stores, likely due to the sale of sugar-sweetened beverages. High saturated fatty acid consumption can be seen to come from food sources such as fish (likely due to naturally occurring omega fatty acids in fish) as well as fast food restaurants and recreational facilities.
 
 ```{r sugar and saturated fat consumption by where meal was eaten}
 df[, 
@@ -480,7 +497,7 @@ df[,
                              "Standard Deviation of Total Saturated Fatty Acid Consumption",
                              "Number of Observations"))
 ```
-The table above reveals that food not eaten at home is generally slightly higher in average sugars and saturated fatty acids.
+The table above reveals that food not eaten at home is generally slightly higher in average sugars and saturated fatty acids, however, the difference is quite small.
 
 
 

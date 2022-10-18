@@ -8,11 +8,11 @@ Flemming Wu
 Insulin resistance and diabetes is a growing health issue for Americans.
 When foods with a high glycemic index (causing a rapid rise in blood
 sugar) are consumed, the pancreas must pump insulin to move sugar from
-the blood back into the cells. Over time, if these foods are constantly
-consumed, the cells stop responding to insulin and the normal blood
-sugar level rises. This leads to weight gain, as excess blood sugar is
-sent to be stored as body fat, and sets the stage for prediabetes and
-type 2 diabetes.  
+the blood back into the cells. Over time, if these foods are consumed on
+a consistent basis, cells stop responding to insulin and the normal
+blood sugar level rises. This leads to weight gain, as excess blood
+sugar is sent to be stored as body fat, and sets the stage for
+prediabetes and type 2 diabetes.  
 
 Some quick factoids about diabetes from the CDC:  
 
@@ -33,18 +33,18 @@ America
 (WWEIA)](https://www.ars.usda.gov/northeast-area/beltsville-md-bhnrc/beltsville-human-nutrition-research-center/food-surveys-research-group/docs/wweia-documentation-and-data-sets/),
 the dietary interview component of the NHANES.  
 I also acknowledge that people’s dietary requirements vary due to a
-variety of factors, but according to the CDC and various other sources,
-people should generally be wary of continued consumption of foods high
-in added sugar and saturated fats. Therefore, in this project, I will
-use the data to investigate the following questions that I have asked:  
+variety of factors, but according to the CDC and other sources, people
+should generally be wary of continued consumption of foods high in added
+sugar and saturated fats. Therefore, in this project, I will use the
+data to investigate the following questions that I have asked:  
 
--   What time and/or day of the week do people generally eat foods high
+1.  What time and/or day of the week do people generally eat foods high
     in sugar or saturated fatty acids (fa)?
--   Does sugar or saturated fa consumption vary by age, ethnicity, or
+2.  Does sugar or saturated fa consumption vary by age, ethnicity, or
     gender?
--   Does the source of food or whether the meal was eaten at home have
+3.  Does the source of food or whether the meal was eaten at home have
     an effect on sugar or saturated fa consumption?
--   Finally, what specific food items are associated with high amounts
+4.  Finally, what specific food items are associated with high amounts
     of sugar or saturated fa?
 
 ###### About the data
@@ -94,19 +94,19 @@ common keys.
 
 # Preliminary Results
 
-| Day of Food Intake | Average Total Sugar Consumption | Standard Deviation of Total Sugar Consumption | Average Total Saturated Fatty Acid Consumption | Standard Deviation of Total Saturated Fatty Acid Consumption | Number of Observations |
-|:-------------------|--------------------------------:|----------------------------------------------:|-----------------------------------------------:|-------------------------------------------------------------:|-----------------------:|
-| Sunday             |                        7.483360 |                                      14.86044 |                                       1.955798 |                                                     3.892107 |                  54218 |
-| Monday             |                        7.320907 |                                      14.24324 |                                       1.845215 |                                                     3.665864 |                  36324 |
-| Tuesday            |                        7.157184 |                                      13.27854 |                                       1.787949 |                                                     3.718271 |                  43947 |
-| Wednesday          |                        7.363126 |                                      14.53861 |                                       1.857555 |                                                     3.696024 |                  37349 |
-| Thursday           |                        7.345880 |                                      13.93046 |                                       1.850386 |                                                     3.614566 |                  34140 |
-| Friday             |                        7.559111 |                                      14.53974 |                                       1.889003 |                                                     3.783606 |                  59349 |
-| Saturday           |                        7.837789 |                                      15.18268 |                                       2.022816 |                                                     3.979325 |                  45145 |
+| Day of Food Intake | Average Total Sugar Consumption (grams) | Standard Deviation of Total Sugar Consumption | Average Total Saturated Fatty Acid Consumption (grams) | Standard Deviation of Total Saturated Fatty Acid Consumption | Number of Observations |
+|:-------------------|----------------------------------------:|----------------------------------------------:|-------------------------------------------------------:|-------------------------------------------------------------:|-----------------------:|
+| Sunday             |                                7.483360 |                                      14.86044 |                                               1.955798 |                                                     3.892107 |                  54218 |
+| Monday             |                                7.320907 |                                      14.24324 |                                               1.845215 |                                                     3.665864 |                  36324 |
+| Tuesday            |                                7.157184 |                                      13.27854 |                                               1.787949 |                                                     3.718271 |                  43947 |
+| Wednesday          |                                7.363126 |                                      14.53861 |                                               1.857555 |                                                     3.696024 |                  37349 |
+| Thursday           |                                7.345880 |                                      13.93046 |                                               1.850386 |                                                     3.614566 |                  34140 |
+| Friday             |                                7.559111 |                                      14.53974 |                                               1.889003 |                                                     3.783606 |                  59349 |
+| Saturday           |                                7.837789 |                                      15.18268 |                                               2.022816 |                                                     3.979325 |                  45145 |
 
-From the summary table above, it can be observed that average sugar and
-saturated fat consumption is slightly higher on the weekends, and are
-closely followed by Friday and Wednesday.
+Average sugar and saturated fat consumption appears to be highest on
+Friday, Saturday, and Sunday. Tuesday is the day with the lowest average
+sugar and saturated fat consumption.
 
 | Hour of the Day (0 = 12:00 AM - 12:59 AM, 23 = 11:00 PM - 11:59 PM) | Average Total Sugar Consumption | Standard Deviation of Total Sugar Consumption | Average Total Saturated Fatty Acid Consumption | Standard Deviation of Total Saturated Fatty Acid Consumption | Number of Observations |
 |--------------------------------------------------------------------:|--------------------------------:|----------------------------------------------:|-----------------------------------------------:|-------------------------------------------------------------:|-----------------------:|
@@ -135,11 +135,11 @@ closely followed by Friday and Wednesday.
 |                                                                  22 |                        9.665980 |                                      16.74851 |                                       2.302562 |                                                     4.552494 |                   6952 |
 |                                                                  23 |                        9.294904 |                                      16.26559 |                                       2.190595 |                                                     4.263733 |                   3740 |
 
-From the summary table above, which groups sugar and saturated fat
-consumption by the hours that they were consumed, it can be seen that
-higher sugar and saturated fat consumption occurs between the hours of
-8PM to 2AM. Additionally, 3PM and 4PM also had slightly higher sugar and
-saturated fat consumption.
+The table above looks at hourly average sugar and saturated fat
+consumption, with 0 corresponding to all items consumed between 12:00 AM
+and 12:59 PM, 1 corresponding to all items consumed between 1:00 AM and
+1:59 AM, etc. It appears that average sugar and saturated fat
+consumption is highest between the hours of 8:00 PM and 3:00 AM.
 
 | Eating Occasion      | Average Total Sugar Consumption | Standard Deviation of Total Sugar Consumption | Average Total Saturated Fatty Acid Consumption | Standard Deviation of Total Saturated Fatty Acid Consumption | Number of Observations |
 |:---------------------|--------------------------------:|----------------------------------------------:|-----------------------------------------------:|-------------------------------------------------------------:|-----------------------:|
@@ -164,12 +164,30 @@ saturated fat consumption.
 | Comida               |                        5.699739 |                                     12.081675 |                                      1.8692069 |                                                    4.1190169 |                   3683 |
 | Almuerzo             |                        5.591528 |                                     11.998788 |                                      1.7661940 |                                                    3.9230311 |                   3927 |
 
-From the summary table above, we can see that eating occasions that are
-more considered to be more formal meals, such as dinner, lunch,
-almuerzo, desayano, supper, etc. generally involve less consumption of
-sugar than do informal eating occasions such as snacks. The reverse is
-true for saturated fatty acid consumption, as the average grams consumed
-for these are higher in more formal eating occasions.
+Eating occasions that are more considered to be more formal meals, such
+as dinner, lunch, almuerzo (breakfast), desayano (breakfast), supper,
+etc. generally involve less consumption of sugar than do informal eating
+occasions such as snacks (including bocadillo, botana, merienda, entre
+comida). The reverse is true for saturated fats consumption, as the
+average grams consumed for these are higher in more formal eating
+occasions.  
+Note: in the 2003-2004 NHANES data
+[documentation](https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/dr1iff_c.htm#DR1_030Z),
+English translations were provided for Spanish eating occasion names,
+which I will be using for reference in this analysis:
+
+| Spanish      | English     |
+|:-------------|:------------|
+| Desayano     | (breakfast) |
+| Almuerzo     | (breakfast) |
+| Comida       | (lunch)     |
+| Merienda     | (snack)     |
+| Cena         | (dinner)    |
+| Entre comida | (snack)     |
+| Botana       | (snack)     |
+| Bocadillo    | (snack)     |
+| Tentempie    | (snack)     |
+| Bebida       | (drink)     |
 
 | Age Range | Average Total Sugar Consumption | Standard Deviation of Total Sugar Consumption | Average Total Saturated Fatty Acid Consumption | Standard Deviation of Total Saturated Fatty Acid Consumption | Number of Observations |
 |:----------|--------------------------------:|----------------------------------------------:|-----------------------------------------------:|-------------------------------------------------------------:|-----------------------:|
@@ -183,17 +201,17 @@ for these are higher in more formal eating occasions.
 | 51-70     |                        6.588676 |                                     14.137991 |                                       1.709832 |                                                     3.569828 |                  79512 |
 | 70+       |                        5.958233 |                                     11.526940 |                                       1.586809 |                                                     3.215835 |                  33405 |
 
-The summary table above shows that average sugar and fatty acid
-consumption increases from birth until the ages of 14-18, and then
-decreases after age 18.
+Average sugar and saturated fat consumption increases from birth until
+the ages of 14-18, and then decreases after age 18.
 
 | Gender | Average Total Sugar Consumption | Standard Deviation of Total Sugar Consumption | Average Total Saturated Fatty Acid Consumption | Standard Deviation of Total Saturated Fatty Acid Consumption | Number of Observations |
 |:-------|--------------------------------:|----------------------------------------------:|-----------------------------------------------:|-------------------------------------------------------------:|-----------------------:|
 | female |                        6.717594 |                                      12.61024 |                                       1.665175 |                                                     3.310949 |                 159296 |
 | male   |                        8.231233 |                                      16.07537 |                                       2.132381 |                                                     4.207429 |                 151176 |
 
-From the table above, it can be seen that males consume higher amounts
-of sugar and saturated fatty acids on average.
+Males consume higher amounts of sugar and saturated fatty acids on
+average, which makes sense considering that generally males have larger
+bodies than females, requiring them to consume more calories on average.
 
 | Race                        | Average Total Sugar Consumption | Standard Deviation of Total Sugar Consumption | Average Total Saturated Fatty Acid Consumption | Standard Deviation of Total Saturated Fatty Acid Consumption | Number of Observations |
 |:----------------------------|--------------------------------:|----------------------------------------------:|-----------------------------------------------:|-------------------------------------------------------------:|-----------------------:|
@@ -204,9 +222,10 @@ of sugar and saturated fatty acids on average.
 | mexican_american            |                        7.144258 |                                      12.83065 |                                       1.837305 |                                                     3.921403 |                  39615 |
 | non-hispanic_asian          |                        5.524766 |                                      10.58994 |                                       1.488071 |                                                     3.001189 |                  31361 |
 
-The groups with the highest average sugar and saturated fatty acid
-consumption are “other race including multiracial” and “non-hispanic
-black”, and they are closely followed by “non-hispanic white”.
+The groups with the highest average sugar and saturated fat consumption
+are “other race including multiracial” and “non-hispanic black”, and
+they are closely followed by “non-hispanic white”. Non hispanic asians
+consume less sugar and saturated fats on average than other groups.
 
 | Food Source                                  | Average Total Sugar Consumption | Standard Deviation of Total Sugar Consumption | Average Total Saturated Fatty Acid Consumption | Standard Deviation of Total Saturated Fatty Acid Consumption | Number of Observations |
 |:---------------------------------------------|--------------------------------:|----------------------------------------------:|-----------------------------------------------:|-------------------------------------------------------------:|-----------------------:|
@@ -240,7 +259,7 @@ black”, and they are closely followed by “non-hispanic white”.
 High average sugar consumption can be seen to come from food sources
 such as vending machines and convenience stores, likely due to the sale
 of sugar-sweetened beverages. High saturated fatty acid consumption can
-be seen to come from food sources such as fish (due to naturally
+be seen to come from food sources such as fish (likely due to naturally
 occurring omega fatty acids in fish) as well as fast food restaurants
 and recreational facilities.
 
@@ -251,7 +270,8 @@ and recreational facilities.
 | yes                |                        7.377446 |                                      14.24498 |                                       1.883808 |                                                     3.782103 |                 219946 |
 
 The table above reveals that food not eaten at home is generally
-slightly higher in average sugars and saturated fatty acids.
+slightly higher in average sugars and saturated fatty acids, however,
+the difference is quite small.
 
 ### Data Visualization
 
