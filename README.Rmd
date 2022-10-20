@@ -610,7 +610,7 @@ unique(df[,
   stat_summary(fun = median, geom = "point", position = position_dodge(0.9)) +
   labs(x = "Age Range", y = "Saturated FA Consumption (grams) in 24 Hours", title = "Saturated FA Consumption vs Age", fill = "Gender")
 ```
-The violin plots above reveal several trends in average sugar and saturated fatty acid consumption: first, that consumption is higher on average for males than females. Secondly, the trend in average consumption increases until age 18, and then decreases with age. Lastly, the range of values tends to increase with increasing age, especially so for males.
+The violin plots above reveal several trends in average sugar and saturated fatty acid consumption: first, that consumption is higher on average for males than females. Secondly, the trend in average consumption increases until age 18, and then decreases with age. Lastly, the range of values tends to increase with increasing age, especially so for males, made evident by the width of the distributions decreasing with increasing age. 
 
 ```{r sugar and sat fa consumption by ethnicity, fig.height = 8, fig.width = 12, fig.align = "center"}
 #sugar
@@ -648,24 +648,21 @@ unique(df[,
   labs(x = "Ethnicity", y = "Sugar Consumption (grams) in 24 Hours", title = "Sugar Consumption vs Ethnicity", fill = "Gender")
 
 ```
-In grouping average sugar and saturated fatty acid consumption by ethnicity, there is not much variation between ethnicity groups and sugar consumption, however, the lowest average sugar and saturated fatty acid consumption and range of values is lowest in the non hispanic asian group, and highest in non hispanic black group.
+In grouping average sugar and saturated fatty acid consumption by ethnicity, there is not much variation between ethnicity groups and sugar consumption. The lowest average sugar and saturated fatty acid consumption and range of values is lowest in the non-hispanic asian group, and highest in non-hispanic white group. Again, the average consumption for males is higher than that of females.
 
 #### Does the source of the food or whether the meal was eaten at home have an effect?
 
 ```{r plot meal eaten at home, fig.height = 8, fig.width = 12, fig.align = "center"}
-#sugar
-ggplot(data = df, mapping = aes(x = log10(total_sugars_gm + 1), fill = did_you_eat_this_meal_at_home)) +
-  geom_histogram(bins = 200, alpha = 0.5) +
-  labs(x = "Log10 + 1 of Total Sugar Consumption", y = "Number of Observations", title = "Log Transformation of Sugar Consumption vs Whether Meal Was Eaten at Home", fill = "Meal Eaten at Home")
+ggplot(data = df[total_sugars_gm != 0], mapping = aes(x = log(total_sugars_gm), fill = did_you_eat_this_meal_at_home)) +
+  geom_histogram(bins = 100, alpha = 0.5) +
+  labs(x = "Log Total Sugar Consumption", y = "Number of Observations", title = "Log Transformation of Sugar Consumption vs Whether Meal Was Eaten at Home (Zero Values Excluded)", fill = "Meal Eaten at Home?")
 
-
-#saturated fa
-ggplot(data = df, mapping = aes(x = log10(total_saturated_fatty_acids_gm + 1), fill = did_you_eat_this_meal_at_home)) +
-  geom_histogram(bins = 200, alpha = 0.5) +
-  labs(x = "Log10 + 1 of Total Saturated FA Consumption", y = "Number of Observations", title = "Log Transformation of Saturated FA Consumption vs Whether Meal Was Eaten at Home", fill = "Meal Eaten at Home")
-
+ggplot(data = df[total_saturated_fatty_acids_gm != 0], mapping = aes(x = log(total_saturated_fatty_acids_gm), fill = did_you_eat_this_meal_at_home)) +
+  geom_histogram(bins = 100, alpha = 0.5) +
+  labs(x = "Log Total Saturated FA Consumption", y = "Number of Observations", title = "Log Transformation of Saturated FA Consumption vs Whether Meal Was Eaten at Home (Zero Values Excluded)", fill = "Meal Eaten at Home?")
 ```
-The plots above graph the log normalized distribution of sugar and saturated fatty acid in foods eaten at home, not at home and unknown. It can be seen that the distributions of foods eaten at home and not at home are essentially the same for both sugar and saturated fatty acids.
+The distributions above describe the amount of sugar and saturated fa in individual food items grouped by whether the item was eaten at home or not. Food items containing zero sugar or saturated fa were excluded and the x-axis was log transformed to account for few items having high amounts of sugar or saturated fa. It can be observed that whether the food item was consumed at home or not does not have a significant effect on sugar or saturated fa consumption, as the distributions for "yes" and "no" are very similar in both plots. 
+
 
 ```{r plot source of food, warning=FALSE, fig.height = 8, fig.width = 12, fig.align = "center"}
 #sugars
@@ -691,8 +688,13 @@ df[!is.na(food_source) & !is.na(total_sugars_gm)] %>%
 
 #### What foods are associated with high sugar or high saturated fatty acids?
 
+```{r get distribution of sugar content in foods, echo=FALSE}
+#quantile(df$total_sugars_gm, seq(0, 1, 0.05))["95%"] # lets consider high amounts of sugar to be > 95th percentile 33.11
+
+```
+
+
 ```{r, fig.height = 8, fig.width = 12, fig.align = "center"}
-quantile(df$total_sugars_gm, seq(0, 1, 0.05))["95%"]
 
 df[total_sugars_gm > 33.11, .N, by = "long_food_code_description"][order(-N)] %>%
   head(n = 30) %>%
@@ -700,9 +702,14 @@ df[total_sugars_gm > 33.11, .N, by = "long_food_code_description"][order(-N)] %>
   geom_col()
 ```
 
+```{r get distribution of saturated fatty acid content in foods, echo=FALSE}
+#quantile(df$total_saturated_fatty_acids_gm, seq(0, 1, 0.05))["95%"] # 8.511 grams is 95th percentile
+
+```
+
+
 ```{r, fig.height = 8, fig.width = 12, fig.align = "center"}
-quantile(df$total_saturated_fatty_acids_gm, seq(0, 1, 0.05)) #lets consider high amounts of sugar to be > 95th percentile 33.11
-quantile(df$total_saturated_fatty_acids_gm, seq(0, 1, 0.05))["95%"]
+
 
 df[total_saturated_fatty_acids_gm > 8.511, .N, by = "long_food_code_description"][order(-N)] %>%
   head(n = 30) %>%

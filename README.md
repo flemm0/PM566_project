@@ -315,41 +315,34 @@ saturated fatty acid consumption: first, that consumption is higher on
 average for males than females. Secondly, the trend in average
 consumption increases until age 18, and then decreases with age. Lastly,
 the range of values tends to increase with increasing age, especially so
-for males.
+for males, made evident by the width of the distributions decreasing
+with increasing age.
 
 <img src="README_files/figure-gfm/sugar and sat fa consumption by ethnicity-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/sugar and sat fa consumption by ethnicity-2.png" style="display: block; margin: auto;" />
 In grouping average sugar and saturated fatty acid consumption by
 ethnicity, there is not much variation between ethnicity groups and
-sugar consumption, however, the lowest average sugar and saturated fatty
-acid consumption and range of values is lowest in the non hispanic asian
-group, and highest in non hispanic black group.
+sugar consumption. The lowest average sugar and saturated fatty acid
+consumption and range of values is lowest in the non-hispanic asian
+group, and highest in non-hispanic white group. Again, the average
+consumption for males is higher than that of females.
 
 #### Does the source of the food or whether the meal was eaten at home have an effect?
 
 <img src="README_files/figure-gfm/plot meal eaten at home-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/plot meal eaten at home-2.png" style="display: block; margin: auto;" />
-The plots above graph the log normalized distribution of sugar and
-saturated fatty acid in foods eaten at home, not at home and unknown. It
-can be seen that the distributions of foods eaten at home and not at
-home are essentially the same for both sugar and saturated fatty acids.
+The distributions above describe the amount of sugar and saturated fa in
+individual food items grouped by whether the item was eaten at home or
+not. Food items containing zero sugar or saturated fa were excluded and
+the x-axis was log transformed to account for few items having high
+amounts of sugar or saturated fa. It can be observed that whether the
+food item was consumed at home or not does not have a significant effect
+on sugar or saturated fa consumption, as the distributions for “yes” and
+“no” are very similar in both plots.
 
 <img src="README_files/figure-gfm/plot source of food-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/plot source of food-2.png" style="display: block; margin: auto;" />
 
 #### What foods are associated with high sugar or high saturated fatty acids?
 
-    ##   95% 
-    ## 33.11
-
 <img src="README_files/figure-gfm/unnamed-chunk-1-1.png" style="display: block; margin: auto;" />
-
-    ##      0%      5%     10%     15%     20%     25%     30%     35%     40%     45% 
-    ##   0.000   0.000   0.000   0.000   0.002   0.006   0.013   0.031   0.071   0.178 
-    ##     50%     55%     60%     65%     70%     75%     80%     85%     90%     95% 
-    ##   0.362   0.572   0.892   1.246   1.646   2.205   2.948   3.893   5.458   8.511 
-    ##    100% 
-    ## 160.279
-
-    ##   95% 
-    ## 8.511
 
 <img src="README_files/figure-gfm/unnamed-chunk-2-1.png" style="display: block; margin: auto;" />
 
