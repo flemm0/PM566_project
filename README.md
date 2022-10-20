@@ -1,7 +1,7 @@
 PM566 Midterm Project
 ================
 Flemming Wu
-2022-10-17
+2022-10-19
 
 # Introduction
 
@@ -308,9 +308,6 @@ acid consumption. As expected, bebida, or drinks, are associated with
 the lowest saturated fatty acid consumption.
 
 #### Does sugar / saturated fatty acid consumption vary by age, ethnicity, gender?
-
-**need to average observations for people that had recordings in day 1
-and day 2**
 
 <img src="README_files/figure-gfm/sugar and sat fa consumption by age-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/sugar and sat fa consumption by age-2.png" style="display: block; margin: auto;" />
 The violin plots above reveal several trends in average sugar and
