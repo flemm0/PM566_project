@@ -146,37 +146,38 @@ consumption is highest between the hours of 8:00 PM and 3:00 AM.
 | Eating Occasion      | Average Total Sugar Consumption (grams) | Standard Deviation of Total Sugar Consumption | Average Total Saturated Fatty Acid Consumption (grams) | Standard Deviation of Total Saturated Fatty Acid Consumption | Number of Observations |
 |:---------------------|----------------------------------------:|----------------------------------------------:|-------------------------------------------------------:|-------------------------------------------------------------:|-----------------------:|
 | Extended consumption |                                  13.436 |                                        47.648 |                                                  0.546 |                                                        3.073 |                   4055 |
-| Bocadillo            |                                  10.940 |                                        14.916 |                                                  1.652 |                                                        3.873 |                    970 |
+| Bocadillo (snack)    |                                  10.940 |                                        14.916 |                                                  1.652 |                                                        3.873 |                    970 |
 | Snack                |                                  10.750 |                                        16.272 |                                                  2.058 |                                                        4.183 |                  51059 |
-| Botana               |                                   9.937 |                                        13.608 |                                                  1.446 |                                                        3.341 |                    658 |
-| Merienda             |                                   9.614 |                                        14.309 |                                                  1.529 |                                                        3.602 |                   2002 |
-| Entre comida         |                                   8.560 |                                        13.975 |                                                  1.263 |                                                        3.466 |                    757 |
-| Tentempie            |                                   8.470 |                                        11.235 |                                                  1.217 |                                                        2.338 |                     67 |
+| Botana (snack)       |                                   9.937 |                                        13.608 |                                                  1.446 |                                                        3.341 |                    658 |
+| Merienda (snack)     |                                   9.614 |                                        14.309 |                                                  1.529 |                                                        3.602 |                   2002 |
+| Entre comida (snack) |                                   8.560 |                                        13.975 |                                                  1.263 |                                                        3.466 |                    757 |
+| Tentempie (snack)    |                                   8.470 |                                        11.235 |                                                  1.217 |                                                        2.338 |                     67 |
 | Drink                |                                   8.152 |                                        17.148 |                                                  0.384 |                                                        1.643 |                  15124 |
 | Breakfast            |                                   7.485 |                                        11.892 |                                                  1.638 |                                                        3.086 |                  60030 |
 | Brunch               |                                   7.447 |                                        13.132 |                                                  2.268 |                                                        4.273 |                   2883 |
 | Infant feeding       |                                   7.273 |                                         6.152 |                                                  1.524 |                                                        1.579 |                   6377 |
 | Supper               |                                   6.679 |                                        13.989 |                                                  2.473 |                                                        4.544 |                  14958 |
 | Don’t know           |                                   6.640 |                                         8.925 |                                                  0.263 |                                                        0.478 |                      8 |
-| Bebida               |                                   6.590 |                                        14.260 |                                                  0.318 |                                                        1.094 |                   1141 |
-| Cena                 |                                   6.514 |                                        12.368 |                                                  1.876 |                                                        4.197 |                   5047 |
-| Desayano             |                                   6.461 |                                        10.920 |                                                  1.384 |                                                        2.656 |                   4949 |
+| Bebida (drink)       |                                   6.590 |                                        14.260 |                                                  0.318 |                                                        1.094 |                   1141 |
+| Cena (dinner)        |                                   6.514 |                                        12.368 |                                                  1.876 |                                                        4.197 |                   5047 |
+| Desayano (breakfast) |                                   6.461 |                                        10.920 |                                                  1.384 |                                                        2.656 |                   4949 |
 | Lunch                |                                   6.248 |                                        12.406 |                                                  1.967 |                                                        3.673 |                  64280 |
 | Dinner               |                                   5.989 |                                        12.521 |                                                  2.327 |                                                        4.312 |                  68497 |
-| Comida               |                                   5.700 |                                        12.082 |                                                  1.869 |                                                        4.119 |                   3683 |
-| Almuerzo             |                                   5.592 |                                        11.999 |                                                  1.766 |                                                        3.923 |                   3927 |
+| Comida (lunch)       |                                   5.700 |                                        12.082 |                                                  1.869 |                                                        4.119 |                   3683 |
+| Almuerzo (breakfast) |                                   5.592 |                                        11.999 |                                                  1.766 |                                                        3.923 |                   3927 |
 
 Eating occasions that are more considered to be more formal meals, such
 as dinner, lunch, almuerzo (breakfast), desayano (breakfast), supper,
 etc. generally involve less consumption of sugar than do informal eating
 occasions such as snacks (including bocadillo, botana, merienda, entre
 comida). The reverse is true for saturated fats consumption, as the
-average grams consumed for these are higher in more formal eating
-occasions.  
-Note: in the 2003-2004 NHANES data
+average grams consumed for these are slightly higher in more formal
+eating occasions.  
+Note: the data I used (2017-2020) did not provide English translations
+for Spanish meal names, but they were provided in the 2003-2004 NHANES
+data
 [documentation](https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/dr1iff_c.htm#DR1_030Z),
-English translations were provided for Spanish eating occasion names,
-which I will be using for reference in this analysis:
+which is what I used for reference in this analysis:
 
 | Spanish      | English     |
 |:-------------|:------------|
@@ -342,9 +343,9 @@ on sugar or saturated fa consumption, as the distributions for “yes” and
 
 #### What foods are associated with high sugar or high saturated fatty acids?
 
-<img src="README_files/figure-gfm/unnamed-chunk-1-1.png" style="display: block; margin: auto;" />
-
 <img src="README_files/figure-gfm/unnamed-chunk-2-1.png" style="display: block; margin: auto;" />
+
+<img src="README_files/figure-gfm/unnamed-chunk-3-1.png" style="display: block; margin: auto;" />
 
 #### Preliminary Conclusions
 

@@ -373,15 +373,24 @@ df[,
 ```
 The table above looks at hourly average sugar and saturated fat consumption, with 0 corresponding to all items consumed between 12:00 AM and 12:59 PM, 1 corresponding to all items consumed between 1:00 AM and 1:59 AM, etc. It appears that average sugar and saturated fat consumption is highest between the hours of 8:00 PM and 3:00 AM.
 
-```{r sugar and saturated fat consumption by eating occasion}
+```{r}
 df[, 
    .(avg_total_sugar = round(mean(total_sugars_gm), digits = 3), 
      std_total_sugar = round(sd(total_sugars_gm), digits = 3),
      avg_total_sat_fa = round(mean(total_saturated_fatty_acids_gm), digits = 3),
      std_total_sat_fa = round(sd(total_saturated_fatty_acids_gm), digits = 3),
      num_observations = .N
-     ), 
-   by = eating_occasion][order(-avg_total_sugar, -avg_total_sat_fa)] %>%
+   ), 
+   by = eating_occasion][, eating_occasion := fifelse(eating_occasion == "Desayano", "Desayano (breakfast)", # include english translations of the spanish meal occasions
+                                                fifelse(eating_occasion == "Almuerzo", "Almuerzo (breakfast)",
+                                                fifelse(eating_occasion == "Comida", "Comida (lunch)",
+                                                fifelse(eating_occasion == "Merienda", "Merienda (snack)",
+                                                fifelse(eating_occasion == "Cena", "Cena (dinner)",
+                                                fifelse(eating_occasion == "Entre comida", "Entre comida (snack)",
+                                                fifelse(eating_occasion == "Botana", "Botana (snack)",
+                                                fifelse(eating_occasion == "Bocadillo", "Bocadillo (snack)",
+                                                fifelse(eating_occasion == "Tentempie", "Tentempie (snack)",
+                                                fifelse(eating_occasion == "Bebida", "Bebida (drink)", eating_occasion))))))))))][order(-avg_total_sugar, -avg_total_sat_fa)] %>%
   knitr::kable(col.names = c("Eating Occasion", 
                              "Average Total Sugar Consumption (grams)",
                              "Standard Deviation of Total Sugar Consumption",
@@ -389,9 +398,10 @@ df[,
                              "Standard Deviation of Total Saturated Fatty Acid Consumption",
                              "Number of Observations"))
 ```
-Eating occasions that are more considered to be more formal meals, such as dinner, lunch, almuerzo (breakfast), desayano (breakfast), supper, etc. generally involve less consumption of sugar than do informal eating occasions such as snacks (including bocadillo, botana, merienda, entre comida). The reverse is true for saturated fats consumption, as the average grams consumed for these are higher in more formal eating occasions.
+
+Eating occasions that are more considered to be more formal meals, such as dinner, lunch, almuerzo (breakfast), desayano (breakfast), supper, etc. generally involve less consumption of sugar than do informal eating occasions such as snacks (including bocadillo, botana, merienda, entre comida). The reverse is true for saturated fats consumption, as the average grams consumed for these are slightly higher in more formal eating occasions.
 \
-Note: in the 2003-2004 NHANES data [documentation](https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/dr1iff_c.htm#DR1_030Z), English translations were provided for Spanish eating occasion names, which I will be using for reference in this analysis:
+Note: the data I used (2017-2020) did not provide English translations for Spanish meal names, but they were provided in the 2003-2004 NHANES data [documentation](https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/dr1iff_c.htm#DR1_030Z), which is what I used for reference in this analysis:
 
 ```{r spanish and english meal names}
 read_html("https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/dr1iff_c.htm#DR1_030Z") %>%
@@ -551,7 +561,17 @@ Averages for saturated fatty acid consumption are generally more consistent than
 
 ```{r plot sugar and saturated fa consumption by eating occasion, warning=FALSE, fig.height = 8, fig.width = 12, fig.align = "center"}
 #Sugar
-df[!is.na(eating_occasion) & !is.na(total_sugars_gm)] %>%
+df[!is.na(eating_occasion) & !is.na(total_sugars_gm)][, eating_occasion := 
+                                                fifelse(eating_occasion == "Desayano", "Desayano (breakfast)",
+                                                fifelse(eating_occasion == "Almuerzo", "Almuerzo (breakfast)",
+                                                fifelse(eating_occasion == "Comida", "Comida (lunch)",
+                                                fifelse(eating_occasion == "Merienda", "Merienda (snack)",
+                                                fifelse(eating_occasion == "Cena", "Cena (dinner)",
+                                                fifelse(eating_occasion == "Entre comida", "Entre comida (snack)",
+                                                fifelse(eating_occasion == "Botana", "Botana (snack)",
+                                                fifelse(eating_occasion == "Bocadillo", "Bocadillo (snack)",
+                                                fifelse(eating_occasion == "Tentempie", "Tentempie (snack)",
+                                                fifelse(eating_occasion == "Bebida", "Bebida (drink)", eating_occasion))))))))))] %>%
   ggplot(mapping = aes(x = forcats::fct_reorder(factor(eating_occasion),
     total_sugars_gm, mean), y = total_sugars_gm)) +
   stat_summary(fun.data = mean_se, geom = "errorbar") +
@@ -559,8 +579,21 @@ df[!is.na(eating_occasion) & !is.na(total_sugars_gm)] %>%
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1)) +
   labs(x = "Name of Eating Occasion", y = "Average Grams Sugar Consumption", title = "Sugar Consumption vs Eating Occasion")
 
+
+
+
 #Saturated Fatty Acid
-df[!is.na(eating_occasion) & !is.na(total_saturated_fatty_acids_gm)] %>%
+df[!is.na(eating_occasion) & !is.na(total_saturated_fatty_acids_gm)][, eating_occasion := 
+                                                fifelse(eating_occasion == "Desayano", "Desayano (breakfast)",
+                                                fifelse(eating_occasion == "Almuerzo", "Almuerzo (breakfast)",
+                                                fifelse(eating_occasion == "Comida", "Comida (lunch)",
+                                                fifelse(eating_occasion == "Merienda", "Merienda (snack)",
+                                                fifelse(eating_occasion == "Cena", "Cena (dinner)",
+                                                fifelse(eating_occasion == "Entre comida", "Entre comida (snack)",
+                                                fifelse(eating_occasion == "Botana", "Botana (snack)",
+                                                fifelse(eating_occasion == "Bocadillo", "Bocadillo (snack)",
+                                                fifelse(eating_occasion == "Tentempie", "Tentempie (snack)",
+                                                fifelse(eating_occasion == "Bebida", "Bebida (drink)", eating_occasion))))))))))] %>%
   ggplot(mapping = aes(x = forcats::fct_reorder(factor(eating_occasion),
     total_saturated_fatty_acids_gm, mean), y = total_saturated_fatty_acids_gm)) +
   stat_summary(fun.data = mean_se, geom = "errorbar") +
