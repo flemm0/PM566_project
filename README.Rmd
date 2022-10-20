@@ -25,7 +25,7 @@ I also acknowledge that people's dietary requirements vary due to a variety of f
 3. Does the source of food or whether the meal was eaten at home have an effect on sugar or saturated fa consumption?
 4. Finally, what specific food items are associated with high amounts of sugar or saturated fa?
 
-###### About the data
+##### About the data
 I used a total of four data sets for my project. The first two are food survey questionnaire answers, in which the respondents were asked to recall all food and drink they consumed in a 24 hour period. These questions were asked twice, with day one answers being one table and day two answers being the other table. Not all respondents were recorded in both days. Observations, or rows, in the food survey data are separated into individual food or drink items and also includes estimates on how much of each item was consumed, as well as energy and nutrient estimates for each item. Participants were asked additional questions about their consumption, such as what time the item was consumed, what meal it was a part of, whether the meal was eaten at home, etc. The next data set I used contains general demographic information about each of the participants, such as age, gender, ethnicity, etc. The last data set I used contains descriptions of food information. Since the food items in the food survey questionnaires were encoded as numbers, I used this table to cross-reference the food code numbers with descriptions of the food or drink items.
 
 ---
@@ -98,9 +98,9 @@ demographic[, interviewexamination_status := fifelse(interviewexamination_status
 demographic[, gender := fifelse(gender == 1, "male", "female")]
 
 demographic[, racehispanic_origin := fifelse(racehispanic_origin == 1, "mexican_american",
-                                                 fifelse(racehispanic_origin == 2, "other_hispanic",
-                                                          fifelse(racehispanic_origin == 3, "non-hispanic_white",
-                                                                   fifelse(racehispanic_origin == 4, "non-hispanic_black", "other_race_incl_multiracial"))))]
+                                     fifelse(racehispanic_origin == 2, "other_hispanic",
+                                     fifelse(racehispanic_origin == 3, "non-hispanic_white",
+                                     fifelse(racehispanic_origin == 4, "non-hispanic_black", "other_race_incl_multiracial"))))]
 
 demographic[, racehispanic_origin_w_nh_asian := fifelse(racehispanic_origin_w_nh_asian == 1, "mexican_american",
                                                 fifelse(racehispanic_origin_w_nh_asian == 2, "other_hispanic",
@@ -272,7 +272,7 @@ fs <- rbind(fs_d1, fs_d2)
 
 # Preliminary Results
 
-###### Summary Tables
+##### Summary Tables
 
 ```{r merge data and begin EDA}
 #### Exploratory Data Analysis
@@ -338,10 +338,10 @@ unique(df$racehispanic_origin_w_nh_asian)
 ```{r sugar fat consumption by day of week}
 # average and standard deviation of sugar consumption and saturated fatty acid consumption by day of the week
 df[, 
-   .(avg_total_sugar = mean(total_sugars_gm), 
-     std_total_sugar = sd(total_sugars_gm),
-     avg_total_sat_fa = mean(total_saturated_fatty_acids_gm),
-     std_total_sat_fa = sd(total_saturated_fatty_acids_gm),
+   .(avg_total_sugar = round(mean(total_sugars_gm), digits = 3), # rounding output to make more readable
+     std_total_sugar = round(sd(total_sugars_gm), digits = 3),
+     avg_total_sat_fa = round(mean(total_saturated_fatty_acids_gm), digits = 3),
+     std_total_sat_fa = round(sd(total_saturated_fatty_acids_gm), digits = 3),
      num_observations = .N
      ),
    by = c("intake_day_of_the_week", "intake_day_cat")][order(intake_day_of_the_week)][, intake_day_cat:num_observations] %>%
@@ -357,10 +357,10 @@ Average sugar and saturated fat consumption appears to be highest on Friday, Sat
  
 ```{r sugar fat consumption by time of consumption}
 df[, 
-   .(avg_total_sugar = mean(total_sugars_gm), 
-     std_total_sugar = sd(total_sugars_gm),
-     avg_total_sat_fa = mean(total_saturated_fatty_acids_gm),
-     std_total_sat_fa = sd(total_saturated_fatty_acids_gm),
+   .(avg_total_sugar = round(mean(total_sugars_gm), digits = 3), 
+     std_total_sugar = round(sd(total_sugars_gm), digits = 3),
+     avg_total_sat_fa = round(mean(total_saturated_fatty_acids_gm), digits = 3),
+     std_total_sat_fa = round(sd(total_saturated_fatty_acids_gm), digits = 3),
      num_observations = .N
      ), 
    by = hour(time_of_eating_occasion_hhmm)][order(hour)] %>%
@@ -375,10 +375,10 @@ The table above looks at hourly average sugar and saturated fat consumption, wit
 
 ```{r sugar and saturated fat consumption by eating occasion}
 df[, 
-   .(avg_total_sugar = mean(total_sugars_gm), 
-     std_total_sugar = sd(total_sugars_gm),
-     avg_total_sat_fa = mean(total_saturated_fatty_acids_gm),
-     std_total_sat_fa = sd(total_saturated_fatty_acids_gm),
+   .(avg_total_sugar = round(mean(total_sugars_gm), digits = 3), 
+     std_total_sugar = round(sd(total_sugars_gm), digits = 3),
+     avg_total_sat_fa = round(mean(total_saturated_fatty_acids_gm), digits = 3),
+     std_total_sat_fa = round(sd(total_saturated_fatty_acids_gm), digits = 3),
      num_observations = .N
      ), 
    by = eating_occasion][order(-avg_total_sugar, -avg_total_sat_fa)] %>%
@@ -410,10 +410,10 @@ read_html("https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/dr1iff_c.htm#DR1_030Z") %>
 
 ```{r sugar and saturated fat consumption by age category}
 df[, 
-   .(avg_total_sugar = mean(total_sugars_gm), 
-     std_total_sugar = sd(total_sugars_gm),
-     avg_total_sat_fa = mean(total_saturated_fatty_acids_gm),
-     std_total_sat_fa = sd(total_saturated_fatty_acids_gm),
+   .(avg_total_sugar = round(mean(total_sugars_gm), digits = 3), 
+     std_total_sugar = round(sd(total_sugars_gm), digits = 3),
+     avg_total_sat_fa = round(mean(total_saturated_fatty_acids_gm), digits = 3),
+     std_total_sat_fa = round(sd(total_saturated_fatty_acids_gm), digits = 3),
      num_observations = .N,
      min(age_in_years_at_screening)
      ), 
@@ -429,10 +429,10 @@ Average sugar and saturated fat consumption increases from birth until the ages 
 
 ```{r sugar and saturated fat consumption by gender}
 df[, 
-   .(avg_total_sugar = mean(total_sugars_gm), 
-     std_total_sugar = sd(total_sugars_gm),
-     avg_total_sat_fa = mean(total_saturated_fatty_acids_gm),
-     std_total_sat_fa = sd(total_saturated_fatty_acids_gm),
+   .(avg_total_sugar = round(mean(total_sugars_gm), digits = 3), 
+     std_total_sugar = round(sd(total_sugars_gm), digits = 3),
+     avg_total_sat_fa = round(mean(total_saturated_fatty_acids_gm), digits = 3),
+     std_total_sat_fa = round(sd(total_saturated_fatty_acids_gm), digits = 3),
      num_observations = .N
      ), 
    by = "gender"] %>%
@@ -447,10 +447,10 @@ Males consume higher amounts of sugar and saturated fatty acids on average, whic
 
 ```{r sugar and saturated fat consumption by ethnicity}
 df[, 
-   .(avg_total_sugar = mean(total_sugars_gm), 
-     std_total_sugar = sd(total_sugars_gm),
-     avg_total_sat_fa = mean(total_saturated_fatty_acids_gm),
-     std_total_sat_fa = sd(total_saturated_fatty_acids_gm),
+   .(avg_total_sugar = round(mean(total_sugars_gm), digits = 3), 
+     std_total_sugar = round(sd(total_sugars_gm), digits = 3),
+     avg_total_sat_fa = round(mean(total_saturated_fatty_acids_gm), digits = 3),
+     std_total_sat_fa = round(sd(total_saturated_fatty_acids_gm), digits = 3),
      num_observations = .N
      ), 
    by = "racehispanic_origin_w_nh_asian"] %>%
@@ -465,10 +465,10 @@ The groups with the highest average sugar and saturated fat consumption are "oth
 
 ```{r sugar and saturated fat consumption by source of food}
 df[, 
-   .(avg_total_sugar = mean(total_sugars_gm), 
-     std_total_sugar = sd(total_sugars_gm),
-     avg_total_sat_fa = mean(total_saturated_fatty_acids_gm),
-     std_total_sat_fa = sd(total_saturated_fatty_acids_gm),
+   .(avg_total_sugar = round(mean(total_sugars_gm), digits = 3), 
+     std_total_sugar = round(sd(total_sugars_gm), digits = 3),
+     avg_total_sat_fa = round(mean(total_saturated_fatty_acids_gm), digits = 3),
+     std_total_sat_fa = round(sd(total_saturated_fatty_acids_gm), digits = 3),
      num_observations = .N
      ), 
    by = "food_source"][order(-avg_total_sugar, -avg_total_sat_fa)] %>%
@@ -483,10 +483,10 @@ High average sugar consumption can be seen to come from food sources such as ven
 
 ```{r sugar and saturated fat consumption by where meal was eaten}
 df[, 
-   .(avg_total_sugar = mean(total_sugars_gm), 
-     std_total_sugar = sd(total_sugars_gm),
-     avg_total_sat_fa = mean(total_saturated_fatty_acids_gm),
-     std_total_sat_fa = sd(total_saturated_fatty_acids_gm),
+   .(avg_total_sugar = round(mean(total_sugars_gm), digits = 3), 
+     std_total_sugar = round(sd(total_sugars_gm), digits = 3),
+     avg_total_sat_fa = round(mean(total_saturated_fatty_acids_gm), digits = 3),
+     std_total_sat_fa = round(sd(total_saturated_fatty_acids_gm), digits = 3),
      num_observations = .N
      ), 
    by = "did_you_eat_this_meal_at_home"][order(-avg_total_sugar)] %>%
@@ -709,8 +709,6 @@ df[total_sugars_gm > 33.11, .N, by = "long_food_code_description"][order(-N)] %>
 
 
 ```{r, fig.height = 8, fig.width = 12, fig.align = "center"}
-
-
 df[total_saturated_fatty_acids_gm > 8.511, .N, by = "long_food_code_description"][order(-N)] %>%
   head(n = 30) %>%
   ggplot(aes(x = N, y = forcats::fct_reorder(long_food_code_description, N))) +
