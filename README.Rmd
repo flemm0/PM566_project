@@ -1,5 +1,5 @@
 ---
-title: "PM566 Midterm Project"
+title: "Food Survey Investigation"
 author: "Flemming Wu"
 date: "`r Sys.Date()`"
 output: github_document
