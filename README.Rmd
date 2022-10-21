@@ -26,7 +26,7 @@ I used a total of four data sets for my project. The first two are answers to a 
 ---
 
 # Methods
-The data provided on the website were in SAS Transport File Format, so I used the `haven` package to read in the data directly from the http link. Once I read in the data into R, I noticed that the column names were encoded with names that weren't intuitive such as "WTDRD1PP", but the data sets also contained column labels which explained the meanings of the column names. I did some text processing on the labels, such as removing non-alphanumeric characters and removing spaces, and then set these as the column names to make downstream work easier. I then noticed that all of the categorical variables in the data were encoded with numbers, such as a 1 for yes or a 2 for no. To fix this, I went through the data set [documentation](https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_DR2IFF.htm) and updated the categorical observations with their actual character values. I then added a column to each of the food survey data tables to keep track of which day the answers were from, concatenated the data from day 1 and day 2. Lastly, I merged all of the data into one data table, using the respondent id numbers and food code numbers as the common keys.
+The data provided on the website were in SAS Transport File Format, so I used the `haven` package to read in the data directly from the http link. Once I read in the data into R, I noticed that the column names were encoded with names that weren't intuitive such as "WTDRD1PP", but the data sets also contained column labels which explained the meanings of the column names. I did some text processing on the labels, such as removing non-alphanumeric characters and removing spaces, and then set these as the column names to make downstream work easier. I then noticed that all of the categorical variables in the data were encoded with numbers, such as a 1 for yes or a 2 for no. To fix this, I went through the data set [documentation](https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_DR2IFF.htm) and updated the categorical observations with their actual character values. I then added a column to each of the food survey data tables to keep track of which day the answers were from and then concatenated the data from day 1 and day 2. Lastly, I merged all of the data into one data table, using the respondent id numbers and food code numbers as the common keys.
 
 ---
 
@@ -504,9 +504,9 @@ df[,
 The table above reveals that food not eaten at home is generally slightly higher in average sugars and saturated fatty acids, however, the difference is quite small.
 
 
-###### Figures
+##### Figures
 
-###### What time and/or day of the week do people generally eat foods high in sugar or saturated fatty acids (fa)?
+##### What time and/or day of the week do people generally eat foods high in sugar or saturated fatty acids (fa)?
 
 ```{r plot sugar and saturated fa consumption against time grouped by day of the week, fig.height = 8, fig.width = 12, fig.align = "center"}
 

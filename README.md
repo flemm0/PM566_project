@@ -77,9 +77,9 @@ the data set
 [documentation](https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_DR2IFF.htm)
 and updated the categorical observations with their actual character
 values. I then added a column to each of the food survey data tables to
-keep track of which day the answers were from, concatenated the data
-from day 1 and day 2. Lastly, I merged all of the data into one data
-table, using the respondent id numbers and food code numbers as the
+keep track of which day the answers were from and then concatenated the
+data from day 1 and day 2. Lastly, I merged all of the data into one
+data table, using the respondent id numbers and food code numbers as the
 common keys.
 
 ------------------------------------------------------------------------
@@ -261,9 +261,9 @@ The table above reveals that food not eaten at home is generally
 slightly higher in average sugars and saturated fatty acids, however,
 the difference is quite small.
 
-###### Figures
+##### Figures
 
-###### What time and/or day of the week do people generally eat foods high in sugar or saturated fatty acids (fa)?
+##### What time and/or day of the week do people generally eat foods high in sugar or saturated fatty acids (fa)?
 
 <img src="README_files/figure-gfm/plot sugar and saturated fa consumption against time grouped by day of the week-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/plot sugar and saturated fa consumption against time grouped by day of the week-2.png" style="display: block; margin: auto;" />
 Average sugar consumption is high at around midnight on Sunday and
