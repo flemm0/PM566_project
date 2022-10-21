@@ -748,7 +748,16 @@ df[total_saturated_fatty_acids_gm > 8.511, .N, by = "long_food_code_description"
 The bar chart above plots the top 30 most common food or drink items in the data set recorded to contain over 8.51 grams of saturated fatty acids, and is ranked by how often they occur in the data. Commonly occurring food items in this plot are pizza and dairy products (including ice cream, milkshakes, cheese, and milk).
 
 #### Preliminary Conclusions
-From the variables that I have investigated in this project, it appears that 
+From the variables that I have investigated in this project, it appears that the eating occasion, source of food, time of consumption, and age have the greatest association with sugar and saturated fatty acid consumption. On the other hand, ethnicity and whether the meal was eaten at home or not do not seem to be associated strongly with sugar or saturated fatty acid consumption. Overall, people in this data set consume higher amounts of sugar during snacking occasions and from sources of food that include vending machines and convenience stores. Sugar-sweetened beverages seems to be the most common source of high intake of sugar
+
+\
+Moreover, people in the data set consume higher amount of saturated fatty acids during meals rather than snacks, and from sources of food that include fundraising events, recreational facilities, and fast food restaurants. The common foods associated with high saturated fatty acids include pizza, ice cream, milkshakes, and burgers. 
+
+\
+Both sugar and saturated fatty acid consumption slightly increase with age, are slightly higher on Friday, Saturday, and Sunday, and are highest between the hours of 8:00 PM and 3:00 AM.
+
+#### Further Directions
+In further analyses it would be interesting to see if any of the variables that I have suggested to have an association with sugar or saturated fatty acid consumption are correlated with each other.
 
 #### Sources
 * https://www.cdc.gov/diabetes/index.html
