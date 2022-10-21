@@ -266,17 +266,15 @@ the difference is quite small.
 ###### What time and/or day of the week do people generally eat foods high in sugar or saturated fatty acids (fa)?
 
 <img src="README_files/figure-gfm/plot sugar and saturated fa consumption against time grouped by day of the week-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/plot sugar and saturated fa consumption against time grouped by day of the week-2.png" style="display: block; margin: auto;" />
-
-Average sugar consumption spikes in the late night or early morning on
-Thursday, Friday, and Tuesday. Then, there are spikes around the late
-morning on Friday and Wednesday, and large spikes in consumption late
-evening Sunday through Thursday. Overall, averages are lowest at around
-6:00 AM and generally increase over the next 24 hours. Averages for
-saturated fatty acid consumption are generally more consistent than
-sugar consumption, but there is an interesting large spike in
-consumption towards the end of the day on Wednesday. It can also be
-noted that there are more spikes in saturated fatty acid consumption in
-the day time on Saturday and Sunday.
+Average sugar consumption is high at around midnight on Sunday and
+Friday, but low on Monday and Thursday. Then, the lines for each of the
+days seem to converge at around 10:00 AM, and increase until the end of
+the day. Average saturated fatty acid consumption is high around
+midnight on Saturday and Sunday, and lines for all days converge at
+around 7:00 AM. From there, the average saturated fatty acid consumption
+increases until the end of the day, especially so for Wednesday, which
+sees a dramatic spike in average saturated fatty acid consumption after
+6:00 PM.
 
 <img src="README_files/figure-gfm/plot sugar and saturated fa consumption by eating occasion-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/plot sugar and saturated fa consumption by eating occasion-2.png" style="display: block; margin: auto;" />
 The plots above reveal that average sugar consumption is lowest in

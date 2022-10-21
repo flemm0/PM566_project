@@ -541,12 +541,11 @@ df[, .(mean(total_saturated_fatty_acids_gm)), by = c("intake_day_cat", "time_of_
   ylab("Average Total Saturated Fatty Acid Consumption (grams)") +
   xlab("Time of the Day")
 ```
-
-Average sugar consumption spikes in the late night or early morning on Thursday, Friday, and Tuesday. Then, there are spikes around the late morning on Friday and Wednesday, and large spikes in consumption late evening Sunday through Thursday. Overall, averages are lowest at around 6:00 AM and generally increase over the next 24 hours. Averages for saturated fatty acid consumption are generally more consistent than sugar consumption, but there is an interesting large spike in consumption towards the end of the day on Wednesday. It can also be noted that there are more spikes in saturated fatty acid consumption in the day time on Saturday and Sunday.
+Average sugar consumption is high at around midnight on Sunday and Friday, but low on Monday and Thursday. Then, the lines for each of the days seem to converge at around 10:00 AM, and increase until the end of the day. Average saturated fatty acid consumption is high around midnight on Saturday and Sunday, and lines for all days converge at around 7:00 AM. From there, the average saturated fatty acid consumption increases until the end of the day, especially so for Wednesday, which sees a dramatic spike in average saturated fatty acid consumption after 6:00 PM.
 
 
 ```{r plot sugar and saturated fa consumption by eating occasion, warning=FALSE, fig.height = 8, fig.width = 12, fig.align = "center"}
-#Sugar
+# sugar
 df[!is.na(eating_occasion) & !is.na(total_sugars_gm)][, eating_occasion := 
                                                 fifelse(eating_occasion == "Desayano", "Desayano (breakfast)",
                                                 fifelse(eating_occasion == "Almuerzo", "Almuerzo (breakfast)",
@@ -568,7 +567,7 @@ df[!is.na(eating_occasion) & !is.na(total_sugars_gm)][, eating_occasion :=
 
 
 
-#Saturated Fatty Acid
+# saturated Fatty Acid
 df[!is.na(eating_occasion) & !is.na(total_saturated_fatty_acids_gm)][, eating_occasion := 
                                                 fifelse(eating_occasion == "Desayano", "Desayano (breakfast)",
                                                 fifelse(eating_occasion == "Almuerzo", "Almuerzo (breakfast)",
