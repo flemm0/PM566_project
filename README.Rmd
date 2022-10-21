@@ -11,27 +11,22 @@ always_allow_html: true
 
 Insulin resistance and diabetes is a growing health issue for Americans. When foods with a high glycemic index (causing a rapid rise in blood sugar) are consumed, the pancreas must pump insulin to move sugar from the blood back into the cells. Over time, if these foods are consumed on a consistent basis, cells stop responding to insulin and the normal blood sugar level rises. This leads to weight gain, as excess blood sugar is sent to be stored as body fat, and sets the stage for prediabetes and type 2 diabetes.\
 
-Some quick factoids about diabetes from the CDC:\
-
-* More than 37 million people in the United States have diabetes, and 1 in 5 of them don’t know they have it.\
-* 96 million US adults—over a third—have prediabetes, and more than 8 in 10 of them don’t know they have it.\
-* Diabetes is the 7th leading cause of death in the United States (and may be underreported).\
-
 While there are many other factors outside of diet that influence the development of insulin resistance and diabetes such as lifestyle, environmental factors, and family history, in this project, I will be investigating factors affecting our food choices using the NHANES (National Health and Nutrition Examination Survey) data. More specifically, I examined the data that was collected in [What We Eat in America (WWEIA)](https://www.ars.usda.gov/northeast-area/beltsville-md-bhnrc/beltsville-human-nutrition-research-center/food-surveys-research-group/docs/wweia-documentation-and-data-sets/), the dietary interview component of the NHANES. \
+
 I also acknowledge that people's dietary requirements vary due to a variety of factors, but according to the CDC and other sources, people should generally be wary of continued consumption of foods high in added sugar and saturated fats. Therefore, in this project, I will use the data to investigate the following questions that I have asked:\
 
-1. What time and/or day of the week do people generally eat foods high in sugar or saturated fatty acids (fa)?
-2. Does sugar or saturated fa consumption vary by age, ethnicity, or gender?
-3. Does the source of food or whether the meal was eaten at home have an effect on sugar or saturated fa consumption?
-4. Finally, what specific food items are associated with high amounts of sugar or saturated fa?
+1. **What time and/or day of the week do people generally eat foods high in sugar or saturated fatty acids (fa)?**
+2. **Does sugar or saturated fa consumption vary by age, ethnicity, or gender?**
+3. **Does the source of food or whether the meal was eaten at home have an effect on sugar or saturated fa consumption?**
+4. **Finally, what specific food items are associated with high amounts of sugar or saturated fa?**
 
 ##### About the data
-I used a total of four data sets for my project. The first two are food survey questionnaire answers, in which the respondents were asked to recall all food and drink they consumed in a 24 hour period. These questions were asked twice, with day one answers being one table and day two answers being the other table. Not all respondents were recorded in both days. Observations, or rows, in the food survey data are separated into individual food or drink items and also includes estimates on how much of each item was consumed, as well as energy and nutrient estimates for each item. Participants were asked additional questions about their consumption, such as what time the item was consumed, what meal it was a part of, whether the meal was eaten at home, etc. The next data set I used contains general demographic information about each of the participants, such as age, gender, ethnicity, etc. The last data set I used contains descriptions of food information. Since the food items in the food survey questionnaires were encoded as numbers, I used this table to cross-reference the food code numbers with descriptions of the food or drink items.
+I used a total of four data sets for my project. The first two are answers to a food survey questionnaire, in which the respondents were asked to recall all food and drink they consumed in a 24 hour period. These questions were asked one two different days, with day one answers being one table and day two answers being the other table. Not all respondents were recorded in both days. Observations, or rows, in the food survey data are separated into individual food or drink items and also includes estimates on how much of each item was consumed, as well as energy and nutrient estimates for each item. Participants were asked additional questions about their consumption, such as what time the item was consumed, what meal it was a part of, whether the meal was eaten at home, etc. The next data set I used contains general demographic information about each of the participants, such as age, gender, ethnicity, etc. The last data set I used contains descriptions of food information. Since the food items in the food survey questionnaires were encoded as numbers, I used this table to cross-reference the food code numbers with descriptions of the food or drink items.
 
 ---
 
 # Methods
-The data provided on the website were in SAS Transport File Format, so I used the `haven` package to read in the data directly from the http link. Once I read in the data into R, I noticed that the column names were encoded with names that weren't intuitive such as WTDRD1PP, but column labels that explained the meanings of the column names were also provided as part of the data. I did some text processing on the labels, such as removing non-alphanumeric characters and removing spaces, and then set these as the column names to make downstream work easier. I then noticed that many of the categorical variables in the data were encoded with numbers, such as 1 for yes and 2 for no. To fix this, I went through the data set [documentation](https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_DR2IFF.htm) and updated the categorical observations with their actual character values. I then added a column to each of the food survey data tables to keep track of which day the answers were from, concatenated the data from day 1 and day 2. Lastly, I merged all of the data into one data table, using the respondent id numbers and food code numbers as the common keys.
+The data provided on the website were in SAS Transport File Format, so I used the `haven` package to read in the data directly from the http link. Once I read in the data into R, I noticed that the column names were encoded with names that weren't intuitive such as "WTDRD1PP", but the data sets also contained column labels which explained the meanings of the column names. I did some text processing on the labels, such as removing non-alphanumeric characters and removing spaces, and then set these as the column names to make downstream work easier. I then noticed that all of the categorical variables in the data were encoded with numbers, such as a 1 for yes or a 2 for no. To fix this, I went through the data set [documentation](https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_DR2IFF.htm) and updated the categorical observations with their actual character values. I then added a column to each of the food survey data tables to keep track of which day the answers were from, concatenated the data from day 1 and day 2. Lastly, I merged all of the data into one data table, using the respondent id numbers and food code numbers as the common keys.
 
 ---
 
@@ -45,11 +40,11 @@ knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 60), tidy = TRUE)
 load.lib<-c("haven", "sjlabelled", "data.table", "tidyverse", "xml2", "rvest") #list of packages needed
 install.lib <- load.lib[!load.lib %in% installed.packages()] #select those not installed for installation
 
-for (lib in install.lib) { #install packages needed for installation including depedencies
-  install.packages(lib,dependencies=TRUE)
+for (lib in install.lib) { #install packages needed for installation including dependencies
+  install.packages(lib, dependencies = TRUE)
 }
 
-sapply(load.lib,require,character=TRUE) #load libraries
+sapply(load.lib, require, character = TRUE) #load libraries
 ```
 
 ```{r Read in data sets from website, cache = TRUE}
@@ -277,7 +272,6 @@ fs <- rbind(fs_d1, fs_d2)
 ```{r merge data and begin EDA}
 #### Exploratory Data Analysis
 
-
 # First merge all the data tables into one
 
 df <- merge(
@@ -336,9 +330,8 @@ unique(df$racehispanic_origin_w_nh_asian)
 
 
 ```{r sugar fat consumption by day of week}
-# average and standard deviation of sugar consumption and saturated fatty acid consumption by day of the week
 df[, 
-   .(avg_total_sugar = round(mean(total_sugars_gm), digits = 3), # rounding output to make more readable
+   .(avg_total_sugar = round(mean(total_sugars_gm), digits = 3), # rounding output to three decimal places to make more readable
      std_total_sugar = round(sd(total_sugars_gm), digits = 3),
      avg_total_sat_fa = round(mean(total_saturated_fatty_acids_gm), digits = 3),
      std_total_sat_fa = round(sd(total_saturated_fatty_acids_gm), digits = 3),
@@ -413,6 +406,7 @@ read_html("https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/dr1iff_c.htm#DR1_030Z") %>
   mutate(new_code = str_extract(Value.Description, "\\([a-z]+\\)")) %>%
   mutate(Value.Description = str_replace(Value.Description, "\\([a-z]+\\)", "")) %>%
   rename("Spanish" = "Value.Description", "English" = "new_code") %>%
+  t() %>%
   knitr::kable()
   
 ```
@@ -471,7 +465,7 @@ df[,
                              "Standard Deviation of Total Saturated Fatty Acid Consumption",
                              "Number of Observations"))
 ```
-The groups with the highest average sugar and saturated fat consumption are "other race including multiracial" and "non-hispanic black", and they are closely followed by "non-hispanic white". Non hispanic asians consume less sugar and saturated fats on average than other groups.
+The groups with the highest average sugar and saturated fat consumption are "other race including multiracial" and "non-hispanic black", and they are closely followed by "non-hispanic white". The "non hispanic asian" group consumes less sugar and saturated fats on average than other groups.
 
 ```{r sugar and saturated fat consumption by source of food}
 df[, 
@@ -512,70 +506,40 @@ The table above reveals that food not eaten at home is generally slightly higher
 
 ###### Figures
 
-```{r plot sugar and saturated fa consumption against time, message=FALSE, fig.height = 8, fig.width = 12, fig.align = "center"}
-#Plot sugar consumption versus time.
+###### What time and/or day of the week do people generally eat foods high in sugar or saturated fatty acids (fa)?
 
-df[, .(mean(total_sugars_gm)), by = "time_of_eating_occasion_hhmm"] %>%
-  ggplot(mapping = aes(x = time_of_eating_occasion_hhmm, y = V1)) +
-  geom_line() +
-  geom_smooth(formula = y ~ x, alpha = 0.01, se = FALSE, linetype="dashed") +
-  labs(x = "Hour of the Day (0 = 12:00 AM - 12:59 AM, 23 = 11:00 PM - 11:59 PM)",
-       y = "Average Total Sugar Consumption (grams)",
-       title = "Average Sugar Consumption vs Hour of the Day")
+```{r plot sugar and saturated fa consumption against time grouped by day of the week, fig.height = 8, fig.width = 12, fig.align = "center"}
 
-df[, .(mean(total_saturated_fatty_acids_gm)), by = "time_of_eating_occasion_hhmm"] %>%
-  ggplot(mapping = aes(x = time_of_eating_occasion_hhmm, y = V1)) +
-  geom_line() +
-  geom_smooth(formula = y ~ x, alpha = 0.01, se = FALSE, linetype="dashed") +
-  labs(x = "Hour of the Day (0 = 12:00 AM - 12:59 AM, 23 = 11:00 PM - 11:59 PM)",
-       y = "Average Total Saturated Fatty Acid Consumption (grams)",
-       title = "Average Saturated Fatty Acid Consumption vs Hour of the Day")
-```
-The plots above reveal that average sugar consumption increases as the day progresses, with large spikes at around 4:00 PM, 6:00 PM, 9:00 PM and 4:00 AM. A similar trend can be observed for saturated fatty acid consumption, with a large spike at around 12:00 PM and 10:30 PM.
-
-```{r}
-#labels <- c("1" = "Sunday", "2" = "Monday", "3" = "Tuesday", "4" = "Wednesday", "5" = "Thursday", "6" = "Friday", "7" = "Saturday")  
-
-#c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
-
-#sugars
+# sugars
 df[, .(mean(total_sugars_gm)), by = c("intake_day_cat", "time_of_eating_occasion_hhmm")] %>%
   ggplot() +
   geom_smooth(mapping = aes(x = time_of_eating_occasion_hhmm, y = V1, col = intake_day_cat), formula = y ~ x, method = "loess", alpha = 0.01, se = FALSE, show.legend = TRUE) +
-  labs(color = "Day of the Week") +
-  scale_color_manual(values = c("Sunday" = "Red", 
-                                "Monday" = "Blue", 
-                                "Tuesday" = "Yellow", 
-                                "Wednesday" = "Green", 
-                                "Thursday" = "Purple2", 
-                                "Friday" = "Pink", 
-                                "Saturday" = "Brown")) +
+  labs(color = "Day of the Week", title = "Hourly Average Total Sugar Consumption by Day of Week") +
+  scale_color_manual(values = c("Sunday" = "#EAFF74", 
+                                "Monday" = "#7D74FF", 
+                                "Tuesday" = "#FF7474", 
+                                "Wednesday" = "#64FF52", 
+                                "Thursday" = "#0600D0", 
+                                "Friday" = "#F60C1E", 
+                                "Saturday" = "#F68F0C")) +
   ylab("Average Total Sugar Consumption (grams)") +
   xlab("Time of the Day")
-```
 
 
-
-```{r plot sugar and saturated fa consumption against time grouped by day of the week, fig.height = 8, fig.width = 12, fig.align = "center"}
-labels <- c("1" = "Sunday", "2" = "Monday", "3" = "Tuesday", "4" = "Wednesday", "5" = "Thursday", "6" = "Friday", "7" = "Saturday")  
-
-#sugars
-df[, .(mean(total_sugars_gm)), by = c("intake_day_of_the_week", "time_of_eating_occasion_hhmm")][, intake_day_of_the_week := as.character(intake_day_of_the_week)] %>%
-  ggplot(mapping = aes(x = time_of_eating_occasion_hhmm, y = V1)) +
-  geom_line(col = "purple2") +
-  facet_grid(intake_day_of_the_week ~., labeller = labeller(intake_day_of_the_week = labels)) +
-  labs(x = "Time of the Day", 
-       y = "Average Total Sugar Consumption (grams)",
-       title = "Hourly Average Total Sugar Consumption by Day of Week")
-
-#saturated fa
-df[, .(mean(total_saturated_fatty_acids_gm)), by = c("intake_day_of_the_week", "time_of_eating_occasion_hhmm")][, intake_day_of_the_week := as.character(intake_day_of_the_week)] %>%
-  ggplot(mapping = aes(x = time_of_eating_occasion_hhmm, y = V1)) +
-  geom_line(col = "purple2") +
-  facet_grid(intake_day_of_the_week ~., labeller = labeller(intake_day_of_the_week = labels)) +
-  labs(x = "Time of the Day", 
-       y = "Average Total Saturated Fatty Acid Consumption (grams)",
-       title = "Hourly Average Total Saturated Fatty Acid Consumption by Day of Week")
+# saturated fa
+df[, .(mean(total_saturated_fatty_acids_gm)), by = c("intake_day_cat", "time_of_eating_occasion_hhmm")] %>%
+  ggplot() +
+  geom_smooth(mapping = aes(x = time_of_eating_occasion_hhmm, y = V1, col = intake_day_cat), formula = y ~ x, method = "loess", alpha = 0.01, se = FALSE, show.legend = TRUE) +
+  labs(color = "Day of the Week", title = "Hourly Average Total Saturated Fatty Acid Consumption by Day of Week") +
+  scale_color_manual(values = c("Sunday" = "#EAFF74", 
+                                "Monday" = "#7D74FF", 
+                                "Tuesday" = "#FF7474", 
+                                "Wednesday" = "#64FF52", 
+                                "Thursday" = "#0600D0", 
+                                "Friday" = "#F60C1E", 
+                                "Saturday" = "#F68F0C")) +
+  ylab("Average Total Saturated Fatty Acid Consumption (grams)") +
+  xlab("Time of the Day")
 ```
 
 Average sugar consumption spikes in the late night or early morning on Thursday, Friday, and Tuesday. Then, there are spikes around the late morning on Friday and Wednesday, and large spikes in consumption late evening Sunday through Thursday. Overall, averages are lowest at around 6:00 AM and generally increase over the next 24 hours. Averages for saturated fatty acid consumption are generally more consistent than sugar consumption, but there is an interesting large spike in consumption towards the end of the day on Wednesday. It can also be noted that there are more spikes in saturated fatty acid consumption in the day time on Saturday and Sunday.

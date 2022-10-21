@@ -14,15 +14,6 @@ blood sugar level rises. This leads to weight gain, as excess blood
 sugar is sent to be stored as body fat, and sets the stage for
 prediabetes and type 2 diabetes.  
 
-Some quick factoids about diabetes from the CDC:  
-
--   More than 37 million people in the United States have diabetes, and
-    1 in 5 of them don’t know they have it.  
--   96 million US adults—over a third—have prediabetes, and more than 8
-    in 10 of them don’t know they have it.  
--   Diabetes is the 7th leading cause of death in the United States (and
-    may be underreported).  
-
 While there are many other factors outside of diet that influence the
 development of insulin resistance and diabetes such as lifestyle,
 environmental factors, and family history, in this project, I will be
@@ -32,40 +23,41 @@ specifically, I examined the data that was collected in [What We Eat in
 America
 (WWEIA)](https://www.ars.usda.gov/northeast-area/beltsville-md-bhnrc/beltsville-human-nutrition-research-center/food-surveys-research-group/docs/wweia-documentation-and-data-sets/),
 the dietary interview component of the NHANES.  
+
 I also acknowledge that people’s dietary requirements vary due to a
 variety of factors, but according to the CDC and other sources, people
 should generally be wary of continued consumption of foods high in added
 sugar and saturated fats. Therefore, in this project, I will use the
 data to investigate the following questions that I have asked:  
 
-1.  What time and/or day of the week do people generally eat foods high
-    in sugar or saturated fatty acids (fa)?
-2.  Does sugar or saturated fa consumption vary by age, ethnicity, or
-    gender?
-3.  Does the source of food or whether the meal was eaten at home have
-    an effect on sugar or saturated fa consumption?
-4.  Finally, what specific food items are associated with high amounts
-    of sugar or saturated fa?
+1.  **What time and/or day of the week do people generally eat foods
+    high in sugar or saturated fatty acids (fa)?**
+2.  **Does sugar or saturated fa consumption vary by age, ethnicity, or
+    gender?**
+3.  **Does the source of food or whether the meal was eaten at home have
+    an effect on sugar or saturated fa consumption?**
+4.  **Finally, what specific food items are associated with high amounts
+    of sugar or saturated fa?**
 
 ##### About the data
 
-I used a total of four data sets for my project. The first two are food
-survey questionnaire answers, in which the respondents were asked to
-recall all food and drink they consumed in a 24 hour period. These
-questions were asked twice, with day one answers being one table and day
-two answers being the other table. Not all respondents were recorded in
-both days. Observations, or rows, in the food survey data are separated
-into individual food or drink items and also includes estimates on how
-much of each item was consumed, as well as energy and nutrient estimates
-for each item. Participants were asked additional questions about their
-consumption, such as what time the item was consumed, what meal it was a
-part of, whether the meal was eaten at home, etc. The next data set I
-used contains general demographic information about each of the
-participants, such as age, gender, ethnicity, etc. The last data set I
-used contains descriptions of food information. Since the food items in
-the food survey questionnaires were encoded as numbers, I used this
-table to cross-reference the food code numbers with descriptions of the
-food or drink items.
+I used a total of four data sets for my project. The first two are
+answers to a food survey questionnaire, in which the respondents were
+asked to recall all food and drink they consumed in a 24 hour period.
+These questions were asked one two different days, with day one answers
+being one table and day two answers being the other table. Not all
+respondents were recorded in both days. Observations, or rows, in the
+food survey data are separated into individual food or drink items and
+also includes estimates on how much of each item was consumed, as well
+as energy and nutrient estimates for each item. Participants were asked
+additional questions about their consumption, such as what time the item
+was consumed, what meal it was a part of, whether the meal was eaten at
+home, etc. The next data set I used contains general demographic
+information about each of the participants, such as age, gender,
+ethnicity, etc. The last data set I used contains descriptions of food
+information. Since the food items in the food survey questionnaires were
+encoded as numbers, I used this table to cross-reference the food code
+numbers with descriptions of the food or drink items.
 
 ------------------------------------------------------------------------
 
@@ -74,14 +66,14 @@ food or drink items.
 The data provided on the website were in SAS Transport File Format, so I
 used the `haven` package to read in the data directly from the http
 link. Once I read in the data into R, I noticed that the column names
-were encoded with names that weren’t intuitive such as WTDRD1PP, but
-column labels that explained the meanings of the column names were also
-provided as part of the data. I did some text processing on the labels,
-such as removing non-alphanumeric characters and removing spaces, and
-then set these as the column names to make downstream work easier. I
-then noticed that many of the categorical variables in the data were
-encoded with numbers, such as 1 for yes and 2 for no. To fix this, I
-went through the data set
+were encoded with names that weren’t intuitive such as “WTDRD1PP”, but
+the data sets also contained column labels which explained the meanings
+of the column names. I did some text processing on the labels, such as
+removing non-alphanumeric characters and removing spaces, and then set
+these as the column names to make downstream work easier. I then noticed
+that all of the categorical variables in the data were encoded with
+numbers, such as a 1 for yes or a 2 for no. To fix this, I went through
+the data set
 [documentation](https://wwwn.cdc.gov/NCHS/nhanes/2017-2018/P_DR2IFF.htm)
 and updated the categorical observations with their actual character
 values. I then added a column to each of the food survey data tables to
@@ -179,18 +171,10 @@ data
 [documentation](https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/dr1iff_c.htm#DR1_030Z),
 which is what I used for reference in this analysis:
 
-| Spanish      | English     |
-|:-------------|:------------|
-| Desayano     | (breakfast) |
-| Almuerzo     | (breakfast) |
-| Comida       | (lunch)     |
-| Merienda     | (snack)     |
-| Cena         | (dinner)    |
-| Entre comida | (snack)     |
-| Botana       | (snack)     |
-| Bocadillo    | (snack)     |
-| Tentempie    | (snack)     |
-| Bebida       | (drink)     |
+|         |             |             |         |          |          |              |         |           |           |         |
+|:--------|:------------|:------------|:--------|:---------|:---------|:-------------|:--------|:----------|:----------|:--------|
+| Spanish | Desayano    | Almuerzo    | Comida  | Merienda | Cena     | Entre comida | Botana  | Bocadillo | Tentempie | Bebida  |
+| English | (breakfast) | (breakfast) | (lunch) | (snack)  | (dinner) | (snack)      | (snack) | (snack)   | (snack)   | (drink) |
 
 | Age Range | Average Total Sugar Consumption (grams) | Standard Deviation of Total Sugar Consumption | Average Total Saturated Fatty Acid Consumption (grams) | Standard Deviation of Total Saturated Fatty Acid Consumption | Number of Observations |
 |:----------|----------------------------------------:|----------------------------------------------:|-------------------------------------------------------:|-------------------------------------------------------------:|-----------------------:|
@@ -227,8 +211,9 @@ bodies than females, requiring them to consume more calories on average.
 
 The groups with the highest average sugar and saturated fat consumption
 are “other race including multiracial” and “non-hispanic black”, and
-they are closely followed by “non-hispanic white”. Non hispanic asians
-consume less sugar and saturated fats on average than other groups.
+they are closely followed by “non-hispanic white”. The “non hispanic
+asian” group consumes less sugar and saturated fats on average than
+other groups.
 
 | Food Source                                  | Average Total Sugar Consumption (grams) | Standard Deviation of Total Sugar Consumption | Average Total Saturated Fatty Acid Consumption (grams) | Standard Deviation of Total Saturated Fatty Acid Consumption | Number of Observations |
 |:---------------------------------------------|----------------------------------------:|----------------------------------------------:|-------------------------------------------------------:|-------------------------------------------------------------:|-----------------------:|
@@ -278,13 +263,7 @@ the difference is quite small.
 
 ###### Figures
 
-<img src="README_files/figure-gfm/plot sugar and saturated fa consumption against time-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/plot sugar and saturated fa consumption against time-2.png" style="display: block; margin: auto;" />
-The plots above reveal that average sugar consumption increases as the
-day progresses, with large spikes at around 4:00 PM, 6:00 PM, 9:00 PM
-and 4:00 AM. A similar trend can be observed for saturated fatty acid
-consumption, with a large spike at around 12:00 PM and 10:30 PM.
-
-![](README_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+###### What time and/or day of the week do people generally eat foods high in sugar or saturated fatty acids (fa)?
 
 <img src="README_files/figure-gfm/plot sugar and saturated fa consumption against time grouped by day of the week-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/plot sugar and saturated fa consumption against time grouped by day of the week-2.png" style="display: block; margin: auto;" />
 
@@ -352,14 +331,14 @@ in omega-3 fatty acids.
 
 #### What foods are associated with high sugar or high saturated fatty acids?
 
-<img src="README_files/figure-gfm/unnamed-chunk-3-1.png" style="display: block; margin: auto;" />
+<img src="README_files/figure-gfm/unnamed-chunk-2-1.png" style="display: block; margin: auto;" />
 The bar chart above plots the top 30 most common food or drink items in
 the data set recorded to contain over 33.11 grams of sugar, and is
 ranked by how often they occur in the data. It is interesting to see
 that the top four most common high-sugar content items are soft-drinks,
 and that 21 out of 30 of the items are a type of beverage.
 
-<img src="README_files/figure-gfm/unnamed-chunk-4-1.png" style="display: block; margin: auto;" />
+<img src="README_files/figure-gfm/unnamed-chunk-3-1.png" style="display: block; margin: auto;" />
 The bar chart above plots the top 30 most common food or drink items in
 the data set recorded to contain over 8.51 grams of saturated fatty
 acids, and is ranked by how often they occur in the data. Commonly
