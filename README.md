@@ -277,12 +277,14 @@ sees a dramatic spike in average saturated fatty acid consumption after
 6:00 PM.
 
 <img src="README_files/figure-gfm/plot sugar and saturated fa consumption by eating occasion-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/plot sugar and saturated fa consumption by eating occasion-2.png" style="display: block; margin: auto;" />
-The plots above reveal that average sugar consumption is lowest in
-formal meals such as breakfast, lunch or dinner. On the other end,
-snacking occasions typically involve much higher average sugar
-consumption. The reverse trend can be seen for average saturated fa
-consumption, as snacks are lower on the y-axis than meals such as lunch
-or dinner.
+Although eating occasions at different times of the day, such as
+breakfast, lunch, and dinner do not see much difference in sugar or
+saturated fatty acid consumption, the plots above do reveal that average
+sugar consumption is lowest in formal meals such as breakfast, lunch or
+dinner. On the other end, snacking occasions typically involve much
+higher average sugar consumption. The reverse trend can be seen for
+average saturated fa consumption, as snacks are lower on the y-axis than
+meals such as lunch or dinner.
 
 #### Does sugar / saturated fatty acid consumption vary by age, ethnicity, gender?
 
@@ -329,19 +331,12 @@ in omega-3 fatty acids.
 
 #### What foods are associated with high sugar or high saturated fatty acids?
 
-<img src="README_files/figure-gfm/unnamed-chunk-2-1.png" style="display: block; margin: auto;" />
-The bar chart above plots the top 30 most common food or drink items in
-the data set recorded to contain over 33.11 grams of sugar, and is
-ranked by how often they occur in the data. It is interesting to see
-that the top four most common high-sugar content items are soft-drinks,
-and that 21 out of 30 of the items are a type of beverage.
-
-<img src="README_files/figure-gfm/unnamed-chunk-3-1.png" style="display: block; margin: auto;" />
-The bar chart above plots the top 30 most common food or drink items in
-the data set recorded to contain over 8.51 grams of saturated fatty
-acids, and is ranked by how often they occur in the data. Commonly
-occurring food items in this plot are pizza and dairy products
-(including ice cream, milkshakes, cheese, and milk).
+<img src="README_files/figure-gfm/unnamed-chunk-2-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/unnamed-chunk-2-2.png" style="display: block; margin: auto;" />
+It is interesting to see that the top four most common high-sugar
+content items are soft-drinks, and that 21 out of 30 of the items are a
+type of beverage. For saturated fatty acids, commonly occurring food
+items are pizza and dairy products (including ice cream, milkshakes,
+cheese, and milk).
 
 #### Preliminary Conclusions
 
@@ -365,7 +360,7 @@ include pizza, ice cream, milkshakes, and burgers.
 
   
 Both sugar and saturated fatty acid consumption slightly increase with
-age, are slightly higher on Friday, Saturday, and Sunday, and are
+age, are slightly higher on Wednesday, Saturday, and Sunday, and are
 highest between the hours of 8:00 PM and 3:00 AM.
 
 #### Further Directions
