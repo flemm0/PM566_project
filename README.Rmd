@@ -555,8 +555,7 @@ df[, .(mean(total_saturated_fatty_acids_gm)), by = c("intake_day_of_the_week", "
        title = "Average Total Saturated Fatty Acid Consumption vs Time of Day by Day of Week")
 ```
 
-The plots above reveal that sugar consumption is higher towards the evening for Monday through Wednesday. Additionally, there are spikes in sugar consumption in the morning around 9:30 AM on Wednesday and 5:30 AM on Thursday. Averages for sugar consumption tend to be more consistent throughout the 24 hour period on Friday, Saturday, and Sunday. \
-Averages for saturated fatty acid consumption are generally more consistent than sugar consumption, but there is an interesting large spike in consumption towards the end of the day on Wednesday. It can also be noted that there are more spikes in saturated fatty acid consumption on Saturday and Sunday.
+Average sugar consumption spikes in the late night or early morning on Thursday, Friday, and Tuesday. Then, there are spikes around the late morning on Friday and Wednesday, and large spikes in consumption late evening Sunday through Thursday. Overall, averages are lowest at around 6:00 AM and generally increase over the next 24 hours. Averages for saturated fatty acid consumption are generally more consistent than sugar consumption, but there is an interesting large spike in consumption towards the end of the day on Wednesday. It can also be noted that there are more spikes in saturated fatty acid consumption in the day time on Saturday and Sunday.
 
 
 ```{r plot sugar and saturated fa consumption by eating occasion, warning=FALSE, fig.height = 8, fig.width = 12, fig.align = "center"}
@@ -601,8 +600,7 @@ df[!is.na(eating_occasion) & !is.na(total_saturated_fatty_acids_gm)][, eating_oc
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1)) +
   labs(x = "Name of Eating Occasion", y = "Average Grams Saturated Fatty Acid Consumption", title = "Saturated Fatty Acid Consumption vs Eating Occasion")
 ```
-The plots above reveal that average sugar consumption is lowest in meals eaten later in the day such as lunch and dinner, increases for earlier meals such as breakfast or brunch, and is highest in the snack and extended consumption categories. For average saturated fatty acid consumption, the trend can be described as an increase in consumption with more formal meal categories, such as brunch, dinner, and supper. However, snacking is also associated with higher average saturated fatty acid consumption. As expected, bebida, or drinks, are associated with the lowest saturated fatty acid consumption.
-
+The plots above reveal that average sugar consumption is lowest in formal meals such as breakfast, lunch or dinner. On the other end, snacking occasions typically involve much higher average sugar consumption. The reverse trend can be seen for average saturated fa consumption, as snacks are lower on the y-axis than meals such as lunch or dinner.
 
 #### Does sugar / saturated fatty acid consumption vary by age, ethnicity, gender?
 
@@ -643,7 +641,7 @@ unique(df[,
   stat_summary(fun = median, geom = "point", position = position_dodge(0.9)) +
   labs(x = "Age Range", y = "Saturated FA Consumption (grams) in 24 Hours", title = "Saturated FA Consumption vs Age", fill = "Gender")
 ```
-The violin plots above reveal several trends in average sugar and saturated fatty acid consumption: first, that consumption is higher on average for males than females. Secondly, the trend in average consumption increases until age 18, and then decreases with age. Lastly, the range of values tends to increase with increasing age, especially so for males, made evident by the width of the distributions decreasing with increasing age. 
+The violin plots above reveal several trends in average sugar and saturated fatty acid consumption: first, that consumption is higher on average for males than females. Secondly, the trend in median sugar consumption increases until ages 14-18, and then remains about consistent at around 100 grams per day. The trend in median saturated fa consumption increases until ages 31-50, and then decreases. Lastly, the range of values tends to increase with increasing age, especially so for males, made evident by the width of the distributions decreasing with increasing age.
 
 ```{r sugar and sat fa consumption by ethnicity, fig.height = 8, fig.width = 12, fig.align = "center"}
 #sugar
@@ -678,10 +676,10 @@ unique(df[,
   ggplot(mapping = aes(x = racehispanic_origin_w_nh_asian, y = sat_fa_consumption, fill = gender)) +
   geom_violin() +
   stat_summary(fun = median, geom = "point", position = position_dodge(0.9)) +
-  labs(x = "Ethnicity", y = "Sugar Consumption (grams) in 24 Hours", title = "Sugar Consumption vs Ethnicity", fill = "Gender")
+  labs(x = "Ethnicity", y = "Saturated Fatty Acid Consumption (grams) in 24 Hours", title = "Saturated Fatty Acid Consumption vs Ethnicity", fill = "Gender")
 
 ```
-In grouping average sugar and saturated fatty acid consumption by ethnicity, there is not much variation between ethnicity groups and sugar consumption. The lowest average sugar and saturated fatty acid consumption and range of values is lowest in the non-hispanic asian group, and highest in non-hispanic white group. Again, the average consumption for males is higher than that of females.
+In plotting the average sugar and saturated fatty acid consumption by ethnicity and gender, there is not much variation between ethnicity groups and sugar consumption. However, the lowest median sugar and saturated fatty acid consumption and range of values is lowest in the non-hispanic asian group.
 
 #### Does the source of the food or whether the meal was eaten at home have an effect?
 
@@ -717,13 +715,12 @@ df[!is.na(food_source) & !is.na(total_sugars_gm)] %>%
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1)) +
   labs(x = "Source of Food", y = "Total Saturated FA Consumption (grams)", title = "Saturated FA Consumption vs Source of Food")
 ```
-
+The sources of food in which people obtain the highest amount of sugar on average include vending machines, convenience stores, and fundraisers sales, whereas people obtain the lowest amount of sugar on average from fish, restaurants and mail order purchases. As for saturated fa, people obtain the highest amounts from recreational facilities, fundraiser sales, and fish, whereas the lowest amounts are obtained from coffee, mail order purchase, and vending machines. These results makes sense, as non-dairy drinks usually do not contain fatty acids, and fish are high in omega-3 fatty acids. 
 
 #### What foods are associated with high sugar or high saturated fatty acids?
 
-```{r get distribution of sugar content in foods, echo=FALSE}
-#quantile(df$total_sugars_gm, seq(0, 1, 0.05))["95%"] # lets consider high amounts of sugar to be > 95th percentile 33.11
-
+```{r get distribution of sugar content in foods, results='hide'}
+quantile(df$total_sugars_gm, seq(0, 1, 0.05))["95%"] # lets consider high amounts of sugar to be > 95th percentile 33.11
 ```
 
 
@@ -734,10 +731,11 @@ df[total_sugars_gm > 33.11, .N, by = "long_food_code_description"][order(-N)] %>
   ggplot(aes(x = N, y = forcats::fct_reorder(long_food_code_description, N))) +
   geom_col()
 ```
+The bar chart above plots the top 30 most common food or drink items in the data set recorded to contain over 33.11 grams of sugar, and is ranked by how often they occur in the data. It is interesting to see that the top four most common high-sugar content items are soft-drinks, and that 21 out of 30 of the items are a type of beverage.
 
-```{r get distribution of saturated fatty acid content in foods, echo=FALSE}
-#quantile(df$total_saturated_fatty_acids_gm, seq(0, 1, 0.05))["95%"] # 8.511 grams is 95th percentile
 
+```{r get distribution of saturated fatty acid content in foods, results='hide'}
+quantile(df$total_saturated_fatty_acids_gm, seq(0, 1, 0.05))["95%"] # 8.511 grams is 95th percentile
 ```
 
 
@@ -747,6 +745,7 @@ df[total_saturated_fatty_acids_gm > 8.511, .N, by = "long_food_code_description"
   ggplot(aes(x = N, y = forcats::fct_reorder(long_food_code_description, N))) +
   geom_col()
 ```
+The bar chart above plots the top 30 most common food or drink items in the data set recorded to contain over 8.51 grams of saturated fatty acids, and is ranked by how often they occur in the data. Commonly occurring food items in this plot are pizza and dairy products (including ice cream, milkshakes, cheese, and milk).
 
 #### Preliminary Conclusions
 From the variables that I have investigated in this project, it appears that 

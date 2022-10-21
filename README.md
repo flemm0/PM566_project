@@ -1,7 +1,7 @@
 PM566 Midterm Project
 ================
 Flemming Wu
-2022-10-19
+2022-10-20
 
 # Introduction
 
@@ -286,46 +286,44 @@ consumption, with a large spike at around 12:00 PM and 10:30 PM.
 
 <img src="README_files/figure-gfm/plot sugar and saturated fa consumption against time grouped by day of the week-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/plot sugar and saturated fa consumption against time grouped by day of the week-2.png" style="display: block; margin: auto;" />
 
-The plots above reveal that sugar consumption is higher towards the
-evening for Monday through Wednesday. Additionally, there are spikes in
-sugar consumption in the morning around 9:30 AM on Wednesday and 5:30 AM
-on Thursday. Averages for sugar consumption tend to be more consistent
-throughout the 24 hour period on Friday, Saturday, and Sunday.  
-Averages for saturated fatty acid consumption are generally more
-consistent than sugar consumption, but there is an interesting large
-spike in consumption towards the end of the day on Wednesday. It can
-also be noted that there are more spikes in saturated fatty acid
-consumption on Saturday and Sunday.
+Average sugar consumption spikes in the late night or early morning on
+Thursday, Friday, and Tuesday. Then, there are spikes around the late
+morning on Friday and Wednesday, and large spikes in consumption late
+evening Sunday through Thursday. Overall, averages are lowest at around
+6:00 AM and generally increase over the next 24 hours. Averages for
+saturated fatty acid consumption are generally more consistent than
+sugar consumption, but there is an interesting large spike in
+consumption towards the end of the day on Wednesday. It can also be
+noted that there are more spikes in saturated fatty acid consumption in
+the day time on Saturday and Sunday.
 
 <img src="README_files/figure-gfm/plot sugar and saturated fa consumption by eating occasion-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/plot sugar and saturated fa consumption by eating occasion-2.png" style="display: block; margin: auto;" />
-The plots above reveal that average sugar consumption is lowest in meals
-eaten later in the day such as lunch and dinner, increases for earlier
-meals such as breakfast or brunch, and is highest in the snack and
-extended consumption categories. For average saturated fatty acid
-consumption, the trend can be described as an increase in consumption
-with more formal meal categories, such as brunch, dinner, and supper.
-However, snacking is also associated with higher average saturated fatty
-acid consumption. As expected, bebida, or drinks, are associated with
-the lowest saturated fatty acid consumption.
+The plots above reveal that average sugar consumption is lowest in
+formal meals such as breakfast, lunch or dinner. On the other end,
+snacking occasions typically involve much higher average sugar
+consumption. The reverse trend can be seen for average saturated fa
+consumption, as snacks are lower on the y-axis than meals such as lunch
+or dinner.
 
 #### Does sugar / saturated fatty acid consumption vary by age, ethnicity, gender?
 
 <img src="README_files/figure-gfm/sugar and sat fa consumption by age-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/sugar and sat fa consumption by age-2.png" style="display: block; margin: auto;" />
 The violin plots above reveal several trends in average sugar and
 saturated fatty acid consumption: first, that consumption is higher on
-average for males than females. Secondly, the trend in average
-consumption increases until age 18, and then decreases with age. Lastly,
-the range of values tends to increase with increasing age, especially so
-for males, made evident by the width of the distributions decreasing
-with increasing age.
+average for males than females. Secondly, the trend in median sugar
+consumption increases until ages 14-18, and then remains about
+consistent at around 100 grams per day. The trend in median saturated fa
+consumption increases until ages 31-50, and then decreases. Lastly, the
+range of values tends to increase with increasing age, especially so for
+males, made evident by the width of the distributions decreasing with
+increasing age.
 
 <img src="README_files/figure-gfm/sugar and sat fa consumption by ethnicity-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/sugar and sat fa consumption by ethnicity-2.png" style="display: block; margin: auto;" />
-In grouping average sugar and saturated fatty acid consumption by
-ethnicity, there is not much variation between ethnicity groups and
-sugar consumption. The lowest average sugar and saturated fatty acid
-consumption and range of values is lowest in the non-hispanic asian
-group, and highest in non-hispanic white group. Again, the average
-consumption for males is higher than that of females.
+In plotting the average sugar and saturated fatty acid consumption by
+ethnicity and gender, there is not much variation between ethnicity
+groups and sugar consumption. However, the lowest median sugar and
+saturated fatty acid consumption and range of values is lowest in the
+non-hispanic asian group.
 
 #### Does the source of the food or whether the meal was eaten at home have an effect?
 
@@ -340,12 +338,31 @@ on sugar or saturated fa consumption, as the distributions for “yes” and
 “no” are very similar in both plots.
 
 <img src="README_files/figure-gfm/plot source of food-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/plot source of food-2.png" style="display: block; margin: auto;" />
+The sources of food in which people obtain the highest amount of sugar
+on average include vending machines, convenience stores, and fundraisers
+sales, whereas people obtain the lowest amount of sugar on average from
+fish, restaurants and mail order purchases. As for saturated fa, people
+obtain the highest amounts from recreational facilities, fundraiser
+sales, and fish, whereas the lowest amounts are obtained from coffee,
+mail order purchase, and vending machines. These results makes sense, as
+non-dairy drinks usually do not contain fatty acids, and fish are high
+in omega-3 fatty acids.
 
 #### What foods are associated with high sugar or high saturated fatty acids?
 
 <img src="README_files/figure-gfm/unnamed-chunk-2-1.png" style="display: block; margin: auto;" />
+The bar chart above plots the top 30 most common food or drink items in
+the data set recorded to contain over 33.11 grams of sugar, and is
+ranked by how often they occur in the data. It is interesting to see
+that the top four most common high-sugar content items are soft-drinks,
+and that 21 out of 30 of the items are a type of beverage.
 
 <img src="README_files/figure-gfm/unnamed-chunk-3-1.png" style="display: block; margin: auto;" />
+The bar chart above plots the top 30 most common food or drink items in
+the data set recorded to contain over 8.51 grams of saturated fatty
+acids, and is ranked by how often they occur in the data. Commonly
+occurring food items in this plot are pizza and dairy products
+(including ice cream, milkshakes, cheese, and milk).
 
 #### Preliminary Conclusions
 
