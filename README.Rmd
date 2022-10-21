@@ -533,26 +533,49 @@ df[, .(mean(total_saturated_fatty_acids_gm)), by = "time_of_eating_occasion_hhmm
 ```
 The plots above reveal that average sugar consumption increases as the day progresses, with large spikes at around 4:00 PM, 6:00 PM, 9:00 PM and 4:00 AM. A similar trend can be observed for saturated fatty acid consumption, with a large spike at around 12:00 PM and 10:30 PM.
 
+```{r}
+#labels <- c("1" = "Sunday", "2" = "Monday", "3" = "Tuesday", "4" = "Wednesday", "5" = "Thursday", "6" = "Friday", "7" = "Saturday")  
+
+#c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
+
+#sugars
+df[, .(mean(total_sugars_gm)), by = c("intake_day_cat", "time_of_eating_occasion_hhmm")] %>%
+  ggplot() +
+  geom_smooth(mapping = aes(x = time_of_eating_occasion_hhmm, y = V1, col = intake_day_cat), formula = y ~ x, method = "loess", alpha = 0.01, se = FALSE, show.legend = TRUE) +
+  labs(color = "Day of the Week") +
+  scale_color_manual(values = c("Sunday" = "Red", 
+                                "Monday" = "Blue", 
+                                "Tuesday" = "Yellow", 
+                                "Wednesday" = "Green", 
+                                "Thursday" = "Purple2", 
+                                "Friday" = "Pink", 
+                                "Saturday" = "Brown")) +
+  ylab("Average Total Sugar Consumption (grams)") +
+  xlab("Time of the Day")
+```
+
+
+
 ```{r plot sugar and saturated fa consumption against time grouped by day of the week, fig.height = 8, fig.width = 12, fig.align = "center"}
 labels <- c("1" = "Sunday", "2" = "Monday", "3" = "Tuesday", "4" = "Wednesday", "5" = "Thursday", "6" = "Friday", "7" = "Saturday")  
 
 #sugars
 df[, .(mean(total_sugars_gm)), by = c("intake_day_of_the_week", "time_of_eating_occasion_hhmm")][, intake_day_of_the_week := as.character(intake_day_of_the_week)] %>%
   ggplot(mapping = aes(x = time_of_eating_occasion_hhmm, y = V1)) +
-  geom_line() +
+  geom_line(col = "purple2") +
   facet_grid(intake_day_of_the_week ~., labeller = labeller(intake_day_of_the_week = labels)) +
   labs(x = "Time of the Day", 
        y = "Average Total Sugar Consumption (grams)",
-       title = "Average Total Sugar Consumption vs Time of Day by Day of Week")
+       title = "Hourly Average Total Sugar Consumption by Day of Week")
 
 #saturated fa
 df[, .(mean(total_saturated_fatty_acids_gm)), by = c("intake_day_of_the_week", "time_of_eating_occasion_hhmm")][, intake_day_of_the_week := as.character(intake_day_of_the_week)] %>%
   ggplot(mapping = aes(x = time_of_eating_occasion_hhmm, y = V1)) +
-  geom_line() +
+  geom_line(col = "purple2") +
   facet_grid(intake_day_of_the_week ~., labeller = labeller(intake_day_of_the_week = labels)) +
   labs(x = "Time of the Day", 
        y = "Average Total Saturated Fatty Acid Consumption (grams)",
-       title = "Average Total Saturated Fatty Acid Consumption vs Time of Day by Day of Week")
+       title = "Hourly Average Total Saturated Fatty Acid Consumption by Day of Week")
 ```
 
 Average sugar consumption spikes in the late night or early morning on Thursday, Friday, and Tuesday. Then, there are spikes around the late morning on Friday and Wednesday, and large spikes in consumption late evening Sunday through Thursday. Overall, averages are lowest at around 6:00 AM and generally increase over the next 24 hours. Averages for saturated fatty acid consumption are generally more consistent than sugar consumption, but there is an interesting large spike in consumption towards the end of the day on Wednesday. It can also be noted that there are more spikes in saturated fatty acid consumption in the day time on Saturday and Sunday.
@@ -574,7 +597,7 @@ df[!is.na(eating_occasion) & !is.na(total_sugars_gm)][, eating_occasion :=
   ggplot(mapping = aes(x = forcats::fct_reorder(factor(eating_occasion),
     total_sugars_gm, mean), y = total_sugars_gm)) +
   stat_summary(fun.data = mean_se, geom = "errorbar") +
-  stat_summary(fun = mean, size = 0.1) +
+  stat_summary(fun = mean, size = 0.4) +
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1)) +
   labs(x = "Name of Eating Occasion", y = "Average Grams Sugar Consumption", title = "Sugar Consumption vs Eating Occasion")
 
@@ -596,7 +619,7 @@ df[!is.na(eating_occasion) & !is.na(total_saturated_fatty_acids_gm)][, eating_oc
   ggplot(mapping = aes(x = forcats::fct_reorder(factor(eating_occasion),
     total_saturated_fatty_acids_gm, mean), y = total_saturated_fatty_acids_gm)) +
   stat_summary(fun.data = mean_se, geom = "errorbar") +
-  stat_summary(fun = mean, size = 0.1) +
+  stat_summary(fun = mean, size = 0.4) +
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1)) +
   labs(x = "Name of Eating Occasion", y = "Average Grams Saturated Fatty Acid Consumption", title = "Saturated Fatty Acid Consumption vs Eating Occasion")
 ```
@@ -620,7 +643,8 @@ unique(df[,
   ggplot(mapping= aes(x = factor(age_category, levels = c("<1", "1-3", "4-8", "9-13", "14-18", "19-30", "31-50", "51-70", "70+")), y = sugar_consumption, fill = gender)) +
   geom_violin() +
   stat_summary(fun = median, geom = "point", position = position_dodge(0.9)) +
-  labs(x = "Age Range", y = "Sugar Consumption (grams) in 24 Hours", title = "Sugar Consumption vs Age", fill = "Gender")
+  labs(x = "Age Range", y = "Sugar Consumption (grams) in 24 Hours", title = "Sugar Consumption vs Age", fill = "Gender") +
+  scale_fill_brewer(palette = "Paired")
 
 
 
@@ -639,7 +663,8 @@ unique(df[,
   ggplot(mapping = aes(x = factor(age_category, levels = c("<1", "1-3", "4-8", "9-13", "14-18", "19-30", "31-50", "51-70", "70+")), y = sat_fa_consumption, fill = gender)) +
   geom_violin() +
   stat_summary(fun = median, geom = "point", position = position_dodge(0.9)) +
-  labs(x = "Age Range", y = "Saturated FA Consumption (grams) in 24 Hours", title = "Saturated FA Consumption vs Age", fill = "Gender")
+  labs(x = "Age Range", y = "Saturated FA Consumption (grams) in 24 Hours", title = "Saturated FA Consumption vs Age", fill = "Gender") +
+  scale_fill_brewer(palette = "Paired")
 ```
 The violin plots above reveal several trends in average sugar and saturated fatty acid consumption: first, that consumption is higher on average for males than females. Secondly, the trend in median sugar consumption increases until ages 14-18, and then remains about consistent at around 100 grams per day. The trend in median saturated fa consumption increases until ages 31-50, and then decreases. Lastly, the range of values tends to increase with increasing age, especially so for males, made evident by the width of the distributions decreasing with increasing age.
 
@@ -659,7 +684,8 @@ unique(df[,
   ggplot(mapping = aes(x = racehispanic_origin_w_nh_asian, y = sugar_consumption, fill = gender)) +
   geom_violin() +
   stat_summary(fun = median, geom = "point", position = position_dodge(0.9)) +
-  labs(x = "Ethnicity", y = "Sugar Consumption (grams) in 24 Hours", title = "Sugar Consumption vs Ethnicity", fill = "Gender")
+  labs(x = "Ethnicity", y = "Sugar Consumption (grams) in 24 Hours", title = "Sugar Consumption vs Ethnicity", fill = "Gender") +
+  scale_fill_brewer(palette = "Paired")
 
 
 #saturated fa
@@ -676,7 +702,8 @@ unique(df[,
   ggplot(mapping = aes(x = racehispanic_origin_w_nh_asian, y = sat_fa_consumption, fill = gender)) +
   geom_violin() +
   stat_summary(fun = median, geom = "point", position = position_dodge(0.9)) +
-  labs(x = "Ethnicity", y = "Saturated Fatty Acid Consumption (grams) in 24 Hours", title = "Saturated Fatty Acid Consumption vs Ethnicity", fill = "Gender")
+  labs(x = "Ethnicity", y = "Saturated Fatty Acid Consumption (grams) in 24 Hours", title = "Saturated Fatty Acid Consumption vs Ethnicity", fill = "Gender") +
+  scale_fill_brewer(palette = "Paired")
 
 ```
 In plotting the average sugar and saturated fatty acid consumption by ethnicity and gender, there is not much variation between ethnicity groups and sugar consumption. However, the lowest median sugar and saturated fatty acid consumption and range of values is lowest in the non-hispanic asian group.
@@ -685,12 +712,14 @@ In plotting the average sugar and saturated fatty acid consumption by ethnicity 
 
 ```{r plot meal eaten at home, fig.height = 8, fig.width = 12, fig.align = "center"}
 ggplot(data = df[total_sugars_gm != 0], mapping = aes(x = log(total_sugars_gm), fill = did_you_eat_this_meal_at_home)) +
-  geom_histogram(bins = 100, alpha = 0.5) +
-  labs(x = "Log Total Sugar Consumption", y = "Number of Observations", title = "Log Transformation of Sugar Consumption vs Whether Meal Was Eaten at Home (Zero Values Excluded)", fill = "Meal Eaten at Home?")
+  geom_histogram(bins = 100, alpha = 0.8) +
+  labs(x = "Log Total Sugar Consumption", y = "Number of Observations", title = "Log Transformation of Sugar Consumption vs Whether Meal Was Eaten at Home (Zero Values Excluded)", fill = "Meal Eaten at Home?") +
+  scale_fill_brewer(palette = "Pastel1")
 
 ggplot(data = df[total_saturated_fatty_acids_gm != 0], mapping = aes(x = log(total_saturated_fatty_acids_gm), fill = did_you_eat_this_meal_at_home)) +
-  geom_histogram(bins = 100, alpha = 0.5) +
-  labs(x = "Log Total Saturated FA Consumption", y = "Number of Observations", title = "Log Transformation of Saturated FA Consumption vs Whether Meal Was Eaten at Home (Zero Values Excluded)", fill = "Meal Eaten at Home?")
+  geom_histogram(bins = 100, alpha = 0.8) +
+  labs(x = "Log Total Saturated FA Consumption", y = "Number of Observations", title = "Log Transformation of Saturated FA Consumption vs Whether Meal Was Eaten at Home (Zero Values Excluded)", fill = "Meal Eaten at Home?") +
+  scale_fill_brewer(palette = "Pastel1")
 ```
 The distributions above describe the amount of sugar and saturated fa in individual food items grouped by whether the item was eaten at home or not. Food items containing zero sugar or saturated fa were excluded and the x-axis was log transformed to account for few items having high amounts of sugar or saturated fa. It can be observed that whether the food item was consumed at home or not does not have a significant effect on sugar or saturated fa consumption, as the distributions for "yes" and "no" are very similar in both plots. 
 
@@ -701,7 +730,7 @@ df[!is.na(food_source) & !is.na(total_sugars_gm)] %>%
   ggplot(mapping = aes(x = forcats::fct_reorder(factor(food_source), 
                                                 total_sugars_gm, mean), y = total_sugars_gm)) +
   stat_summary(fun.data = mean_se, geom = "errorbar") +
-  stat_summary(fun = mean, size = 0.1) +
+  stat_summary(fun = mean, size = 0.4) +
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1)) +
   labs(x = "Source of Food", y = "Total Sugar Consumption (grams)", title = "Sugar Consumption vs Source of Food")
 
@@ -711,7 +740,7 @@ df[!is.na(food_source) & !is.na(total_sugars_gm)] %>%
   ggplot(mapping = aes(x = forcats::fct_reorder(factor(food_source),
                                                            total_saturated_fatty_acids_gm, mean), y = total_saturated_fatty_acids_gm)) +
   stat_summary(fun.data = mean_se, geom = "errorbar") +
-  stat_summary(fun = mean, size = 0.1) +
+  stat_summary(fun = mean, size = 0.4) +
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1)) +
   labs(x = "Source of Food", y = "Total Saturated FA Consumption (grams)", title = "Saturated FA Consumption vs Source of Food")
 ```

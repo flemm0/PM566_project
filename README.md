@@ -1,7 +1,7 @@
 PM566 Midterm Project
 ================
 Flemming Wu
-2022-10-20
+2022-10-21
 
 # Introduction
 
@@ -284,6 +284,8 @@ day progresses, with large spikes at around 4:00 PM, 6:00 PM, 9:00 PM
 and 4:00 AM. A similar trend can be observed for saturated fatty acid
 consumption, with a large spike at around 12:00 PM and 10:30 PM.
 
+![](README_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
 <img src="README_files/figure-gfm/plot sugar and saturated fa consumption against time grouped by day of the week-1.png" style="display: block; margin: auto;" /><img src="README_files/figure-gfm/plot sugar and saturated fa consumption against time grouped by day of the week-2.png" style="display: block; margin: auto;" />
 
 Average sugar consumption spikes in the late night or early morning on
@@ -350,14 +352,14 @@ in omega-3 fatty acids.
 
 #### What foods are associated with high sugar or high saturated fatty acids?
 
-<img src="README_files/figure-gfm/unnamed-chunk-2-1.png" style="display: block; margin: auto;" />
+<img src="README_files/figure-gfm/unnamed-chunk-3-1.png" style="display: block; margin: auto;" />
 The bar chart above plots the top 30 most common food or drink items in
 the data set recorded to contain over 33.11 grams of sugar, and is
 ranked by how often they occur in the data. It is interesting to see
 that the top four most common high-sugar content items are soft-drinks,
 and that 21 out of 30 of the items are a type of beverage.
 
-<img src="README_files/figure-gfm/unnamed-chunk-3-1.png" style="display: block; margin: auto;" />
+<img src="README_files/figure-gfm/unnamed-chunk-4-1.png" style="display: block; margin: auto;" />
 The bar chart above plots the top 30 most common food or drink items in
 the data set recorded to contain over 8.51 grams of saturated fatty
 acids, and is ranked by how often they occur in the data. Commonly
