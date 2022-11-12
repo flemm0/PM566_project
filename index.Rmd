@@ -26,7 +26,7 @@ sapply(load.lib, require, character = TRUE) #load libraries
 ```
 
 ```{r, message=FALSE}
-df <- data.table::fread("./processed_data.csv")
+df <- data.table::fread("https://media.githubusercontent.com/media/flemm0/PM566_project/main/data/processed_data.csv")
 ```
 
 ## Figures
