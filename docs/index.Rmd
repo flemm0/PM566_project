@@ -15,7 +15,7 @@ knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 60), tidy = TRUE)
 ```
 
 ```{r load libraries, warning=FALSE, message=FALSE, results = 'hide', eval=TRUE}
-load.lib<-c("haven", "sjlabelled", "data.table", "tidyverse", "xml2", "rvest", "shiny", "plotly") #list of packages needed
+load.lib<-c("haven", "sjlabelled", "data.table", "tidyverse", "xml2", "rvest", "shiny", "plotly", "zoo", "chron") #list of packages needed
 install.lib <- load.lib[!load.lib %in% installed.packages()] #select those not installed for installation
 
 for (lib in install.lib) { #install packages needed for installation including dependencies
@@ -50,15 +50,27 @@ server <- function(input, output, ...) {
   x = ifelse(input$ingredient == "Sugar", 
              "total_sugars_gm", "total_saturated_fatty_acids_gm")
   
+  df$eating_time <- as.POSIXct(df$time_of_eating_occasion_hhmm, format = "%H:%M:%S")
+
   df %>%
-    group_by(intake_day_cat, time_of_eating_occasion_hhmm) %>%
-    summarise(m = mean(!! rlang::sym(x))) %>%
-    plot_ly(x = ~time_of_eating_occasion_hhmm, y = ~m) %>%
-    add_lines(color = ~intake_day_cat)
+    select(intake_day_of_the_week, intake_day_cat, time_of_eating_occasion_hhmm, eating_time, !! rlang::sym(x)) %>%
+    #mutate(eating_time = floor_date(eating_time, unit="30minutes")) %>%
+    group_by(intake_day_cat, eating_time) %>%
+    summarize(m = mean(!! rlang::sym(x))) %>%
+    arrange(match(intake_day_cat, c("Monday", "Tuesday", "Wednesday", 
+                                    "Thursday", "Friday", "Saturday", "Sunday")), eating_time) %>%
+    plot_ly(x = ~eating_time, y = ~m) %>%
+    add_lines(color = ~intake_day_cat) %>%
+    layout(
+      xaxis = list(
+        type = 'time',
+        tickformat="%H:%M:%S"
+        )
+      )
   })
-  
 }
 
+#zoo::rollmean
 shinyApp(ui, server)
 ```
 
