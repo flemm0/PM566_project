@@ -380,5 +380,3 @@ shinyApp(ui, server)
 ```
 
 
-Tables {data-icon="fa-table"}
-===================================== 
