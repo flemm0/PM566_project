@@ -4,6 +4,8 @@ author: "Flemming Wu"
 date: "`r Sys.Date()`"
 output: 
   flexdashboard::flex_dashboard:
+    storyboard: true
+    vertical_layout: scroll
     theme:
       version: 4
       bg: "#101010"
@@ -35,12 +37,16 @@ sapply(load.lib, require, character = TRUE) #load libraries
 df <- data.table::fread("https://media.githubusercontent.com/media/flemm0/PM566_project/main/data/processed_data.csv")
 ```
 
-## Figures
+Figures {data-icon="fa-signal"}
+===================================== 
 
-##### What time and/or day of the week do people generally eat foods high in sugar or saturated fatty acids (fa)?
+### Figure 1
 
+What time and/or day of the week do people generally eat foods high in sugar or saturated fatty acids (fa)?
 
 ```{r consumption by time and day of the week}
+
+
 ui <- shinyUI(fluidPage(
   selectizeInput(
     inputId = "ingredient", 
@@ -91,71 +97,9 @@ server <- function(input, output, ...) {
 shinyApp(ui, server)
 ```
 
-```{r, eval=FALSE, include=FALSE}
-x = "total_sugars_gm"
-df$eating_time <- as.POSIXct(df$time_of_eating_occasion_hhmm, format = "%H:%M:%S")
-df %>%
-  select(intake_day_of_the_week, intake_day_cat, time_of_eating_occasion_hhmm, eating_time, !! rlang::sym(x)) %>%
-  group_by(intake_day_cat, eating_time) %>%
-  summarize(m = mean(!! rlang::sym(x))) %>%
-  arrange(match(intake_day_cat, 
-                  c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")),
-            eating_time) %>%
-  mutate(roll_mean = zoo::rollmean(m, k = 30, fill = NA, align = "center")) %>%
-  plot_ly(x = ~eating_time, y = ~roll_mean) %>%
-    add_lines(color = ~intake_day_cat) %>%
-    layout(
-      xaxis = list(
-        type = 'time',
-        tickformat="%H:%M:%S"
-        )
-      )
-```
+### Figure 2
 
-```{r consumption by eating occasion, eval=FALSE, include=FALSE}
-ui <- shinyUI(fluidPage(
-  selectizeInput(
-    inputId = "ingredient", 
-    label = "Select one:", 
-    choices = c("Sugar", "Saturated Fatty Acid"),
-    selected = "Sugar"
-  ),
-  plotlyOutput(outputId = "p")
-))
-
-server <- function(input, output, ...) {
-  output$p <- renderPlotly({
-   x = ifelse(input$ingredient == "Sugar", 
-              "total_sugars_gm", "total_saturated_fatty_acids_gm")
-   
-   df[, eating_occasion := 
-                        fifelse(eating_occasion == "Desayano", "Desayano (breakfast)",
-                        fifelse(eating_occasion == "Almuerzo", "Almuerzo (breakfast)",
-                        fifelse(eating_occasion == "Comida", "Comida (lunch)",
-                        fifelse(eating_occasion == "Merienda", "Merienda (snack)",
-                        fifelse(eating_occasion == "Cena", "Cena (dinner)",
-                        fifelse(eating_occasion == "Entre comida", "Entre comida (snack)",
-                        fifelse(eating_occasion == "Botana", "Botana (snack)",
-                        fifelse(eating_occasion == "Bocadillo", "Bocadillo (snack)",
-                        fifelse(eating_occasion == "Tentempie", "Tentempie (snack)",
-                        fifelse(eating_occasion == "Bebida", "Bebida (drink)", eating_occasion))))))))))] %>%
-  filter(!is.na(eating_occasion) & !is.na(!! rlang::sym(x))) %>%
-  group_by(eating_occasion) %>%
-  summarise(m = mean(!! rlang::sym(x)), sd = sd(!! rlang::sym(x))) %>%
-  mutate(eating_occasion = forcats::fct_reorder(eating_occasion, m)) %>%
-  plot_ly(x = ~m, y = ~eating_occasion) %>%
-  add_markers(
-    error_x = list(array = ~sd),
-    color = I("black"),
-    hoverinfo = "x"
-    )
-  })
-}
-
-shinyApp(ui, server)
-```
-
-```{r testing boxplot}
+```{r testing boxplot, fig.height = 8, fig.width = 12, fig.align = "center"}
 ui <- shinyUI(fluidPage(
   selectizeInput(
     inputId = "ingredient", 
@@ -207,7 +151,9 @@ shinyApp(ui, server)
 
 Although eating occasions at different times of the day, such as breakfast, lunch, and dinner do not see much difference in sugar or saturated fatty acid consumption, the plots above do reveal that average sugar consumption is lowest in formal meals such as breakfast, lunch or dinner. On the other end, snacking occasions typically involve much higher average sugar consumption. The reverse trend can be seen for average saturated fa consumption, as snacks are lower on the y-axis than meals such as lunch or dinner.
 
-#### Does sugar / saturated fatty acid consumption vary by age, ethnicity, gender?
+### Figure 3
+
+Does sugar / saturated fatty acid consumption vary by age, ethnicity, gender?
 
 ```{r consumption by age and gender}
 ui <- shinyUI(fluidPage(
@@ -247,7 +193,53 @@ server <- function(input, output, ...) {
           ), 
           color = ~gender, colors = c("#33FFA2", "#FFC229")) %>%
   add_boxplot() %>%
-  layout(yaxis = list(title = "Age"))
+  layout(
+    yaxis = list(title = "Age (years)")
+    )
+  })
+}
+
+shinyApp(ui, server)
+```
+
+### Figure 4
+
+```{r source of food}
+ui <- shinyUI(fluidPage(
+  selectizeInput(
+    inputId = "ingredient", 
+    label = "Select one:", 
+    choices = c("Sugar", "Saturated Fatty Acid"),
+    selected = "Sugar"
+  ),
+  plotlyOutput(outputId = "p")
+))
+
+server <- function(input, output, ...) {
+  output$p <- renderPlotly({
+    x = ifelse(input$ingredient == "Sugar", 
+              "total_sugars_gm", "total_saturated_fatty_acids_gm")
+    
+    lvls <- df %>%
+      group_by(food_source) %>%
+      summarise(m = median(!! rlang::sym(x))) %>%
+      arrange(m) %>%
+      pull(food_source)
+    
+    df %>%
+      filter(!is.na(food_source) & !is.na(!! rlang::sym(x))) %>%
+      mutate(consumption = sqrt(!! rlang::sym(x))) %>%
+      plot_ly(x = ~consumption, y = ~factor(food_source, lvls)) %>%
+      add_boxplot() %>%
+      layout(
+        yaxis = list(
+          title = "Source of Food", 
+          tickfont = list(size = 8)
+          ),
+        xaxis = list(
+          title = paste("Square Root of", input$ingredient, "Consumption", sep = " ")
+          )
+      )
   })
 }
 
@@ -256,8 +248,11 @@ shinyApp(ui, server)
 
 
 
+Supplementary Figures {data-icon="fa-plus"}
+===================================== 
 
-#### Does the source of the food or whether the meal was eaten at home have an effect?
+### Supplementary Figure 1
+Does the source of the food or whether the meal was eaten at home have an effect?
 
 ```{r plot meal eaten at home}
 
@@ -287,56 +282,103 @@ shinyApp(ui, server)
 ```
 
 
-```{r plot source of food, warning=FALSE, fig.height = 8, fig.width = 12, fig.align = "center", eval=FALSE}
-#sugars
-p1 <- df[!is.na(food_source) & !is.na(total_sugars_gm)] %>%
-  ggplot(mapping = aes(x = forcats::fct_reorder(factor(food_source), 
-                                                total_sugars_gm, mean), y = total_sugars_gm)) +
-  stat_summary(fun.data = mean_se, geom = "errorbar") +
-  stat_summary(fun = mean, size = 0.4) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1)) +
-  labs(x = "Source of Food", y = "Total Sugar Consumption (grams)", title = "Sugar Consumption vs Source of Food")
+### Supplementary Figure 2
+
+What foods are associated with high sugar or high saturated fatty acids?
+```{r food items bar chart}
+
+ui <- shinyUI(fluidPage(
+  selectizeInput(
+    inputId = "ingredient",
+    label = "Select one:",
+    choices = c("Sugar", "Saturated Fatty Acid"),
+    selected = "Sugar"
+  ),
+  plotlyOutput(outputId = "p")
+))
 
 
-#saturated fa
-p2 <- df[!is.na(food_source) & !is.na(total_sugars_gm)] %>%
-  ggplot(mapping = aes(x = forcats::fct_reorder(factor(food_source),
-                                                           total_saturated_fatty_acids_gm, mean), y = total_saturated_fatty_acids_gm)) +
-  stat_summary(fun.data = mean_se, geom = "errorbar") +
-  stat_summary(fun = mean, size = 0.4) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1)) +
-  labs(x = "Source of Food", y = "Total Saturated FA Consumption (grams)", title = "Saturated FA Consumption vs Source of Food")
 
-ggplotly(p1)
+server <- function(input, output, ...) {
+  output$p <- renderPlotly({
+    x = ifelse(input$ingredient == "Sugar", 
+              "total_sugars_gm", "total_saturated_fatty_acids_gm")
+    
+    if (x == "total_sugars_gm") {
+      df %>%
+        filter(total_sugars_gm > 33.11) %>%
+        count(long_food_code_description) %>%
+        top_n(30) %>%
+        arrange(desc(n)) %>%
+        plot_ly(x = ~n, y = ~long_food_code_description) %>%
+        add_bars() %>%
+        layout(
+          yaxis = list(categoryorder = "total ascending",
+                            tickfont = list(size = 7),
+                            title = "Food Item"),
+          xaxis = list(title = "Number of Times Recorded in Dataset")
+          )
+    } else {
+      df %>%
+        filter(total_saturated_fatty_acids_gm > 8.511) %>%
+        count(long_food_code_description) %>%
+        top_n(30) %>%
+        arrange(desc(n)) %>%
+        plot_ly(x = ~n, y = ~long_food_code_description) %>%
+        add_bars() %>%
+        layout(
+          yaxis = list(categoryorder = "total ascending",
+                            tickfont = list(size = 7),
+                            title = "Food Item"),
+          xaxis = list(title = "Number of Times Recorded in Dataset")
+          )
+    }
+      
+    
+  })
+}
+
+shinyApp(ui, server)
+
 ```
 
 
-#### What foods are associated with high sugar or high saturated fatty acids?
+### Supplementary Figure 3
 
+```{r eval = FALSE}
+ui <- shinyUI(fluidPage(
+  selectizeInput(
+    inputId = "ingredient", 
+    label = "Select one:", 
+    choices = c("Sugar", "Saturated Fatty Acid"),
+    selected = "Sugar"
+  ),
+  plotlyOutput(outputId = "p")
+))
 
-```{r, fig.height = 8, fig.width = 12, fig.align = "center",eval=FALSE}
+server <- function(input, output, ...) {
+  output$p <- renderPlotly({
+    x = ifelse(input$ingredient == "Sugar", 
+              "total_sugars_gm", "total_saturated_fatty_acids_gm")
+    
+    df %>%
+      mutate(consumption = !! rlang::sym(x)) %>%
+      select(consumption, 
+         racehispanic_origin_w_nh_asian, 
+         gender, 
+         respondent_sequence_number, 
+         interview_day) %>%
+      group_by(respondent_sequence_number) %>%
+      summarize(consumption = mean(consumption)) %>%
+      mutate(consumption = sqrt(consumption)) %>%
+      plot_ly(x = ~consumption, y = ~racehispanic_origin_w_nh_asian) %>%
+      add_boxplot()
+  })
+}
 
-# sugar
-p1 <- df[total_sugars_gm > 33.11, .N, by = "long_food_code_description"][order(-N)] %>%
-  head(n = 30) %>%
-  ggplot(aes(x = N, y = forcats::fct_reorder(long_food_code_description, N))) +
-  geom_col() +
-  labs(x = "Number of Occurrences",
-       y = "Name of Individual Food or Drink Item",
-       title = "Top 30 Food or Drink Items Containing Over 33.11 Grams Total Sugar")
-
-
-# saturated fa
-p2 <- df[total_saturated_fatty_acids_gm > 8.511, .N, by = "long_food_code_description"][order(-N)] %>%
-  head(n = 30) %>%
-  ggplot(aes(x = N, y = forcats::fct_reorder(long_food_code_description, N))) +
-  geom_col() +
-  labs(x = "Number of Occurrences",
-       y = "Name of Individual Food or Drink Item",
-       title = "Top 30 Food or Drink Items Containing Over 8.51 Grams Total Saturated Fatty Acids")
-
-
-ggplotly(p1)
+shinyApp(ui, server)
 ```
 
 
+Tables {data-icon="fa-table"}
+===================================== 
