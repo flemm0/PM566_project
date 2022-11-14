@@ -2,7 +2,13 @@
 title: "Food Survey Investigation"
 author: "Flemming Wu"
 date: "`r Sys.Date()`"
-output: flexdashboard::flex_dashboard
+output: 
+  flexdashboard::flex_dashboard:
+    theme:
+      version: 4
+      bg: "#101010"
+      fg: "#FDF7F7" 
+      primary: "#594B5B"
 editor_options: 
   chunk_output_type: inline
 runtime: shiny
@@ -10,7 +16,7 @@ runtime: shiny
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
 knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 60), tidy = TRUE)
 ```
 
@@ -35,7 +41,7 @@ df <- data.table::fread("https://media.githubusercontent.com/media/flemm0/PM566_
 
 
 ```{r consumption by time and day of the week}
-ui <- fluidPage(
+ui <- shinyUI(fluidPage(
   selectizeInput(
     inputId = "ingredient", 
     label = "Select one:", 
@@ -43,7 +49,7 @@ ui <- fluidPage(
     selected = "Sugar"
   ),
   plotlyOutput(outputId = "p")
-)
+))
 
 server <- function(input, output, ...) {
   output$p <- renderPlotly({
@@ -54,16 +60,27 @@ server <- function(input, output, ...) {
 
   df %>%
     select(intake_day_of_the_week, intake_day_cat, time_of_eating_occasion_hhmm, eating_time, !! rlang::sym(x)) %>%
-    #mutate(eating_time = floor_date(eating_time, unit="30minutes")) %>%
+    mutate(eating_time = format(round(eating_time, units="hours"), format="%H:%M")) %>%
     group_by(intake_day_cat, eating_time) %>%
     summarize(m = mean(!! rlang::sym(x))) %>%
-    arrange(match(intake_day_cat, c("Monday", "Tuesday", "Wednesday", 
-                                    "Thursday", "Friday", "Saturday", "Sunday")), eating_time) %>%
-    plot_ly(x = ~eating_time, y = ~m) %>%
+    arrange(match(intake_day_cat, 
+                  c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")),
+            eating_time) %>%
+    plot_ly(x = ~eating_time, y = ~m, 
+            hoverinfo = "text", 
+            text = ~paste( 
+              paste(intake_day_cat, ":", sep = ""),
+              paste("Eating time:", eating_time, "(rounded to nearest hour)", sep= " "),
+              paste("Average", tolower(input$ingredient), "consumption (grams):", round(m, digits = 3), sep = " "),
+              sep = "<br>"
+    )) %>%
     add_lines(color = ~intake_day_cat) %>%
     layout(
+      title = paste0("Average ", input$ingredient, " Consumption By Time of Day"),
+      yaxis = list(title = "Average Consumption (grams)"),
       xaxis = list(
-        type = 'time',
+        title = "Eating Time",
+        type = "time",
         tickformat="%H:%M:%S"
         )
       )
@@ -74,9 +91,29 @@ server <- function(input, output, ...) {
 shinyApp(ui, server)
 ```
 
+```{r, eval=FALSE, include=FALSE}
+x = "total_sugars_gm"
+df$eating_time <- as.POSIXct(df$time_of_eating_occasion_hhmm, format = "%H:%M:%S")
+df %>%
+  select(intake_day_of_the_week, intake_day_cat, time_of_eating_occasion_hhmm, eating_time, !! rlang::sym(x)) %>%
+  group_by(intake_day_cat, eating_time) %>%
+  summarize(m = mean(!! rlang::sym(x))) %>%
+  arrange(match(intake_day_cat, 
+                  c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")),
+            eating_time) %>%
+  mutate(roll_mean = zoo::rollmean(m, k = 30, fill = NA, align = "center")) %>%
+  plot_ly(x = ~eating_time, y = ~roll_mean) %>%
+    add_lines(color = ~intake_day_cat) %>%
+    layout(
+      xaxis = list(
+        type = 'time',
+        tickformat="%H:%M:%S"
+        )
+      )
+```
 
-```{r consumption by eating occasion}
-ui <- fluidPage(
+```{r consumption by eating occasion, eval=FALSE, include=FALSE}
+ui <- shinyUI(fluidPage(
   selectizeInput(
     inputId = "ingredient", 
     label = "Select one:", 
@@ -84,7 +121,7 @@ ui <- fluidPage(
     selected = "Sugar"
   ),
   plotlyOutput(outputId = "p")
-)
+))
 
 server <- function(input, output, ...) {
   output$p <- renderPlotly({
@@ -118,12 +155,8 @@ server <- function(input, output, ...) {
 shinyApp(ui, server)
 ```
 
-
-
-
-
 ```{r testing boxplot}
-ui <- fluidPage(
+ui <- shinyUI(fluidPage(
   selectizeInput(
     inputId = "ingredient", 
     label = "Select one:", 
@@ -131,7 +164,7 @@ ui <- fluidPage(
     selected = "Sugar"
   ),
   plotlyOutput(outputId = "p")
-)
+))
 
 server <- function(input, output, ...){
   output$p <- renderPlotly({
@@ -153,25 +186,31 @@ server <- function(input, output, ...){
   arrange(m) %>%
   pull(eating_occasion)
     
-  df %>%
+  df[, eating_cat := 
+     fifelse(grepl("snack", eating_occasion, ignore.case = TRUE), "snack", 
+             fifelse(grepl("(breakfast|lunch|dinner|supper|brunch)", eating_occasion, ignore.case = TRUE), 
+                     "meal", "other"))] %>%
     mutate(consumption = sqrt(!!rlang::sym(x))) %>%
-    plot_ly(x = ~consumption, y = ~factor(eating_occasion, lvls)) %>%
-    add_boxplot()
+    select(eating_cat, eating_occasion, consumption) %>%
+    plot_ly(x = ~consumption, y = ~factor(eating_occasion, lvls), color = ~eating_cat) %>%
+    add_boxplot() %>%
+    layout(
+      title = paste("Average", input$ingredient, "Consumption By Eating Occasion", sep = " "),
+      yaxis = list(title = "Eating Occasion"),
+      xaxis = list(title = paste("Square Root", input$ingredient, "Consumption", sep = " "))
+    )
   })
 }
 
 shinyApp(ui, server)
 ```
 
-
-
-
 Although eating occasions at different times of the day, such as breakfast, lunch, and dinner do not see much difference in sugar or saturated fatty acid consumption, the plots above do reveal that average sugar consumption is lowest in formal meals such as breakfast, lunch or dinner. On the other end, snacking occasions typically involve much higher average sugar consumption. The reverse trend can be seen for average saturated fa consumption, as snacks are lower on the y-axis than meals such as lunch or dinner.
 
 #### Does sugar / saturated fatty acid consumption vary by age, ethnicity, gender?
 
 ```{r consumption by age and gender}
-ui <- fluidPage(
+ui <- shinyUI(fluidPage(
   selectizeInput(
     inputId = "ingredient", 
     label = "Select one:", 
@@ -179,7 +218,7 @@ ui <- fluidPage(
     selected = "Sugar"
   ),
   plotlyOutput(outputId = "p")
-)
+))
 
 server <- function(input, output, ...) {
   output$p <- renderPlotly({
@@ -222,7 +261,7 @@ shinyApp(ui, server)
 
 ```{r plot meal eaten at home}
 
-ui <- fluidPage(
+ui <- shinyUI(fluidPage(
   selectizeInput(
     inputId = "ingredient",
     label = "Select one:",
@@ -230,7 +269,7 @@ ui <- fluidPage(
     selected = "Sugar"
   ),
   plotlyOutput(outputId = "p")
-)
+))
 
 
 server <- function(input, output, ...) {
