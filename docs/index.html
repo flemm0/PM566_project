@@ -7,7 +7,7 @@
 <meta name="generator" content="pandoc" />
 <meta name="author" content="Flemming Wu" />
 
-<meta name="date" content="2022-11-12" />
+<meta name="date" content="2022-11-15" />
 
 
 <title>Food Survey Investigation</title>
@@ -25,24 +25,17 @@ window.FlexDashboardComponents = [];
 
 <script src="site_libs/header-attrs-2.14/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
-<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
-<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
-<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
-<style>h1 {font-size: 34px;}
-       h1.title {font-size: 38px;}
-       h2 {font-size: 30px;}
-       h3 {font-size: 24px;}
-       h4 {font-size: 18px;}
-       h5 {font-size: 16px;}
-       h6 {font-size: 12px;}
-       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
-       pre:not([class]) { background-color: white }</style>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+<link href="site_libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script>
+<script src="site_libs/bs3compat-0.4.0/transition.js"></script>
+<script src="site_libs/bs3compat-0.4.0/tabs.js"></script>
+<script src="site_libs/bs3compat-0.4.0/bs3compat.js"></script>
+<link href="site_libs/flexdashboard-css-0.6.0/flexdashboard-css.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+<script src="site_libs/sly-1.6.1/sly.min.js"></script>
 <script src="site_libs/stickytableheaders-0.1.19/jquery.stickytableheaders.min.js"></script>
-<link href="site_libs/value-box-accent-static-0.6.0/theme-cosmo-value-box.css" rel="stylesheet" />
-<link href="site_libs/flexdashboard-css-0.6.0/flexdashboard.min.css" rel="stylesheet" />
-<link href="site_libs/flexdashboard-css-0.6.0/theme-cosmo.css" rel="stylesheet" />
 <style type="text/css">
 /*
   CSS for flexdashboard.js' use of Sly(). The sizing/position of this CSS needs to be
@@ -131,15 +124,6 @@ window.FlexDashboardComponents = [];
 .sbframe:not(.active) {
   display: none;
 }
-@media only screen and (min-width: 768px) {
-html, body {
-  height: 100%;
-}
-
-#dashboard-container {
-  height: 100%;
-}
-}
 </style>
 
 
@@ -158,7 +142,7 @@ html, body {
 <span class="navbar-brand">
   Food Survey Investigation
   <span class="navbar-author">
-    Flemming Wu &mdash; 2022-11-12
+    Flemming Wu &mdash; 2022-11-15
     </span>
 </span>
 
@@ -1872,25 +1856,23 @@ window.FlexDashboardComponents.push({
 <div class="knitr-options" data-fig-width="576" data-fig-height="460">
 
 </div>
-<div id="section-figures" class="section level2">
-<h2>Figures</h2>
-<div
-id="section-what-time-andor-day-of-the-week-do-people-generally-eat-foods-high-in-sugar-or-saturated-fatty-acids-fa"
-class="section level5">
-<h5>What time and/or day of the week do people generally eat foods high
-in sugar or saturated fatty acids (fa)?</h5>
+<div id="section-figures" class="section level1" data-icon="fa-signal">
+<h1>Figures</h1>
+<div id="section-figure-1" class="section level3">
+<h3>Figure 1</h3>
+<p>What time and/or day of the week do people generally eat foods high
+in sugar or saturated fatty acids (fa)?</p>
 <div class="knitr-options" data-fig-width="576" data-fig-height="460">
 
 </div>
-<iframe data-deferred-src="app1df794babcf9e847eacf874d80b5bf6c/?w=&amp;__subapp__=1" width="100%" height="400" class="shiny-frame shiny-frame-deferred"></iframe>
-<div class="knitr-options" data-fig-width="576" data-fig-height="460">
+<iframe data-deferred-src="appbd8c48783af0dfc4a494545f3ca8dd44/?w=&amp;__subapp__=1" width="100%" height="400" class="shiny-frame shiny-frame-deferred"></iframe>
+</div>
+<div id="section-figure-2" class="section level3">
+<h3>Figure 2</h3>
+<div class="knitr-options" data-fig-width="1152" data-fig-height="768">
 
 </div>
-<iframe data-deferred-src="appfae0c01956601778f49f61d17732f46a/?w=&amp;__subapp__=1" width="100%" height="400" class="shiny-frame shiny-frame-deferred"></iframe>
-<div class="knitr-options" data-fig-width="576" data-fig-height="460">
-
-</div>
-<iframe data-deferred-src="appacaa45d5589f7cc1b48e14069c9d818f/?w=&amp;__subapp__=1" width="100%" height="400" class="shiny-frame shiny-frame-deferred"></iframe>
+<iframe data-deferred-src="app04fe9ce906c674864b0290c1d1d5c4fe/?w=&amp;__subapp__=1" width="100%" height="400" class="shiny-frame shiny-frame-deferred"></iframe>
 <p>Although eating occasions at different times of the day, such as
 breakfast, lunch, and dinner do not see much difference in sugar or
 saturated fatty acid consumption, the plots above do reveal that average
@@ -1900,35 +1882,46 @@ higher average sugar consumption. The reverse trend can be seen for
 average saturated fa consumption, as snacks are lower on the y-axis than
 meals such as lunch or dinner.</p>
 </div>
-<div
-id="section-does-sugar-saturated-fatty-acid-consumption-vary-by-age-ethnicity-gender"
-class="section level4">
-<h4>Does sugar / saturated fatty acid consumption vary by age,
-ethnicity, gender?</h4>
+<div id="section-figure-3" class="section level3">
+<h3>Figure 3</h3>
+<p>Does sugar / saturated fatty acid consumption vary by age, ethnicity,
+gender?</p>
 <div class="knitr-options" data-fig-width="576" data-fig-height="460">
 
 </div>
-<iframe data-deferred-src="app41e82637da2842d33c7ac7c7355af14f/?w=&amp;__subapp__=1" width="100%" height="400" class="shiny-frame shiny-frame-deferred"></iframe>
+<iframe data-deferred-src="app43106d0e8bced0b5cf4aafdcfb3e2782/?w=&amp;__subapp__=1" width="100%" height="400" class="shiny-frame shiny-frame-deferred"></iframe>
 </div>
-<div
-id="section-does-the-source-of-the-food-or-whether-the-meal-was-eaten-at-home-have-an-effect"
-class="section level4">
-<h4>Does the source of the food or whether the meal was eaten at home
-have an effect?</h4>
+<div id="section-figure-4" class="section level3">
+<h3>Figure 4</h3>
 <div class="knitr-options" data-fig-width="576" data-fig-height="460">
 
 </div>
-<iframe data-deferred-src="appe84daf5f24befb6c15b3b8b2c3101cb5/?w=&amp;__subapp__=1" width="100%" height="400" class="shiny-frame shiny-frame-deferred"></iframe>
-<div class="knitr-options" data-fig-width="1152" data-fig-height="768">
+<iframe data-deferred-src="appe909aa95b74a5b82f14770ea78b8cb47/?w=&amp;__subapp__=1" width="100%" height="400" class="shiny-frame shiny-frame-deferred"></iframe>
+</div>
+</div>
+<div id="section-supplementary-figures" class="section level1"
+data-icon="fa-plus">
+<h1>Supplementary Figures</h1>
+<div id="section-supplementary-figure-1" class="section level3">
+<h3>Supplementary Figure 1</h3>
+<p>Does the source of the food or whether the meal was eaten at home
+have an effect?</p>
+<div class="knitr-options" data-fig-width="576" data-fig-height="460">
 
 </div>
+<iframe data-deferred-src="app124c20e69eae49e05ded01d32fe12406/?w=&amp;__subapp__=1" width="100%" height="400" class="shiny-frame shiny-frame-deferred"></iframe>
 </div>
-<div
-id="section-what-foods-are-associated-with-high-sugar-or-high-saturated-fatty-acids"
-class="section level4">
-<h4>What foods are associated with high sugar or high saturated fatty
-acids?</h4>
-<div class="knitr-options" data-fig-width="1152" data-fig-height="768">
+<div id="section-supplementary-figure-2" class="section level3">
+<h3>Supplementary Figure 2</h3>
+What foods are associated with high sugar or high saturated fatty acids?
+<div class="knitr-options" data-fig-width="576" data-fig-height="460">
+
+</div>
+<iframe data-deferred-src="app5c1a8433f54b95d72e818488706322b4/?w=&amp;__subapp__=1" width="100%" height="400" class="shiny-frame shiny-frame-deferred"></iframe>
+</div>
+<div id="section-supplementary-figure-3" class="section level3">
+<h3>Supplementary Figure 3</h3>
+<div class="knitr-options" data-fig-width="576" data-fig-height="460">
 
 </div>
 </div>
@@ -1953,9 +1946,9 @@ $(document).ready(function() {
 <script type="text/javascript">
 $(document).ready(function () {
   FlexDashboard.init({
-    fillPage: true,
+    fillPage: false,
     orientation: "columns",
-    storyboard: false,
+    storyboard: true,
     defaultFigWidth: 576,
     defaultFigHeight: 460,
     defaultFigWidthMobile: 360,
