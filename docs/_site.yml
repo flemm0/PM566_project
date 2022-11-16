@@ -7,4 +7,3 @@ navbar:
       href: index.html
     - text: "Tables"
       href: tables.html
-exclude: ["*.md"]
