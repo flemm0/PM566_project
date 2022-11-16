@@ -22,16 +22,15 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE)
 knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 60), tidy = TRUE)
 ```
 
-```{r load libraries, warning=FALSE, message=FALSE, results = 'hide', eval=TRUE}
-load.lib<-c("haven", "sjlabelled", "data.table", "tidyverse", "xml2", "rvest", "shiny", "plotly", "zoo", "chron") #list of packages needed
-install.lib <- load.lib[!load.lib %in% installed.packages()] #select those not installed for installation
-
-for (lib in install.lib) { #install packages needed for installation including dependencies
-  install.packages(lib, dependencies = TRUE)
-}
-
-sapply(load.lib, require, character = TRUE) #load libraries
+```{r}
+library(data.table)
+library(tidyverse)
+library(rvest)
+library(shiny)
+library(plotly)
+library(chron)
 ```
+
 
 ```{r, message=FALSE}
 df <- data.table::fread("https://media.githubusercontent.com/media/flemm0/PM566_project/main/data/processed_data.csv")

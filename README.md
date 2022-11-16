@@ -86,5 +86,5 @@ common keys.
 
 # Links:
 
-* link to full pdf report
-* link to website
+* [Link to full pdf report]
+* [Link to website](https://beta.rstudioconnect.com/content/742b327c-4a0b-4738-97fa-af359d8a60a4/)
