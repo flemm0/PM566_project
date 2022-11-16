@@ -45,8 +45,6 @@ Figures {data-icon="fa-signal"}
 What time and/or day of the week do people generally eat foods high in sugar or saturated fatty acids (fa)?
 
 ```{r consumption by time and day of the week}
-
-
 ui <- shinyUI(fluidPage(
   selectizeInput(
     inputId = "ingredient", 
@@ -93,7 +91,6 @@ server <- function(input, output, ...) {
   })
 }
 
-#zoo::rollmean
 shinyApp(ui, server)
 ```
 
@@ -141,7 +138,7 @@ server <- function(input, output, ...){
     layout(
       title = paste("Average", input$ingredient, "Consumption By Eating Occasion", sep = " "),
       yaxis = list(title = "Eating Occasion"),
-      xaxis = list(title = paste("Square Root", input$ingredient, "Consumption", sep = " "))
+      xaxis = list(title = paste("Square Root", input$ingredient, "Consumption", sep = " "), hoverformat = ".2f")
     )
   })
 }
@@ -155,7 +152,7 @@ Although eating occasions at different times of the day, such as breakfast, lunc
 
 Does sugar / saturated fatty acid consumption vary by age, ethnicity, gender?
 
-```{r consumption by age and gender}
+```{r consumption by age and gender (change to barplot with means and also grouped by ethnicity)}
 ui <- shinyUI(fluidPage(
   selectizeInput(
     inputId = "ingredient", 
@@ -172,35 +169,78 @@ server <- function(input, output, ...) {
               "total_sugars_gm", "total_saturated_fatty_acids_gm")
     
     df %>%
-      mutate(consumption = sqrt(!! rlang::sym(x))) %>%
-      select(consumption, 
-         age_category, 
-         gender, 
-         respondent_sequence_number, 
-         interview_day) %>%
-  plot_ly(x = ~consumption, 
-    y = ~factor(interaction(df$age_category, df$gender), 
-          levels = c(
-                     "<1.male", "<1.female",
-                     "1-3.male", "1-3.female",
-                     "4-8.male", "4-8.female",
-                     "9-13.male", "9-13.female", 
-                     "14-18.male", "14-18.female",
-                     "19-30.male", "19-30.female",
-                     "31-50.male", "31-50.female",
-                     "51-70.male", "51-70.female",
-                     "70+.male", "70+.female")
-          ), 
-          color = ~gender, colors = c("#33FFA2", "#FFC229")) %>%
-  add_boxplot() %>%
-  layout(
-    yaxis = list(title = "Age (years)")
-    )
+      select(racehispanic_origin_w_nh_asian,
+             age_category, 
+             gender, 
+             respondent_sequence_number, 
+             interview_day,
+             !!rlang::sym(x)) %>%
+      group_by(racehispanic_origin_w_nh_asian, age_category, gender) %>%
+      summarize(m = mean(!!rlang::sym(x)), sd = sd(!!rlang::sym(x))) %>%
+      unite(age_gender, c(age_category, gender), sep = " ") %>%
+      plot_ly(
+        y = ~m, 
+        x = ~factor(age_gender, levels = c(
+                         "<1 male", "<1 female",
+                         "1-3 male", "1-3 female",
+                         "4-8 male", "4-8 female",
+                         "9-13 male", "9-13 female", 
+                         "14-18 male", "14-18 female",
+                         "19-30 male", "19-30 female",
+                         "31-50 male", "31-50 female",
+                         "51-70 male", "51-70 female",
+                         "70+ male", "70+ female")), 
+        color = ~racehispanic_origin_w_nh_asian, 
+        type = "bar") %>% 
+      layout(barmode = "stack", xaxis = list(title = "Age Category (in years) and Gender"), 
+             yaxis = list(title = paste("Average", input$ingredient, "Consumption (grams)", sep = " ")))
   })
 }
 
 shinyApp(ui, server)
 ```
+
+
+```{r Figure 3 testing}
+df %>%
+  select(racehispanic_origin_w_nh_asian,
+         age_category, 
+         gender, 
+         respondent_sequence_number, 
+         interview_day,
+         total_sugars_gm) %>%
+  group_by(racehispanic_origin_w_nh_asian, age_category, gender) %>%
+  summarize(m = mean(total_sugars_gm), sd = sd(total_sugars_gm)) %>%
+  unite(age_gender, c(age_category, gender), sep = " ") %>%
+  plot_ly(
+    y = ~m, 
+    x = ~factor(age_gender, levels = c(
+                     "<1 male", "<1 female",
+                     "1-3 male", "1-3 female",
+                     "4-8 male", "4-8 female",
+                     "9-13 male", "9-13 female", 
+                     "14-18 male", "14-18 female",
+                     "19-30 male", "19-30 female",
+                     "31-50 male", "31-50 female",
+                     "51-70 male", "51-70 female",
+                     "70+ male", "70+ female")), 
+    color = ~racehispanic_origin_w_nh_asian, 
+    type = "bar") %>% 
+  layout(barmode = "stack", xaxis = list(title = "Age Category (in years) and Gender"), 
+         yaxis = list(title = paste("Average", "Sugar", "Consumption", sep = " ")))
+
+
+
+```
+
+```{r}
+to_plot %>%
+  unite(age_gender, c(age_category, gender), sep = " ") %>%
+  plot_ly(x = ~age_gender, y = ~m, color = ~racehispanic_origin_w_nh_asian, type = "bar") %>% layout(barmode = "stack")
+
+```
+
+
 
 ### Figure 4
 
@@ -221,8 +261,9 @@ server <- function(input, output, ...) {
               "total_sugars_gm", "total_saturated_fatty_acids_gm")
     
     lvls <- df %>%
+      filter(!is.na(food_source) & !is.na(!! rlang::sym(x))) %>%
       group_by(food_source) %>%
-      summarise(m = median(!! rlang::sym(x))) %>%
+      summarise(m = median(sqrt(!! rlang::sym(x)))) %>%
       arrange(m) %>%
       pull(food_source)
     
