@@ -136,7 +136,7 @@ server <- function(input, output, ...){
     plot_ly(x = ~consumption, y = ~factor(eating_occasion, lvls), color = ~eating_cat) %>%
     add_boxplot() %>%
     layout(
-      title = paste("Average", input$ingredient, "Consumption By Eating Occasion", sep = " "),
+      title = paste("Distribution of", input$ingredient, "Consumption By Eating Occasion", sep = " "),
       yaxis = list(title = "Eating Occasion"),
       xaxis = list(title = paste("Square Root", input$ingredient, "Consumption", sep = " "), hoverformat = ".2f")
     )
@@ -176,10 +176,13 @@ server <- function(input, output, ...) {
              interview_day,
              !!rlang::sym(x)) %>%
       group_by(racehispanic_origin_w_nh_asian, age_category, gender) %>%
-      summarize(m = mean(!!rlang::sym(x)), sd = sd(!!rlang::sym(x))) %>%
+      summarize(total_consumption = sum(!!rlang::sym(x))) %>%
+      group_by(age_category, gender) %>%
+      mutate(prop = total_consumption / sum(total_consumption)) %>%
+      ungroup() %>%
       unite(age_gender, c(age_category, gender), sep = " ") %>%
       plot_ly(
-        y = ~m, 
+        y = ~prop, 
         x = ~factor(age_gender, levels = c(
                          "<1 male", "<1 female",
                          "1-3 male", "1-3 female",
@@ -192,55 +195,15 @@ server <- function(input, output, ...) {
                          "70+ male", "70+ female")), 
         color = ~racehispanic_origin_w_nh_asian, 
         type = "bar") %>% 
-      layout(barmode = "stack", xaxis = list(title = "Age Category (in years) and Gender"), 
-             yaxis = list(title = paste("Average", input$ingredient, "Consumption (grams)", sep = " ")))
+      layout(barmode = "stack", 
+             xaxis = list(title = "Age Category (in years) and Gender"), 
+             yaxis = list(title = paste("Proportion of", input$ingredient, "Consumption", sep = " ")),
+             title = paste("Proportion of", input$ingredient, "Consumption by Age, Gender, and Ethnicity", sep = " "))
   })
 }
 
 shinyApp(ui, server)
 ```
-
-
-```{r Figure 3 testing}
-df %>%
-  select(racehispanic_origin_w_nh_asian,
-         age_category, 
-         gender, 
-         respondent_sequence_number, 
-         interview_day,
-         total_sugars_gm) %>%
-  group_by(racehispanic_origin_w_nh_asian, age_category, gender) %>%
-  summarize(m = mean(total_sugars_gm), sd = sd(total_sugars_gm)) %>%
-  unite(age_gender, c(age_category, gender), sep = " ") %>%
-  plot_ly(
-    y = ~m, 
-    x = ~factor(age_gender, levels = c(
-                     "<1 male", "<1 female",
-                     "1-3 male", "1-3 female",
-                     "4-8 male", "4-8 female",
-                     "9-13 male", "9-13 female", 
-                     "14-18 male", "14-18 female",
-                     "19-30 male", "19-30 female",
-                     "31-50 male", "31-50 female",
-                     "51-70 male", "51-70 female",
-                     "70+ male", "70+ female")), 
-    color = ~racehispanic_origin_w_nh_asian, 
-    type = "bar") %>% 
-  layout(barmode = "stack", xaxis = list(title = "Age Category (in years) and Gender"), 
-         yaxis = list(title = paste("Average", "Sugar", "Consumption", sep = " ")))
-
-
-
-```
-
-```{r}
-to_plot %>%
-  unite(age_gender, c(age_category, gender), sep = " ") %>%
-  plot_ly(x = ~age_gender, y = ~m, color = ~racehispanic_origin_w_nh_asian, type = "bar") %>% layout(barmode = "stack")
-
-```
-
-
 
 ### Figure 4
 
@@ -273,13 +236,9 @@ server <- function(input, output, ...) {
       plot_ly(x = ~consumption, y = ~factor(food_source, lvls)) %>%
       add_boxplot() %>%
       layout(
-        yaxis = list(
-          title = "Source of Food", 
-          tickfont = list(size = 8)
-          ),
-        xaxis = list(
-          title = paste("Square Root of", input$ingredient, "Consumption", sep = " ")
-          )
+        yaxis = list(title = "Source of Food", tickfont = list(size = 8)),
+        xaxis = list(title = paste("Square Root of", input$ingredient, "Consumption", sep = " ")),
+        title = paste("Distribution of", input$ingredient, "Consumption By Food Source", sep = " ")
       )
   })
 }
@@ -313,9 +272,13 @@ server <- function(input, output, ...) {
     x = ifelse(input$ingredient == "Sugar", 
                "total_sugars_gm", "total_saturated_fatty_acids_gm")
     df %>%
-    filter(!! rlang::sym(x) != 0) %>%
-    mutate(consumption = log(!! rlang::sym(x))) %>%
-    plot_ly(x = ~consumption, type = "histogram", color = ~did_you_eat_this_meal_at_home)
+      filter(!! rlang::sym(x) != 0) %>%
+      mutate(consumption = log(!! rlang::sym(x))) %>%
+      plot_ly(x = ~consumption, type = "histogram", color = ~did_you_eat_this_meal_at_home, alpha = 0.6, nbinsx = 200) %>%
+      layout(xaxis = list(title = paste("Log", input$ingredient, "Consumption", sep = " ")),
+             yaxis = list(title = "Count"),
+             barmode = "overlay",
+             title = paste(input$ingredient, "Consumption vs Whether Meal Eaten at Home"))
   })
 }
 
@@ -357,7 +320,8 @@ server <- function(input, output, ...) {
           yaxis = list(categoryorder = "total ascending",
                             tickfont = list(size = 7),
                             title = "Food Item"),
-          xaxis = list(title = "Number of Times Recorded in Dataset")
+          xaxis = list(title = "Number of Times Recorded in Dataset"),
+          title = "Top 30 Food Items Containing Over 33.11 Grams Total Sugar"
           )
     } else {
       df %>%
@@ -371,7 +335,8 @@ server <- function(input, output, ...) {
           yaxis = list(categoryorder = "total ascending",
                             tickfont = list(size = 7),
                             title = "Food Item"),
-          xaxis = list(title = "Number of Times Recorded in Dataset")
+          xaxis = list(title = "Number of Times Recorded in Dataset"),
+          title = "Top 30 Food Items Containing Over 8.51 Grams Total Saturated Fatty Acid"
           )
     }
       
@@ -383,41 +348,5 @@ shinyApp(ui, server)
 
 ```
 
-
-### Supplementary Figure 3
-
-```{r eval = FALSE}
-ui <- shinyUI(fluidPage(
-  selectizeInput(
-    inputId = "ingredient", 
-    label = "Select one:", 
-    choices = c("Sugar", "Saturated Fatty Acid"),
-    selected = "Sugar"
-  ),
-  plotlyOutput(outputId = "p")
-))
-
-server <- function(input, output, ...) {
-  output$p <- renderPlotly({
-    x = ifelse(input$ingredient == "Sugar", 
-              "total_sugars_gm", "total_saturated_fatty_acids_gm")
-    
-    df %>%
-      mutate(consumption = !! rlang::sym(x)) %>%
-      select(consumption, 
-         racehispanic_origin_w_nh_asian, 
-         gender, 
-         respondent_sequence_number, 
-         interview_day) %>%
-      group_by(respondent_sequence_number) %>%
-      summarize(consumption = mean(consumption)) %>%
-      mutate(consumption = sqrt(consumption)) %>%
-      plot_ly(x = ~consumption, y = ~racehispanic_origin_w_nh_asian) %>%
-      add_boxplot()
-  })
-}
-
-shinyApp(ui, server)
-```
 
 
