@@ -36,8 +36,44 @@ library(chron)
 df <- data.table::fread("https://media.githubusercontent.com/media/flemm0/PM566_project/main/data/processed_data.csv")
 ```
 
-Figures {data-icon="fa-signal"}
+Home
 ===================================== 
+
+### Introduction
+
+Insulin resistance and diabetes is a growing health issue for Americans.
+When foods with a high glycemic index (causing a rapid rise in blood
+sugar) are consumed, the pancreas must pump insulin to move sugar from
+the blood back into the cells. Over time, if these foods are consumed on
+a consistent basis, cells stop responding to insulin and the normal
+blood sugar level rises. This leads to weight gain, as excess blood
+sugar is sent to be stored as body fat, and sets the stage for
+prediabetes and type 2 diabetes.  
+
+While there are many other factors outside of diet that influence the
+development of insulin resistance and diabetes such as lifestyle,
+environmental factors, and family history, in this project, I will be
+investigating factors affecting our food choices using the NHANES
+(National Health and Nutrition Examination Survey) data. More
+specifically, I examined the data that was collected in [What We Eat in
+America
+(WWEIA)](https://www.ars.usda.gov/northeast-area/beltsville-md-bhnrc/beltsville-human-nutrition-research-center/food-surveys-research-group/docs/wweia-documentation-and-data-sets/),
+the dietary interview component of the NHANES.  
+
+I also acknowledge that people’s dietary requirements vary due to a
+variety of factors, but according to the CDC and other sources, people
+should generally be wary of continued consumption of foods high in added
+sugar and saturated fats. Therefore, in this project, I will use the
+data to investigate the following questions that I have asked:  
+
+1.  **What time and/or day of the week do people generally eat foods
+    high in sugar or saturated fatty acids (fa)?**
+2.  **Does sugar or saturated fa consumption vary by age, ethnicity, or
+    gender?**
+3.  **Does the source of food or whether the meal was eaten at home have
+    an effect on sugar or saturated fa consumption?**
+4.  **Finally, what specific food items are associated with high amounts
+    of sugar or saturated fa?**
 
 ### Figure 1
 
@@ -259,7 +295,7 @@ shinyApp(ui, server)
 It is interesting to note that the median for both sugar and saturated fatty acid distributions is highest from food obtained from fundraiser sales. School cafeterias also are prominent sources of high sugar and saturated fatty acid consumption. Additionally, the highest consumption of sugar and saturated fatty acid consumption comes from the "Store - grocery/supermarket" category.
 
 
-Supplementary Figures {data-icon="fa-plus"}
+Supplementary Figures
 ===================================== 
 
 ### Supplementary Figure 1
