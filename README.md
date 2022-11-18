@@ -87,4 +87,4 @@ common keys.
 # Links:
 
 * [Link to full pdf report]
-* [Link to website](https://beta.rstudioconnect.com/content/5eb7fe2f-634b-4c87-bcd2-44a23b041478/)
+* [Link to website](https://qy27ax-flemming.shinyapps.io/PM566_project/)
